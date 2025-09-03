@@ -35,4 +35,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Word-Test-Report
-          path: pD:\AutomationTests\SmartAccounting\Reports\WordReport.docx
+          path: SmartAccounting/Reports/WordReport.docx
