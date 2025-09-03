@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="12f850c0-1888-4a0e-a9d4-3069333fbd41" name="Ganbat@SL-GANBAT 2025-09-03 14:45:49" runUser="SMARTLOGIC\Ganbat" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2025-09-03T14:45:49.9607509+08:00" queuing="2025-09-03T14:45:49.9607511+08:00" start="2025-09-03T14:45:27.9002660+08:00" finish="2025-09-03T14:45:49.9703981+08:00" />
+  <TestSettings name="default" id="605962cc-f222-44e0-8fe3-acde59600d62">
+    <Deployment runDeploymentRoot="Ganbat_SL-GANBAT_2025-09-03_14_45_49" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="83113c21-7bc9-4b5f-a280-3b8a4b66457a" testId="ad941875-4afe-6a67-675b-35027cffca7b" testName="LoginAndLogoutTest" computerName="SL-GANBAT" duration="00:00:21.7283149" startTime="2025-09-03T14:45:28.1634268+08:00" endTime="2025-09-03T14:45:49.8916941+08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="83113c21-7bc9-4b5f-a280-3b8a4b66457a">
+      <Output>
+        <ErrorInfo>
+          <Message>Microsoft.Playwright.TargetClosedException : Target page, context or browser has been closed&#xD;
+Call log:&#xD;
+  - waiting for Locator("#slbasecomponent").GetByRole(AriaRole.Button, new() { Name = "Open or close the drop-down" })&#xD;
+TearDown : Microsoft.Playwright.TargetClosedException : Target page, context or browser has been closed</Message>
+          <StackTrace>   at Microsoft.Playwright.Transport.Connection.InnerSendMessageToServerAsync[T](ChannelOwner object, String method, Dictionary`2 dictionary, Boolean keepNulls) in /_/src/Playwright/Transport/Connection.cs:line 201&#xD;
+   at Microsoft.Playwright.Transport.Connection.WrapApiCallAsync[T](Func`1 action, Boolean isInternal, String title) in /_/src/Playwright/Transport/Connection.cs:line 499&#xD;
+   at SmartAccountingTests.Pages.DashboardPage.SelectCloud(String cloudName) in D:\AutomationTests\SmartAccounting\SmartAccountingTests\DashboardPage.cs:line 12&#xD;
+   at SmartAccountingTests.LoginLogoutTests.LoginAndLogoutTest() in D:\AutomationTests\SmartAccounting\SmartAccountingTests\LoginLogoutTests.cs:line 15&#xD;
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.BlockUntilCompleted()&#xD;
+   at NUnit.Framework.Internal.MessagePumpStrategy.NoMessagePumpStrategy.WaitForCompletion(AwaitAdapter awaiter)&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)&#xD;
+   at NUnit.Framework.Internal.Commands.BeforeAndAfterTestCommand.&lt;&gt;c__DisplayClass1_0.&lt;Execute&gt;b__0()&#xD;
+   at NUnit.Framework.Internal.Commands.DelegatingTestCommand.RunTestMethodInThreadAbortSafeZone(TestExecutionContext context, Action action)&#xD;
+--TearDown&#xD;
+   at Microsoft.Playwright.Transport.Connection.InnerSendMessageToServerAsync[T](ChannelOwner object, String method, Dictionary`2 dictionary, Boolean keepNulls) in /_/src/Playwright/Transport/Connection.cs:line 201&#xD;
+   at Microsoft.Playwright.Transport.Connection.WrapApiCallAsync[T](Func`1 action, Boolean isInternal, String title) in /_/src/Playwright/Transport/Connection.cs:line 499&#xD;
+   at Microsoft.Playwright.Core.Page.ScreenshotAsync(PageScreenshotOptions options) in /_/src/Playwright/Core/Page.cs:line 694&#xD;
+   at SmartAccountingTests.TestBase.TearDown() in D:\AutomationTests\SmartAccounting\SmartAccountingTests\TestBase.cs:line 38&#xD;
+   at NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.BlockUntilCompleted()&#xD;
+   at NUnit.Framework.Internal.MessagePumpStrategy.NoMessagePumpStrategy.WaitForCompletion(AwaitAdapter awaiter)&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await[TResult](Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.AsyncToSyncAdapter.Await(Func`1 invoke)&#xD;
+   at NUnit.Framework.Internal.Commands.SetUpTearDownItem.RunSetUpOrTearDownMethod(TestExecutionContext context, IMethodInfo method)&#xD;
+   at NUnit.Framework.Internal.Commands.SetUpTearDownItem.RunTearDown(TestExecutionContext context)
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="LoginAndLogoutTest" storage="d:\automationtests\smartaccounting\smartaccountingtests\bin\debug\net9.0\smartaccountingtests.dll" id="ad941875-4afe-6a67-675b-35027cffca7b">
+      <Execution id="83113c21-7bc9-4b5f-a280-3b8a4b66457a" />
+      <TestMethod codeBase="D:\AutomationTests\SmartAccounting\SmartAccountingTests\bin\Debug\net9.0\SmartAccountingTests.dll" adapterTypeName="executor://nunit3testexecutor/" className="SmartAccountingTests.LoginLogoutTests" name="LoginAndLogoutTest" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="ad941875-4afe-6a67-675b-35027cffca7b" executionId="83113c21-7bc9-4b5f-a280-3b8a4b66457a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="1" executed="1" passed="0" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.6.0.0: Test execution started&#xD;
+Running all tests in D:\AutomationTests\SmartAccounting\SmartAccountingTests\bin\Debug\net9.0\SmartAccountingTests.dll&#xD;
+   NUnit3TestExecutor discovered 1 of 1 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.6.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

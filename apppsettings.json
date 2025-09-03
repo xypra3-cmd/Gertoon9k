@@ -1,0 +1,6 @@
+{
+  "BaseUrl": "https://accounting.smartlogic.mn",
+  "Username": "admin",
+  "Password": "123",
+  "Timeout": 30000
+}
