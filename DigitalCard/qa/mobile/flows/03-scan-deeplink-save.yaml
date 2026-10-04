@@ -1,0 +1,16 @@
+# The camera cannot be driven by Maestro; the scan result is simulated with the same deep link
+# the scanner routes to (https://<domain>/c/<slug> → app). Covers App Links / Universal Links too.
+appId: mn.digitalcard.app
+---
+- launchApp
+- openLink: "https://digitalcard.mn/c/saraa-g?src=qr"
+- assertVisible: "Ганбаатар Сараа"
+- tapOn: "Миний contact-д нэмэх"
+- assertVisible: "Таны харилцагчдад нэмэгдлээ"
+- tapOn: "Утсанд хадгалах"
+# Android/iOS permission dialog
+- tapOn:
+    text: "(Allow|ALLOW|OK|Зөвшөөрөх)"
+    optional: true
+# OS "new contact" form is shown with the Cyrillic name pre-filled
+- assertVisible: "Сараа"

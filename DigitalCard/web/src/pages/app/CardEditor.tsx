@@ -157,17 +157,15 @@ export default function CardEditor() {
         const del = await supabase.from('card_links').delete().eq('card_id', c.id);
         if (del.error) throw del.error;
         if (links.length) {
-          const ins = await supabase
-            .from('card_links')
-            .insert(
-              links.map((l, i) => ({
-                card_id: c.id,
-                kind: l.kind,
-                label: l.label || null,
-                url: l.url.trim(),
-                sort: i,
-              })),
-            );
+          const ins = await supabase.from('card_links').insert(
+            links.map((l, i) => ({
+              card_id: c.id,
+              kind: l.kind,
+              label: l.label || null,
+              url: l.url.trim(),
+              sort: i,
+            })),
+          );
           if (ins.error) throw ins.error;
         }
       }

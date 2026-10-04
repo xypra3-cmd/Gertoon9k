@@ -1,0 +1,42 @@
+[
+ [
+  "PASS",
+  "1a register (Free) with terms checkbox"
+ ],
+ [
+  "PASS",
+  "1b pay Pro via QPay (sandbox mock) → confirmed"
+ ],
+ [
+  "PASS",
+  "1c create card → edit → publish → save"
+ ],
+ [
+  "PASS",
+  "1d open /c/:slug from another browser (no login) + view tracked"
+ ],
+ [
+  "PASS",
+  "10 follow-up today shows on dashboard; [Холбогдсон] removes it"
+ ],
+ [
+  "PASS",
+  "5 stats: All time ≥ 30d ≥ 7d ≥ Today, total = view + qr_open"
+ ],
+ [
+  "PASS",
+  "4 print PDF is 96×61 mm"
+ ],
+ [
+  "PASS",
+  "11 Free user cannot edit CRM fields in UI"
+ ],
+ [
+  "PASS",
+  "6 expired user: 2nd card locked in editor, still public"
+ ],
+ [
+  "PASS",
+  "3 10 templates × 2 colors render, long name does not overflow"
+ ]
+]

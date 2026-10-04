@@ -1,0 +1,18 @@
+# Store requirement: in-app account deletion. Uses a throwaway account created by the test setup:
+#   QA_DELETE_EMAIL / QA_DELETE_PASSWORD (env)
+appId: mn.digitalcard.app
+---
+- launchApp:
+    clearState: true
+- tapOn: "Имэйл"
+- inputText: ${QA_DELETE_EMAIL}
+- tapOn: "Нууц үг"
+- inputText: ${QA_DELETE_PASSWORD}
+- tapOn: "Нэвтрэх"
+- tapOn: "Тохиргоо"
+- scrollUntilVisible:
+    element: "Бүртгэл устгах"
+- tapOn: "Бүртгэл устгах"
+- assertVisible: ".*бүрмөсөн устна.*"
+- tapOn: "Устгах"
+- assertVisible: "Бүртгэл устгагдлаа"

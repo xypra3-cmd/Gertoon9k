@@ -1,0 +1,16 @@
+# Maestro: login, session survives app restart (SecureStore). Run: maestro test qa/mobile/flows
+appId: mn.digitalcard.app
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Digital Card"
+- tapOn: "Имэйл"
+- inputText: "pro@demo.mn"
+- tapOn: "Нууц үг"
+- inputText: "Demo1234!"
+- tapOn: "Нэвтрэх"
+- assertVisible: "Миний карт"
+- stopApp
+- launchApp            # no clearState → session must be restored
+- assertVisible: "Миний карт"
+- assertNotVisible: "Нэвтрэх"

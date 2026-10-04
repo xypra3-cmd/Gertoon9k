@@ -1,0 +1,19 @@
+appId: mn.digitalcard.app
+---
+- launchApp
+- tapOn: "Харилцагчид"
+- tapOn: "+ Шинэ харилцагч"
+- tapOn: "Нэр *"
+- inputText: "Maestro Тест"
+- tapOn: "Утас"
+- inputText: "+97699000000"
+- tapOn: "Хадгалах"
+- assertVisible: "Maestro Тест"
+- tapOn: "Maestro Тест"
+- tapOn: "Байгууллага"
+- inputText: "QA ХХК"
+- tapOn: "Хадгалах"
+- assertVisible: "Хадгалагдлаа"
+- tapOn: "Устгах"
+- tapOn: "Устгах"
+- assertNotVisible: "Maestro Тест"

@@ -87,3 +87,43 @@ SSR-гүй SPA тул Netlify Edge Function (`card-og.ts`) `/c/*` хариуд `
 
 ### D-26 Туршилтын орчны хязгаар
 Энэ sandbox-оос Cloudflare (Turnstile) руу хандах боломжгүй тул E2E-д Turnstile script-ийг stub-аар сольсон (dummy token серверт mock-оор шалгагдана). Жинхэнэ Turnstile, жинхэнэ утсаар QR/.vcf шалгалтыг QA (Prompt 04)-д хийнэ.
+
+## Prompt 04 — QA
+
+### D-27 Тестийн давхаргууд
+pgTAP (DB-ийн дүрэм), node:test (Edge Function + mock), Vitest API (бодит JWT-ээр REST-ийг шууд дуудаж UI-г тойрно), Playwright E2E. Critical ID бүр дор хаяж нэг API тест + DB тесттэй. API/E2E тест бүр өөрийн хэрэглэгчийг admin API-аар үүсгэдэг тул seed-ээс үл хамаарна (FUN-03, ui-roles нь seed-ийн demo бүртгэл ашиглана).
+
+### D-28 Turnstile ба QPay тест
+CI/sandbox-оос Cloudflare, QPay руу хандахгүй: QPay v2 + Turnstile siteverify mock (`backend/supabase/tests/mocks`), browser талд Turnstile script stub. Жинхэнэ sandbox-ыг гарын шалгалт M-07, M-08-аар.
+
+### D-29 Visual regression
+FUN-02 нь 20 screenshot baseline (`qa/e2e/fun-02-templates.spec.ts-snapshots/*-linux.png`). Font rendering ОС-оос хамаардаг тул baseline-ийг Linux (CI-тай ижил) дээр үүсгэсэн. Загвар зориуд өөрчлөхдөө `npx playwright test --update-snapshots`.
+
+### D-30 Org owner select policy
+QA-ийн API тест олсон: байгууллага үүсгэсэн хэрэглэгч `insert … select`-ээр шинэ байгууллагаа буцааж харж чадахгүй байв (owner гишүүнчлэл AFTER trigger-ээр нэмэгддэг). `0008`: эзэмшигч өөрийн байгууллагыг үргэлж харна.
+
+## Prompt 02/03 — Mobile
+
+### D-31 Expo SDK 57, CNG
+`mobile/android`, `mobile/ios`-ийг git-д оруулахгүй (Continuous Native Generation): бүх native тохиргоо `app.config.ts` + config plugin-д. `npm run prebuild:*` эсвэл EAS build үүсгэнэ. Prebuild-ийг local-д шалгасан (Android manifest, iOS Info.plist/PrivacyInfo/entitlements).
+
+### D-32 Session хадгалалт
+Supabase session (~3 KB) нь SecureStore-ийн ~2 KB хязгаараас том тул `lib/secureStorage.ts` 1800 тэмдэгтийн хэсгүүдэд хувааж Keychain/Keystore-д хадгална (AsyncStorage-д токен хадгалахгүй).
+
+### D-33 Картын preview = WebView
+Загваруудыг native-д дахин бичихгүй: `WebView {web}/c/{slug}?embed=1`. `embed=1` үед вэб нь action товч, header-гүй, статистик бичихгүй.
+
+### D-34 Утсанд хадгалах
+`expo-contacts`-ийн `Contact.presentCreateForm` (iOS, Android хоёуланд системийн «Шинэ contact» маягт, хэрэглэгч өөрөө баталгаажуулна). Зөвшөөрөл зөвхөн энэ товч дарахад асуугдана.
+
+### D-35 Mobile-д үнэ/төлбөрийн текст хориотой
+Shared i18n-аас `plans.*`, `qpay_unavailable`-ийг web руу зөөсөн. STORE-01 нь export-ийн source map-аас bundle-д орсон first-party модулиудыг тодорхойлж шалгана (Hermes bytecode / escape хийгдсэн гуравдагч сангийн хүснэгтээс хуурамч илрэл гаргахгүй), `plans.ts` bundle-д ороогүйг баталгаажуулна.
+
+### D-36 Шаардлагагүй эрх
+`expo-brightness` нь WRITE_SETTINGS нэмдэг ч апп зөвхөн өөрийн цонхны гэрлийг өөрчилдөг → blockedPermissions. `expo-image-picker`-ийн `cameraPermission:false` нь CAMERA-г хасдаг (QR эвдэрнэ) тул тайлбартай string өгсөн — prebuild-ээр илэрсэн.
+
+### D-37 Sign in with Apple
+MVP-д зөвхөн имэйл/нууц үг → App Store 4.8 шаардахгүй. Google/Facebook нэмбэл Sign in with Apple заавал.
+
+### D-38 Апп дотор Free/Pro ялгаа
+Апп нь багцын нэр, үнэ, upsell харуулахгүй. Эрхгүй үед зөвхөн «Таны бүртгэл одоогоор засварлах эрхгүй байна». CRM талбарууд эрхгүй үед зүгээр харагдахгүй.

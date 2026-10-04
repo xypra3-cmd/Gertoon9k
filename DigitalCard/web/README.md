@@ -19,7 +19,7 @@ npm run dev                     # http://localhost:5173
 | `npm run typecheck` / `npm run lint` | TypeScript strict, ESLint |
 | `npm test` | Vitest (огноо, CSV, статистик, i18n) |
 
-E2E smoke (Prompt 01-ийн шалгуурууд): `../qa/smoke` → `npm i && npm run web`.
+E2E (Prompt 01/04-ийн шалгуурууд): `cd ../qa && npm install && npm run test:e2e`.
 
 ## Орчны хувьсагч
 
@@ -52,14 +52,14 @@ netlify/edge-functions/   card-og.ts — /c/:slug-д OG meta tag тарина
 
 | # | Шалгуур | Үр дүн |
 |---|---|---|
-| 1 | Бүртгэл → Pro (QPay mock) → карт → нийтлэх → өөр хөтөчөөс /c/:slug | ✅ smoke |
-| 2 | `?src=qr` → qr_open тоологдоно; .vcf кирилл зөв | ✅ smoke (жинхэнэ утсан дээрх шалгалт QA-д) |
-| 3 | 10 загвар × 2 өнгө, урт нэр эвдрэхгүй | ✅ smoke (20 screenshot) |
-| 4 | PDF 96×61 мм, PNG 300 dpi (1134×720), QR 24 мм | ✅ smoke |
-| 5 | Бүх хугацаа ≥ 30 ≥ 7 ≥ Өнөөдөр | ✅ smoke + unit |
-| 6 | Багц дууссан → засварлах боломжгүй, карт нийтэд | ✅ smoke |
+| 1 | Бүртгэл → Pro (QPay mock) → карт → нийтлэх → өөр хөтөчөөс /c/:slug | ✅ E2E |
+| 2 | `?src=qr` → qr_open тоологдоно; .vcf кирилл зөв | ✅ E2E (жинхэнэ утсан дээрх шалгалт QA-д) |
+| 3 | 10 загвар × 2 өнгө, урт нэр эвдрэхгүй | ✅ E2E (20 screenshot) |
+| 4 | PDF 96×61 мм, PNG 300 dpi (1134×720), QR 24 мм | ✅ E2E |
+| 5 | Бүх хугацаа ≥ 30 ≥ 7 ≥ Өнөөдөр | ✅ E2E + unit |
+| 6 | Багц дууссан → засварлах боломжгүй, карт нийтэд | ✅ E2E |
 | 7 | Lighthouse mobile /c/:slug | Performance 97, Accessibility 100, SEO 100 |
 | 8 | Production build-д demo текст/нууц үг байхгүй | ✅ `grep` цэвэр |
-| 9 | Зочин exchange → contacts (source=exchange); Free хязгаар → мессеж | ✅ smoke + backend тест |
-| 10 | Өнөөдрийн follow-up dashboard-д; [Холбогдсон] → алга болно | ✅ smoke |
-| 11 | Free CRM талбар UI-д түгжээтэй (DB ч татгалзана) | ✅ smoke + pgTAP |
+| 9 | Зочин exchange → contacts (source=exchange); Free хязгаар → мессеж | ✅ E2E + backend тест |
+| 10 | Өнөөдрийн follow-up dashboard-д; [Холбогдсон] → алга болно | ✅ E2E |
+| 11 | Free CRM талбар UI-д түгжээтэй (DB ч татгалзана) | ✅ E2E + pgTAP |

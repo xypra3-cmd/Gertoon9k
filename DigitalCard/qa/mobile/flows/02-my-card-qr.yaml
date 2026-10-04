@@ -1,0 +1,13 @@
+appId: mn.digitalcard.app
+---
+- launchApp
+- tapOn: "Миний карт"
+- assertVisible: "QR: .*"
+- assertVisible: "Хуваалцах"
+- assertVisible: "Линк хуулах"
+- tapOn: "Линк хуулах"
+- assertVisible: "Хуулагдлаа"
+# STORE-01: no prices / payment UI anywhere on the main screen
+- assertNotVisible: ".*₮.*"
+- assertNotVisible: ".*QPay.*"
+- assertNotVisible: ".*Төлөх.*"

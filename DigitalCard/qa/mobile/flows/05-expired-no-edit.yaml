@@ -1,0 +1,15 @@
+# Expired plan: QR + stats visible, editing replaced by a neutral text (no prices, no upsell).
+appId: mn.digitalcard.app
+---
+- launchApp:
+    clearState: true
+- tapOn: "Имэйл"
+- inputText: "expired@demo.mn"
+- tapOn: "Нууц үг"
+- inputText: "Demo1234!"
+- tapOn: "Нэвтрэх"
+- tapOn: "/khulan-studio"
+- assertVisible: "Таны бүртгэл одоогоор засварлах эрхгүй байна"
+- assertNotVisible: ".*₮.*"
+- tapOn: "Статистик"
+- assertVisible: "Нийт нээлт"
