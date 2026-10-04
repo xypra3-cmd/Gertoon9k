@@ -6,9 +6,9 @@
 DigitalCard/
 ├── backend/          # Prompt 00 — Supabase (migrations, RLS, Edge Functions, seed, tests)  ✅
 ├── packages/shared/  # types, plans copy, zod, vCard, templates, i18n (MN/EN)               ✅
-├── web/              # Prompt 01 — React + Vite                                             ⏳
+├── web/              # Prompt 01 — React + Vite                                             ✅
 ├── mobile/           # Prompt 02, 03 — Expo (Android, iOS)                                  ⏳
-├── qa/               # Prompt 04 — Playwright, API, k6, Maestro                             ⏳
+├── qa/               # Prompt 04 — Playwright, API, k6, Maestro          (smoke/ бэлэн)     ⏳
 └── docs/             # DECISIONS.md, төслийн баримтууд
 ```
 
@@ -23,9 +23,13 @@ npm test                                 # pgTAP + Edge Function тест
 
 cd ../packages/shared
 npm install && npm test && npm run typecheck && npm run lint
+
+cd ../../web
+cp .env.example .env.local   # ANON_KEY бөглө
+npm install && npm run dev   # http://localhost:5173
 ```
 
-Дэлгэрэнгүй: [backend/README.md](backend/README.md), шийдвэрүүд: [docs/DECISIONS.md](docs/DECISIONS.md).
+Дэлгэрэнгүй: [backend/README.md](backend/README.md), [web/README.md](web/README.md), шийдвэрүүд: [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## Нийтлэг дүрэм
 

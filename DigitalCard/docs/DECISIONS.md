@@ -61,3 +61,29 @@ Client-ын `DELETE cards` нь `BEFORE DELETE` trigger-ээр `deleted_at`, `is
 
 ### D-18 Тестийн хэрэгсэл
 pgTAP (`supabase test db`) + Node-ын built-in `node:test` (Edge Function integration, dependency-гүй) + QPay/Turnstile mock сервер. Prompt 04 эдгээрийг Vitest/Playwright-тай CI-д холбоно.
+
+## Prompt 01 — Web
+
+### D-19 Нийтийн картын bundle
+`/c/:slug` нь supabase-js ачаалдаггүй: PostgREST, track-event-ийг `fetch`-ээр шууд дуудна (`lib/publicApi.ts`). Exchange маягт (zod, react-hook-form) товч дарахад lazy ачаална. `packages/shared`-ийг дэд замаар (`@digitalcard/shared/vcard` гэх мэт) импортолж zod-ыг нийтийн картаас гаргасан. Үр дүн: Lighthouse mobile Performance 97.
+
+### D-20 OG meta tag
+SSR-гүй SPA тул Netlify Edge Function (`card-og.ts`) `/c/*` хариуд `public_cards`-аас уншиж OG tag тарина. Vercel сонговол ижил логикийг Edge Middleware болгоно.
+
+### D-21 Загварын өнгө WCAG AA
+10 загвар × 2 өнгөний `fg/accent/muted` бүгд дэвсгэртэйгээ ≥ 4.5:1 contrast-тай (shared тест). Хэрэв дизайнер өнгө солибол тест унана.
+
+### D-22 Хэвлэх
+Нүүр/ар талыг DOM-оор мм нэгжээр зурж `html-to-image` (pixelRatio → 300 dpi) → `jsPDF`. 96×61 мм PDF-ийн crop mark нь bleed бүсэд (зүсэхэд арилна). A4 10 ширхэг: 2×5, зүссэн хэмжээгээр (90×55) нийлүүлж, гадна талд crop mark; ар тал duplex-д зориулж толин эргүүлсэн. QR = 24 мм (≥ 18 мм).
+
+### D-23 Огноо
+Бүх «өдөр» (өнөөдөр, 7/30 хоног, follow-up) Asia/Ulaanbaatar (UTC+8)-аар — DB-тэй ижил. MN формат `2026.10.04`.
+
+### D-24 Demo горим
+`VITE_DEMO_MODE` нь build үед статикаар орлогдох тул production bundle-аас demo бүртгэл, нууц үг dead-code-оор бүрэн хасагдана (шалгасан).
+
+### D-25 Admin MFA
+`/admin` нь aal2 биш бол TOTP бүртгэх/баталгаажуулах дэлгэц харуулна. DB-ийн `is_platform_admin()` мөн aal2 шаарддаг тул UI-г тойрсон ч өгөгдөл харагдахгүй.
+
+### D-26 Туршилтын орчны хязгаар
+Энэ sandbox-оос Cloudflare (Turnstile) руу хандах боломжгүй тул E2E-д Turnstile script-ийг stub-аар сольсон (dummy token серверт mock-оор шалгагдана). Жинхэнэ Turnstile, жинхэнэ утсаар QR/.vcf шалгалтыг QA (Prompt 04)-д хийнэ.

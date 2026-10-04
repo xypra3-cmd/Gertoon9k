@@ -1,0 +1,11 @@
+{
+  "name": "@digitalcard/qa-smoke",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "web": "node web-acceptance.mjs && node web-roles.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.55.0"
+  }
+}
