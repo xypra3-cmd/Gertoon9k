@@ -43,33 +43,6 @@
     "admin": "Админ",
     "scan": "Скан"
   },
-  "plans": {
-    "free": "Үнэгүй",
-    "pro": "Pro",
-    "team": "Team",
-    "perMonth": "/сар",
-    "perSeat": "/хүн/сар",
-    "minSeats": "{{n}} хүнээс",
-    "current": "Одоогийн багц",
-    "upgrade": "Pro-д шилжих",
-    "quota": "{{used}} / {{limit}} карт",
-    "noEditRights": "Таны бүртгэл одоогоор засварлах эрхгүй байна",
-    "features": {
-      "oneCard": "1 дижитал карт",
-      "fiveCards": "5 хүртэл карт",
-      "cardPerMember": "Ажилтан бүрт 1 карт",
-      "qrVcard": "QR, линк, .vcf, хэвлэх PDF",
-      "exchangeLimited": "10 хүртэл харилцагч",
-      "exchangeUnlimited": "Хязгааргүй харилцагч",
-      "basicStats": "Нийт нээлтийн статистик",
-      "crm": "Тэмдэглэл, tag, уулзалтын контекст",
-      "followup": "Follow-up сануулга",
-      "funnel": "Бүтэн funnel статистик",
-      "branding": "Брэнд өнгө, лого",
-      "lockedTemplate": "Түгжсэн загвар",
-      "teamDashboard": "Багийн самбар"
-    }
-  },
   "card": {
     "firstName": "Нэр",
     "lastName": "Овог",
@@ -197,7 +170,6 @@
     "not_found": "Олдсонгүй.",
     "invalid": "Мэдээлэл буруу байна.",
     "invalid_email": "Имэйл буруу байна.",
-    "qpay_unavailable": "QPay түр ажиллахгүй байна. Дахин оролдоно уу.",
     "not_authenticated": "Нэвтэрнэ үү."
   }
 }

@@ -202,6 +202,34 @@
   "errorsx": {
     "admin_mfa_required": "Админ эрхэд MFA шаардлагатай.",
     "org_owner_must_transfer": "Эхлээд байгууллагын эзэмшлийг шилжүүлнэ үү.",
-    "pageNotFound": "Хуудас олдсонгүй"
+    "pageNotFound": "Хуудас олдсонгүй",
+    "qpay_unavailable": "QPay түр ажиллахгүй байна. Дахин оролдоно уу."
+  },
+  "plans": {
+    "free": "Үнэгүй",
+    "pro": "Pro",
+    "team": "Team",
+    "perMonth": "/сар",
+    "perSeat": "/хүн/сар",
+    "minSeats": "{{n}} хүнээс",
+    "current": "Одоогийн багц",
+    "upgrade": "Pro-д шилжих",
+    "quota": "{{used}} / {{limit}} карт",
+    "noEditRights": "Таны бүртгэл одоогоор засварлах эрхгүй байна",
+    "features": {
+      "oneCard": "1 дижитал карт",
+      "fiveCards": "5 хүртэл карт",
+      "cardPerMember": "Ажилтан бүрт 1 карт",
+      "qrVcard": "QR, линк, .vcf, хэвлэх PDF",
+      "exchangeLimited": "10 хүртэл харилцагч",
+      "exchangeUnlimited": "Хязгааргүй харилцагч",
+      "basicStats": "Нийт нээлтийн статистик",
+      "crm": "Тэмдэглэл, tag, уулзалтын контекст",
+      "followup": "Follow-up сануулга",
+      "funnel": "Бүтэн funnel статистик",
+      "branding": "Брэнд өнгө, лого",
+      "lockedTemplate": "Түгжсэн загвар",
+      "teamDashboard": "Багийн самбар"
+    }
   }
 }

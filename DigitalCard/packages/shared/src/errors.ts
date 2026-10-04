@@ -22,7 +22,6 @@ export const KNOWN_ERROR_KEYS = [
   'not_found',
   'invalid',
   'invalid_email',
-  'qpay_unavailable',
   'not_authenticated',
 ] as const;
 

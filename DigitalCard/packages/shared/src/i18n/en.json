@@ -43,33 +43,6 @@
     "admin": "Admin",
     "scan": "Scan"
   },
-  "plans": {
-    "free": "Free",
-    "pro": "Pro",
-    "team": "Team",
-    "perMonth": "/month",
-    "perSeat": "/user/month",
-    "minSeats": "from {{n}} users",
-    "current": "Current plan",
-    "upgrade": "Upgrade to Pro",
-    "quota": "{{used}} / {{limit}} cards",
-    "noEditRights": "Your account currently has no editing rights",
-    "features": {
-      "oneCard": "1 digital card",
-      "fiveCards": "Up to 5 cards",
-      "cardPerMember": "1 card per member",
-      "qrVcard": "QR, link, .vcf, print PDF",
-      "exchangeLimited": "Up to 10 contacts",
-      "exchangeUnlimited": "Unlimited contacts",
-      "basicStats": "Total opens statistics",
-      "crm": "Notes, tags, meeting context",
-      "followup": "Follow-up reminders",
-      "funnel": "Full funnel statistics",
-      "branding": "Brand color and logo",
-      "lockedTemplate": "Locked template",
-      "teamDashboard": "Team dashboard"
-    }
-  },
   "card": {
     "firstName": "First name",
     "lastName": "Last name",
@@ -197,7 +170,6 @@
     "not_found": "Not found.",
     "invalid": "Invalid data.",
     "invalid_email": "Invalid email.",
-    "qpay_unavailable": "QPay is temporarily unavailable. Please try again.",
     "not_authenticated": "Please log in."
   }
 }
