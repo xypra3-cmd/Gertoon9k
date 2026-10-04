@@ -1,0 +1,20 @@
+{
+  "name": "@digitalcard/qa",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "mock": "node ../backend/supabase/tests/mocks/mock-server.mjs",
+    "test:api": "vitest run --config api/vitest.config.ts",
+    "test:e2e": "playwright test --config e2e/playwright.config.ts",
+    "test:store": "node mobile/store-check.mjs",
+    "test": "npm run test:api && npm run test:e2e && npm run test:store",
+    "load": "k6 run load/public-card.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@supabase/supabase-js": "^2.117.2",
+    "@types/node": "^26.6.4",
+    "typescript": "^7.0.2",
+    "vitest": "^3.2.7"
+  }
+}
