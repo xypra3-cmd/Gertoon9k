@@ -1,0 +1,63 @@
+# DECISIONS.md — Шийдвэрийн бүртгэл
+
+Эргэлзээтэй шийдвэр бүрийг энд тэмдэглэнэ. Формат: асуудал → шийдвэр → шалтгаан.
+
+## Prompt 00 — Backend
+
+### D-01 Монорепогийн байршил
+Prompt-д `Documents/DigitalCard/` гэжээ. Энэ git репо өөр (.NET тест) төсөлтэй тул бүх код `DigitalCard/` дэд хавтаст байна. Бүтэц нь яг prompt-ынхтой ижил. Root `.gitignore` нь NuGet-ийн `packages/`-ийг нуудаг тул `DigitalCard/.gitignore`-д `!/packages/*` нэмсэн.
+
+### D-02 Үнэ, лимит migration-д байна (seed-д биш)
+Prompt: «Үнэ нь таамаг, зөвхөн seed-ээр солигдоно». Гэвч `seed.sql` нь production-д ажилладаггүй тул `plans`-ийн мөрүүдийг `0001_init.sql` дотор оруулсан. Үнэ солих = `update plans ...` гэсэн шинэ migration. Кодонд үнэ hardcode хийгээгүй хэвээр.
+
+### D-03 Багц дууссан хэрэглэгч Free руу буурна
+Зөрчил: нийтлэг дүрэм «засвар … түгжигдэнэ», Prompt 01 §4 «Free (эсвэл багц дууссан): анхны 1 карт засагдана», төслийн танилцуулга §6.2 «Хэрэглэгч Free руу буурна».
+Шийдвэр: хамгийн сүүлийн баримт (танилцуулга §6.2)-ийг дагасан. Багц дууссан хэрэглэгч Free-ийн эрхтэй болно: анхны 1 карт засагдана, бусад карт нийтэд нээлттэй ч түгжээтэй, шинэ карт нэмэх боломжгүй (квот 1), CRM бичилт түгжигдэнэ. Шалгуур 3 («UPDATE хийж чадахгүй»)-ыг 2 дахь карт дээр шалгадаг. Өгөгдөл устахгүй, тараасан QR үхэхгүй.
+Ерөнхий дүрэм: хэрэглэгчийн `rank(created_at) ≤ card_quota` карт л засагдана. Энэ нь Pro → Free болж буурсан ч зөв ажилладаг.
+
+### D-04 `card_daily_stats` нь энгийн VIEW
+Rollup хүснэгт эсвэл materialized view-ийн оронд `security_invoker` view. Шалтгаан: үргэлж raw event-тэй тохирно (Бүх хугацаа ≥ Өнөөдөр нөхцөл автоматаар биелнэ), RLS шууд үйлчилнэ, refresh cron хэрэггүй. Event-ийн тоо өсвөл `(card_id, day)` rollup хүснэгт + өнөөдрийн live хэсэг болгож солино. Өдрийг `Asia/Ulaanbaatar`-аар тооцно.
+
+### D-05 Subscription: нэг эзэмшигчид нэг мөр
+`subscriptions`-д хэрэглэгч эсвэл байгууллага тус бүр нэг мөртэй (unique partial index). Төлбөр бүр тэр мөрийг сунгана: `current_period_end = max(now, хуучин end) + 1 сар`. Багц солиход (Pro → Team гэх мэт) шинэ багц төлбөр баталгаажих үед хүчинтэй болж, үлдсэн хугацаа шилжинэ.
+
+### D-06 Edge Function-ийн JWT шалгалт
+Бүх функц `verify_jwt = false`. Хэрэглэгч шаардлагатай функцууд (`qpay-create-invoice`, `org-invite`) токеныг GoTrue `/auth/v1/user`-ээр өөрсдөө шалгана. Шалтгаан: Supabase-ийн шинэ (asymmetric) JWT түлхүүртэй ч ажиллана, public болон cron endpoint-ууд нэг загвартай.
+
+### D-07 Edge Function-д supabase-js ашиглаагүй
+`_shared/db.ts` нь PostgREST, GoTrue-г `fetch`-ээр шууд дуудна. Гадны dependency байхгүй тул deploy, local ажиллагаа энгийн. Бизнес логик бүгд транзакцтай SQL функцэд (`0005_service_functions.sql`) байгаа.
+
+### D-08 Team суудал
+Суудалд эзэмшигч (owner) орно. `org_members`-ийн мөр бүр (invited + active) нэг суудал эзэлнэ. Owner-ийн мөр байгууллага үүсэхэд суудлын шалгалтгүй орно. Active Team subscription байхгүй бол суудал 0.
+
+### D-09 Хувийн ба байгууллагын картын квот тусдаа
+`card_quota(uid)` = хувийн багцын лимит (байгууллагын картыг тооцохгүй). Байгууллагын карт: ажилтан бүрт тухайн байгууллагад `plans.team.card_limit` (1) карт.
+
+### D-10 Байгууллагын ажилтны засах эрх
+`allow_employee_edit_fields` нь `cards`-ийн баганын нэрс. `'links'` гэж оруулбал ажилтан линкээ засна. `template_id`-ийг жагсаалтад оруулсан ч зөвхөн org admin өөрчилнө.
+
+### D-11 Rate limit-ийг `card_events`-ээс тоолно
+`track-event` (30/мин/зочин/карт), `contact-exchange` (5/цаг/зочин) нь хадгалагдсан event-ийг тоолдог тул тусдаа хүснэгт хэрэггүй. Race condition-ийг advisory lock-оор хаасан.
+
+### D-12 Имэйл: `email_queue`
+Имэйлийг дараалалд оруулна. `dedupe_key` нь «өдөрт 1 digest», «нэг хугацаанд 1 сануулга» гэх мэт баталгааг DB түвшинд өгнө. `RESEND_API_KEY` тохируулсан бол Resend HTTP API-аар илгээнэ, үгүй бол дараалалд үлдэнэ (local). SMTP-г Deno-д ашиглаагүй.
+
+### D-13 Contact-д нэмэлт багана
+- `via_card_id` — эзэмшигчийн аль картаар ирснийг хадгална (картын funnel: exchange → follow-up).
+- `exchange_message` — зочны мессеж (≤ 300). Эзэмшигчийн `note` (CRM)-оос тусдаа.
+Client `source = 'exchange'` гэж бичиж чадахгүй (зөвхөн contact-exchange функц).
+
+### D-14 Нэрээр харагдах зочин (PRIV-02)
+`profiles.show_name_to_owners` (default false). `viewer_user_id` нь зөвхөн тухайн үед зөвшөөрсөн бол хадгалагдана, харуулахдаа (`get_named_viewers`) дахин шалгана.
+
+### D-15 Платформ админ MFA-г DB шаардана
+`is_platform_admin()` = `role = 'admin'` **ба** JWT `aal = 'aal2'`. TOTP-гүй админ токен админы өгөгдөл харахгүй.
+
+### D-16 Cron
+`pg_cron` + `pg_net`. Функцийн URL болон cron secret-ийг Vault-д хадгална (migration-д нууц үг байхгүй). Vault-д утга байхгүй бол job зөвхөн notice бичнэ.
+
+### D-17 Soft delete
+Client-ын `DELETE cards` нь `BEFORE DELETE` trigger-ээр `deleted_at`, `is_published = false` болно. Service role / cascade нь жинхэнэ устгал. Устсан картыг client сэргээж чадахгүй.
+
+### D-18 Тестийн хэрэгсэл
+pgTAP (`supabase test db`) + Node-ын built-in `node:test` (Edge Function integration, dependency-гүй) + QPay/Turnstile mock сервер. Prompt 04 эдгээрийг Vitest/Playwright-тай CI-д холбоно.

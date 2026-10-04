@@ -266,3 +266,30 @@ test('org-invite: cannot exceed paid seats', async () => {
   assert.equal(denied.status, 403);
   assert.equal(denied.body.error, 'not_org_admin');
 });
+
+// ---------------------------------------------------------------------------
+// Storage (SEC-05)
+// ---------------------------------------------------------------------------
+async function upload(token, path, bytes, type) {
+  const res = await fetch(`${API}/storage/v1/object/avatars/${path}`, {
+    method: 'POST',
+    headers: { apikey: ANON, Authorization: `Bearer ${token}`, 'Content-Type': type, 'x-upsert': 'true' },
+    body: bytes,
+  });
+  return res.status;
+}
+
+test('storage: only own folder, ≤ 2 MB, jpeg/png/webp', async () => {
+  const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, ...new Array(100).fill(0)]);
+  assert.equal(await upload(basic.token, `${basic.id}/avatar.png`, png, 'image/png'), 200, 'own folder upload works');
+
+  const other = await login('pro@demo.mn');
+  assert.ok((await upload(basic.token, `${other.id}/hijack.png`, png, 'image/png')) >= 400, 'cannot write into another user folder');
+
+  const big = new Uint8Array(5 * 1024 * 1024);
+  assert.ok((await upload(basic.token, `${basic.id}/big.png`, big, 'image/png')) >= 400, '5 MB rejected');
+
+  const svg = new TextEncoder().encode('<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>');
+  assert.ok((await upload(basic.token, `${basic.id}/x.svg`, svg, 'image/svg+xml')) >= 400, 'svg rejected');
+  assert.ok((await upload(basic.token, `${basic.id}/x.exe`, png, 'application/x-msdownload')) >= 400, 'exe rejected');
+});
