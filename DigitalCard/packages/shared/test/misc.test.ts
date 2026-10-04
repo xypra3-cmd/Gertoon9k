@@ -56,3 +56,34 @@ describe('templates & plans', () => {
     expect(planMonthlyAmount({ id: 'pro', price_mnt: 9900, price_per_seat_mnt: 0, min_seats: 1 })).toBe(9900);
   });
 });
+
+import { generateSlug, slugify } from '../src/format';
+import { slugSchema } from '../src/validation';
+
+describe('slugs', () => {
+  it('transliterates Mongolian Cyrillic', () => {
+    expect(slugify('Сараа Ганбаатар')).toBe('saraa-ganbaatar');
+    expect(slugify('Өлзий Хүрэл')).toBe('ulzii-khurel');
+  });
+  it('always produces a valid slug', () => {
+    for (const n of ['', 'А', 'Сараа', 'x'.repeat(80), '!!!'])
+      expect(slugSchema.safeParse(generateSlug(n)).success).toBe(true);
+  });
+});
+
+describe('template colors are readable (WCAG AA 4.5:1 for text on background)', () => {
+  const lum = (hex: string) => {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!;
+  };
+  const ratio = (a: string, b: string) => {
+    const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m);
+    return (x! + 0.05) / (y! + 0.05);
+  };
+  for (const t of TEMPLATES)
+    for (const scheme of ['a', 'b'] as const)
+      it(`${t.id}/${scheme}`, () => {
+        const c = t.colors[scheme];
+        for (const k of ['fg', 'accent', 'muted'] as const) expect(ratio(c[k], c.bg)).toBeGreaterThanOrEqual(4.5);
+      });
+});

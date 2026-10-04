@@ -36,7 +36,7 @@ export const TEMPLATES: readonly TemplateMeta[] = [
     photo: false,
     colors: {
       a: { bg: '#FFFFFF', fg: '#111827', accent: '#1D4ED8', muted: '#6B7280' },
-      b: { bg: '#F8F5EE', fg: '#1F2937', accent: '#9A3412', muted: '#78716C' },
+      b: { bg: '#F8F5EE', fg: '#1F2937', accent: '#9A3412', muted: '#726B66' },
     },
   },
   {
@@ -44,8 +44,8 @@ export const TEMPLATES: readonly TemplateMeta[] = [
     name: { mn: 'Орчин үеийн', en: 'Modern' },
     photo: true,
     colors: {
-      a: { bg: '#F1F5F9', fg: '#0F172A', accent: '#0EA5E9', muted: '#64748B' },
-      b: { bg: '#ECFDF5', fg: '#052E16', accent: '#059669', muted: '#4B5563' },
+      a: { bg: '#F1F5F9', fg: '#0F172A', accent: '#006FB3', muted: '#5E6E85' },
+      b: { bg: '#ECFDF5', fg: '#052E16', accent: '#007E51', muted: '#4B5563' },
     },
   },
   {
@@ -54,7 +54,7 @@ export const TEMPLATES: readonly TemplateMeta[] = [
     photo: false,
     colors: {
       a: { bg: '#FFFFFF', fg: '#000000', accent: '#000000', muted: '#737373' },
-      b: { bg: '#FAFAF9', fg: '#292524', accent: '#A16207', muted: '#78716C' },
+      b: { bg: '#FAFAF9', fg: '#292524', accent: '#A16207', muted: '#726B66' },
     },
   },
   {
@@ -71,8 +71,8 @@ export const TEMPLATES: readonly TemplateMeta[] = [
     name: { mn: 'Бүтээлч', en: 'Creative' },
     photo: true,
     colors: {
-      a: { bg: '#FFF7ED', fg: '#431407', accent: '#EA580C', muted: '#9A3412' },
-      b: { bg: '#FDF4FF', fg: '#3B0764', accent: '#C026D3', muted: '#6B21A8' },
+      a: { bg: '#FFF7ED', fg: '#431407', accent: '#CC3A00', muted: '#9A3412' },
+      b: { bg: '#FDF4FF', fg: '#3B0764', accent: '#BA20CD', muted: '#6B21A8' },
     },
   },
   {
@@ -90,7 +90,7 @@ export const TEMPLATES: readonly TemplateMeta[] = [
     photo: true,
     colors: {
       a: { bg: '#FFFFFF', fg: '#111827', accent: '#7C3AED', muted: '#6B7280' },
-      b: { bg: '#F0F9FF', fg: '#0C4A6E', accent: '#0284C7', muted: '#475569' },
+      b: { bg: '#F0F9FF', fg: '#0C4A6E', accent: '#0072B5', muted: '#475569' },
     },
   },
   {
@@ -117,7 +117,7 @@ export const TEMPLATES: readonly TemplateMeta[] = [
     photo: true,
     colors: {
       a: { bg: '#0F172A', fg: '#F8FAFC', accent: '#E2C275', muted: '#94A3B8' },
-      b: { bg: '#FAF7F2', fg: '#1E1B4B', accent: '#4338CA', muted: '#64748B' },
+      b: { bg: '#FAF7F2', fg: '#1E1B4B', accent: '#4338CA', muted: '#5E6E85' },
     },
   },
 ];

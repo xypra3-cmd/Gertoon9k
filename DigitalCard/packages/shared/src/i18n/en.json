@@ -96,7 +96,8 @@
     "template": "Template",
     "design": "Design",
     "links": "Links",
-    "qr": "QR"
+    "qr": "QR",
+    "addedToContacts": "Added to your contacts"
   },
   "exchange": {
     "title": "Leave your details",

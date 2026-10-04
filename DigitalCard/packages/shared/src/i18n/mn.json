@@ -96,7 +96,8 @@
     "template": "Загвар",
     "design": "Дизайн",
     "links": "Линк",
-    "qr": "QR"
+    "qr": "QR",
+    "addedToContacts": "Таны contact-д нэмэгдлээ"
   },
   "exchange": {
     "title": "Мэдээллээ үлдээх",
