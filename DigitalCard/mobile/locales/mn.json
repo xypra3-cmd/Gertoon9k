@@ -1,0 +1,6 @@
+{
+  "CFBundleDisplayName": "Digital Card",
+  "NSCameraUsageDescription": "Нэрийн хуудасны QR код уншихад камер ашиглана.",
+  "NSContactsUsageDescription": "Уншсан нэрийн хуудсыг таны утасны contact-д хадгалахад ашиглана.",
+  "NSPhotoLibraryUsageDescription": "Нэрийн хуудасны зураг сонгоход ашиглана."
+}

@@ -1,0 +1,6 @@
+{
+  "CFBundleDisplayName": "Digital Card",
+  "NSCameraUsageDescription": "The camera is used to scan business card QR codes.",
+  "NSContactsUsageDescription": "Used to save scanned business cards to your phone contacts.",
+  "NSPhotoLibraryUsageDescription": "Used to choose a photo for your business card."
+}
