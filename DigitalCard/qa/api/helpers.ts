@@ -30,9 +30,10 @@ export const anon = () => createClient(API_URL, ANON_KEY, { auth: { persistSessi
 export async function setPlan(userId: string, plan: 'pro' | 'free', state: 'active' | 'expired' = 'active') {
   if (plan === 'free') return;
   const end = state === 'active' ? new Date(Date.now() + 30 * 864e5) : new Date(Date.now() - 864e5);
-  const { error } = await admin
-    .from('subscriptions')
-    .upsert({ owner_user_id: userId, plan_id: plan, status: state, current_period_start: new Date(Date.now() - 31 * 864e5).toISOString(), current_period_end: end.toISOString() }, { onConflict: 'owner_user_id' });
+  const row = { owner_user_id: userId, plan_id: plan, status: state, current_period_start: new Date(Date.now() - 31 * 864e5).toISOString(), current_period_end: end.toISOString() };
+  // subscriptions has a partial unique index on owner_user_id → update-or-insert instead of upsert
+  const { data: existing } = await admin.from('subscriptions').select('id').eq('owner_user_id', userId).maybeSingle();
+  const { error } = existing ? await admin.from('subscriptions').update(row).eq('id', existing.id) : await admin.from('subscriptions').insert(row);
   if (error) throw error;
 }
 

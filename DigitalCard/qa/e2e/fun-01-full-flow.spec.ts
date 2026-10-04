@@ -8,7 +8,7 @@ test('FUN-01 full user journey', async ({ page, browser }) => {
   const email = `fun01-${randomUUID().slice(0, 8)}@test.mn`;
   // Register (Free) — terms checkbox is mandatory
   await page.goto('/register');
-  await page.fill('#full_name', 'Бат Болд');
+  await page.fill('#full_name', 'Болд Бат'); // «Овог нэр» → last name Болд, first name Бат
   await page.fill('#email', email);
   await page.fill('#password', 'Qa-Passw0rd!');
   await page.click('button[type=submit]');
@@ -47,7 +47,7 @@ test('FUN-01 full user journey', async ({ page, browser }) => {
   await page.goto('/app/billing');
   await page.getByTestId('pay-pro').click();
   await expect(page.locator('img[alt="QPay QR"]')).toBeVisible();
-  const user = (await admin.from('profiles').select('id').eq('full_name', 'Бат Болд').order('created_at', { ascending: false }).limit(1).single()).data!;
+  const user = (await admin.from('profiles').select('id').eq('full_name', 'Болд Бат').order('created_at', { ascending: false }).limit(1).single()).data!;
   const sub = (await admin.from('subscriptions').select('id').eq('owner_user_id', user.id).single()).data!;
   const pay = (await admin.from('payments').select('*').eq('subscription_id', sub.id).single()).data!;
   await mockPay(pay.qpay_invoice_id, pay.amount_mnt);

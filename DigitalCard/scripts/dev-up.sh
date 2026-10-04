@@ -17,8 +17,8 @@ cd "$ROOT/backend"
 EXCLUDE="studio,logflare,vector,imgproxy,supavisor,realtime,postgres-meta"
 # A cold start can time out while Postgres boots, or skip the edge runtime: retry until healthy.
 for attempt in 1 2 3; do
-  if supabase status >/dev/null 2>&1 && ! supabase status 2>&1 | grep -q "edge_runtime"; then break; fi
-  supabase stop >/dev/null 2>&1 || true
+  if timeout 60 supabase status >/dev/null 2>&1 && ! timeout 60 supabase status 2>&1 | grep -q "edge_runtime"; then break; fi
+  timeout 120 supabase stop >/dev/null 2>&1 || true
   supabase start -x "$EXCLUDE" || sleep 5
 done
 

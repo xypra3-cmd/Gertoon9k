@@ -1,0 +1,89 @@
+# Digital Card — runs on every PR that touches DigitalCard/. Mark the "digitalcard / gate" check as
+# required in Settings → Branches → Branch protection so a failing test blocks the merge.
+name: digitalcard
+
+on:
+  pull_request:
+    paths: ['DigitalCard/**', '.github/workflows/digitalcard.yml']
+  push:
+    branches: [main, master]
+    paths: ['DigitalCard/**']
+
+concurrency:
+  group: digitalcard-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: DigitalCard
+
+jobs:
+  static:
+    name: lint · typecheck · unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm ci --prefix packages/shared && npm ci --prefix web && npm ci --prefix mobile
+      - run: cd packages/shared && npx tsc --noEmit && npx eslint src && npx vitest run
+      - run: cd web && npm run typecheck && npm run lint && npm test
+      - run: cd mobile && npm run typecheck && npm run lint
+      - name: STORE-01 no prices / payments in the mobile app
+        run: node qa/mobile/store-check.mjs
+
+  api-e2e:
+    name: pgTAP · API · E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - uses: supabase/setup-cli@v1
+        with: { version: latest }
+      - name: Local secrets for the test stack (non-secret test values)
+        run: |
+          cat > backend/supabase/.env <<'ENV'
+          QPAY_BASE_URL=http://host.docker.internal:54399
+          QPAY_USERNAME=ci
+          QPAY_PASSWORD=ci
+          QPAY_INVOICE_CODE=CI_INVOICE
+          STATS_SALT_SECRET=ci-salt
+          TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+          TURNSTILE_VERIFY_URL=http://host.docker.internal:54399/turnstile/v0/siteverify
+          PUBLIC_FUNCTIONS_URL=http://127.0.0.1:54321/functions/v1
+          CRON_SECRET=local-cron-secret
+          ENV
+      - name: Start Supabase
+        run: cd backend && supabase start -x studio,logflare,vector,imgproxy,supavisor,realtime,postgres-meta
+      - name: QPay / Turnstile mock
+        run: node backend/supabase/tests/mocks/mock-server.mjs > /tmp/mock.log 2>&1 &
+      - name: pgTAP
+        run: cd backend && supabase test db
+      - name: Edge Function integration
+        run: cd backend && node --test supabase/tests/functions/*.test.mjs
+      - name: Reset seed for API/E2E
+        run: cd backend && supabase db reset
+      - run: npm ci --prefix packages/shared && npm ci --prefix web && npm ci --prefix qa
+      - run: cd qa && npx playwright install --with-deps chromium
+      - name: API (Critical + High)
+        run: cd qa && npm run test:api
+      - name: E2E (Playwright)
+        run: cd qa && npm run test:e2e
+        env: { CI: 'true' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-reports
+          path: DigitalCard/qa/reports
+          retention-days: 14
+
+  gate:
+    name: gate
+    needs: [static, api-e2e]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - run: test "${{ needs.static.result }}" = success && test "${{ needs.api-e2e.result }}" = success
+        working-directory: .
