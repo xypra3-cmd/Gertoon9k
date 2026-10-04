@@ -6,3 +6,6 @@ dist/
 *.log
 coverage/
 .DS_Store
+
+# Root .gitignore (.NET) ignores NuGet "packages/" folders; our JS workspace packages must be tracked.
+!/packages/*
