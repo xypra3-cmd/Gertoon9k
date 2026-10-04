@@ -110,8 +110,8 @@ as $$
   select exists (select 1 from public.active_plans(uid));
 $$;
 
--- A user whose personal subscription was activated once and is no longer active.
--- Expired users keep public card / QR / vCard, but editing and new cards are locked.
+-- A user whose personal subscription was activated once and is no longer active
+-- (informational for UIs; entitlements fall back to the Free plan).
 create or replace function public.is_personal_plan_expired(uid uuid)
 returns boolean
 language sql
@@ -232,8 +232,9 @@ begin
     return c.owner_id = uid and public.is_org_member(c.org_id);
   end if;
 
-  -- Personal card
-  if c.owner_id <> uid or public.is_personal_plan_expired(uid) then
+  -- Personal card. An expired plan falls back to Free (see docs/DECISIONS.md D-03):
+  -- only the first card stays editable, the rest stay public but locked.
+  if c.owner_id <> uid then
     return false;
   end if;
 
@@ -481,9 +482,6 @@ begin
   perform pg_advisory_xact_lock(hashtextextended('cards:' || new.owner_id::text, 0));
 
   if new.org_id is null then
-    if client and public.is_personal_plan_expired(new.owner_id) then
-      raise exception 'plan_expired' using errcode = '42501';
-    end if;
     select count(*) into used from public.cards c
      where c.owner_id = new.owner_id and c.org_id is null and c.deleted_at is null;
     if used >= public.card_quota(new.owner_id) then
