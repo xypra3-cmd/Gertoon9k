@@ -58,5 +58,33 @@
     "notifDaily": "Check today's follow-ups",
     "preview": "Preview",
     "empty": "No contacts."
+  },
+  "ai": {
+    "writeBio": "Write bio with AI",
+    "working": "Thinking…",
+    "bioReady": "Bio ready — review and save.",
+    "slugLockedHint": "Published, so the link is locked (QR codes never break).",
+    "scanCard": "Scan business card (AI)",
+    "scanning": "Reading…",
+    "scanReady": "Fields filled — review and save.",
+    "summarize": "AI summary",
+    "draftFollowup": "AI message",
+    "summary": "Summary",
+    "nextStep": "Next step",
+    "inDays": "in {{n}} days",
+    "apply": "Apply",
+    "openMail": "Send by e-mail"
+  },
+  "growth": {
+    "title": "Getting started",
+    "progress": "{{done}}/{{total}} steps",
+    "steps": {
+      "card": "Create card",
+      "photo": "Add photo",
+      "links": "Add links",
+      "publish": "Publish",
+      "share": "Share your QR",
+      "contact": "First contact"
+    }
   }
 }

@@ -1,31 +1,51 @@
 import { useMemo, useState } from 'react';
-import { Pressable, View, useWindowDimensions } from 'react-native';
+import { View } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
-import Svg, { Rect } from 'react-native-svg';
 import { rangeStartIso, ubToday, useMyCards } from '@/lib/cards';
 import { supabase } from '@/lib/supabase';
 import { useI18n } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
 import { Card, Loading, Screen, Txt } from '@/components/ui';
+import { AnimatedNumber, Appear, GrowBar, PressScale } from '@/components/motion';
+import { useAuth } from '@/lib/auth';
+import { chartColors } from '@digitalcard/shared/design';
 
 type Range = 'today' | '7d' | '30d' | 'all';
-const DAYS: Record<Range, number | null> = { today: 1, '7d': 7, '30d': 30, all: null };
+const DAYS: Record<Range, number | null> = {
+  today: 1,
+  '7d': 7,
+  '30d': 30,
+  all: null,
+};
 
 function Chip({ label, on, onPress }: { label: string; on: boolean; onPress: () => void }) {
   const th = useTheme();
   return (
-    <Pressable accessibilityRole="tab" accessibilityState={{ selected: on }} onPress={onPress} style={{ paddingHorizontal: 12, minHeight: 40, justifyContent: 'center', borderRadius: 20, backgroundColor: on ? th.primary : th.card, borderWidth: 1, borderColor: th.border }}>
-      <Txt size={14} style={{ color: on ? th.onPrimary : th.text }}>
+    <PressScale
+      accessibilityRole="tab"
+      accessibilityState={{ selected: on }}
+      onPress={onPress}
+      style={{
+        paddingHorizontal: 14,
+        minHeight: 40,
+        justifyContent: 'center',
+        borderRadius: 20,
+        backgroundColor: on ? th.primary : th.card,
+        borderWidth: 1,
+        borderColor: on ? th.primary : th.border,
+      }}
+    >
+      <Txt size={14} weight="600" style={{ color: on ? th.onPrimary : th.text }}>
         {label}
       </Txt>
-    </Pressable>
+    </PressScale>
   );
 }
 
 export default function Stats() {
   const { t } = useI18n();
   const th = useTheme();
-  const { width } = useWindowDimensions();
+  const { entitlements } = useAuth();
   const cards = useMyCards(); // own cards only (org employees never see colleagues)
   const ids = useMemo(() => (cards.data ?? []).map((c) => c.id), [cards.data]);
   const [range, setRange] = useState<Range>('7d');
@@ -35,12 +55,31 @@ export default function Stats() {
     queryKey: ['m-stats', ids.join(','), range],
     enabled: ids.length > 0,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_card_stats', { p_card_ids: ids, p_from: rangeStartIso(DAYS[range]) ?? undefined });
+      const { data, error } = await supabase.rpc('get_card_stats', {
+        p_card_ids: ids,
+        p_from: rangeStartIso(DAYS[range]) ?? undefined,
+      });
       if (error) throw error;
       // Total opens = view + qr_open (computed server-side for every range from the same events)
       return (data ?? []).reduce(
-        (s, r) => ({ total: s.total + Number(r.total_opens), qr: s.qr + Number(r.qr_opens), unique: s.unique + Number(r.unique_visitors), links: s.links + Number(r.link_clicks), saves: s.saves + Number(r.contact_saves) }),
-        { total: 0, qr: 0, unique: 0, links: 0, saves: 0 },
+        (s, r) => ({
+          total: s.total + Number(r.total_opens),
+          qr: s.qr + Number(r.qr_opens),
+          unique: s.unique + Number(r.unique_visitors),
+          links: s.links + Number(r.link_clicks),
+          saves: s.saves + Number(r.contact_saves),
+          exchanges: s.exchanges + Number(r.exchanges),
+          followups: s.followups + Number(r.followups),
+        }),
+        {
+          total: 0,
+          qr: 0,
+          unique: 0,
+          links: 0,
+          saves: 0,
+          exchanges: 0,
+          followups: 0,
+        },
       );
     },
   });
@@ -62,19 +101,39 @@ export default function Stats() {
   if (cards.isLoading) return <Loading />;
   const s = stats.data;
   const max = Math.max(1, ...(daily.data ?? []).map(([, v]) => v));
-  const chartW = width - 64;
-  const barW = chartW / chartDays;
-
+  let tileIndex = 0;
   const tile = (label: string, value: number | undefined) => (
-    <Card style={{ flexBasis: '47%', flexGrow: 1 }}>
-      <Txt muted size={13}>
-        {label}
-      </Txt>
-      <Txt size={24} weight="700">
-        {value ?? '—'}
-      </Txt>
-    </Card>
+    <Appear index={tileIndex++} style={{ flexBasis: '47%', flexGrow: 1 }}>
+      <Card>
+        <Txt
+          muted
+          size={12}
+          style={{
+            textTransform: 'uppercase',
+            letterSpacing: 0.5,
+            fontWeight: '600',
+          }}
+        >
+          {label}
+        </Txt>
+        {value === undefined ? (
+          <Txt size={26} weight="700">
+            —
+          </Txt>
+        ) : (
+          <AnimatedNumber value={value} style={{ fontSize: 26, fontWeight: '700', color: th.text }} />
+        )}
+      </Card>
+    </Appear>
   );
+  const funnel = s
+    ? [
+        { label: t('stats.totalOpens'), value: s.total },
+        { label: t('stats.contactSaves'), value: s.saves },
+        { label: t('stats.exchanges'), value: s.exchanges },
+        { label: t('stats.followups'), value: s.followups },
+      ]
+    : [];
 
   return (
     <Screen>
@@ -99,13 +158,53 @@ export default function Stats() {
           <Chip label={t('m.range7')} on={chartDays === 7} onPress={() => setChartDays(7)} />
           <Chip label={t('m.range30')} on={chartDays === 30} onPress={() => setChartDays(30)} />
         </View>
-        <Svg width={chartW} height={140} accessibilityLabel={t('m.chart')}>
-          {(daily.data ?? []).map(([day, v], i) => {
-            const h = (v / max) * 130;
-            return <Rect key={day} x={i * barW + 1} y={140 - h} width={Math.max(2, barW - 2)} height={h} rx={2} fill={th.primary} />;
-          })}
-        </Svg>
+        <View
+          accessible
+          accessibilityLabel={t('m.chart')}
+          style={{
+            height: 150,
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            gap: chartDays === 7 ? 8 : 2,
+          }}
+        >
+          {(daily.data ?? []).map(([day, v], i) => (
+            <GrowBar key={`${chartDays}-${day}`} vertical value={v / max} color={chartColors[0]} delay={i * (chartDays === 7 ? 40 : 12)} />
+          ))}
+        </View>
+        {chartDays === 7 && (
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {(daily.data ?? []).map(([day]) => (
+              <Txt key={day} muted size={11} style={{ flex: 1, textAlign: 'center' }}>
+                {day.slice(8)}
+              </Txt>
+            ))}
+          </View>
+        )}
       </Card>
+      {entitlements?.crm_enabled && funnel.length > 0 && (
+        <Appear index={6}>
+          <Card>
+            <Txt weight="600">{t('stats.funnel')}</Txt>
+            {funnel.map((f, i) => (
+              <View key={f.label} style={{ gap: 4 }}>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <Txt size={14}>{f.label}</Txt>
+                  <Txt size={14} weight="600">
+                    {f.value}
+                  </Txt>
+                </View>
+                <GrowBar value={Math.max(0.02, f.value / Math.max(1, funnel[0]!.value))} color={chartColors[i % chartColors.length]!} track={th.cardMuted} delay={i * 120} />
+              </View>
+            ))}
+          </Card>
+        </Appear>
+      )}
     </Screen>
   );
 }

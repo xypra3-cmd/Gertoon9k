@@ -1,7 +1,25 @@
 import { useColorScheme } from 'react-native';
+import { colors } from '@digitalcard/shared/design';
 
-const light = { bg: '#F8FAFC', card: '#FFFFFF', text: '#0F172A', muted: '#475569', border: '#E2E8F0', primary: '#2557E6', danger: '#B91C1C', success: '#047857', onPrimary: '#FFFFFF' };
-const dark = { bg: '#020617', card: '#0F172A', text: '#F1F5F9', muted: '#94A3B8', border: '#1E293B', primary: '#5B85F7', danger: '#F87171', success: '#34D399', onPrimary: '#FFFFFF' };
+// Same tokens as the web app (packages/shared/src/design.ts) → identical look on every platform.
+const make = (c: (typeof colors)['light' | 'dark']) => ({
+  bg: c.bg,
+  card: c.surface,
+  cardMuted: c.surfaceMuted,
+  text: c.text,
+  muted: c.muted,
+  subtle: c.subtle,
+  border: c.border,
+  primary: c.primary,
+  primarySoft: c.primarySoft,
+  accent: c.accent,
+  danger: c.danger,
+  success: c.success,
+  warning: c.warning,
+  onPrimary: c.onPrimary,
+});
+const light = make(colors.light);
+const dark = make(colors.dark);
 export type Theme = typeof light;
 
 export function useTheme(): Theme {
