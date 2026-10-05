@@ -18,7 +18,7 @@ const base = (props: P) => ({
 });
 
 /** Renders a shared icon (same geometry as the mobile app). */
-export function Icon({ name, ...props }: Omit<P, "name"> & { name: IconName }) {
+export function Icon({ name, ...props }: Omit<P, 'name'> & { name: IconName }) {
   return (
     <svg {...base(props)}>
       {ICONS[name].map(([tag, attrs], i) =>

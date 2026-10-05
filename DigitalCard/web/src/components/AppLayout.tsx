@@ -7,6 +7,7 @@ import { LanguageSwitch, ThemeToggle } from './LanguageSwitch';
 import { Brand } from './PublicLayout';
 import { MenuIcon, XIcon } from './icons';
 import { Spinner } from './ui';
+import { MfaGate } from './TwoFactor';
 
 export default function AppLayout() {
   const { session, loading, entitlements, signOut } = useAuth();
@@ -82,7 +83,9 @@ export default function AppLayout() {
         )}
       </header>
       <main key={loc.pathname} className="mx-auto max-w-6xl animate-fade-up px-4 py-6">
-        <Outlet />
+        <MfaGate>
+          <Outlet />
+        </MfaGate>
       </main>
     </div>
   );

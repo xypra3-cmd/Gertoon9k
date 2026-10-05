@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useCallback, useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,6 +10,9 @@ import { useErrorText } from '@/lib/useErrorText';
 import { Banner, Field } from '@/components/ui';
 import { AuthCard } from './Login';
 import { captureReferral, storedReferral } from '@/lib/growth';
+import { env } from '@/lib/env';
+
+const Turnstile = lazy(() => import('@/components/Turnstile').then((m) => ({ default: m.Turnstile })));
 
 const schema = z.object({
   full_name: z.string().trim().min(1, 'errors.required').max(120),
@@ -28,16 +31,23 @@ export default function Register() {
   const plan = params.get('plan');
   captureReferral(`?${params.toString()}`);
   const [error, setError] = useState<string | null>(null);
+  const [captcha, setCaptcha] = useState<string | null>(null);
+  const onToken = useCallback((tok: string | null) => setCaptcha(tok), []);
   const { register, handleSubmit, formState } = useForm<V>({ resolver: zodResolver(schema) });
 
   if (session) return <Navigate to="/app" replace />;
 
   const onSubmit = async (v: V) => {
     setError(null);
+    if (env.authCaptcha && !captcha) return setError(t('errors.captcha_failed'));
     const { data, error: err } = await supabase.auth.signUp({
       email: v.email,
       password: v.password,
-      options: { data: { full_name: v.full_name, locale, ref: storedReferral() ?? undefined }, emailRedirectTo: `${window.location.origin}/app` },
+      options: {
+        data: { full_name: v.full_name, locale, ref: storedReferral() ?? undefined },
+        emailRedirectTo: `${window.location.origin}/app`,
+        captchaToken: captcha ?? undefined,
+      },
     });
     if (err) return setError(errorText(err));
     if (!data.session) return setError(t('authx.checkEmail'));
@@ -79,6 +89,11 @@ export default function Register() {
           </span>
         </label>
         {e('accept') && <p className="field-error">{e('accept')}</p>}
+        {env.authCaptcha && (
+          <Suspense fallback={null}>
+            <Turnstile onToken={onToken} locale={locale} />
+          </Suspense>
+        )}
         {error && <Banner tone="error">{error}</Banner>}
         <button type="submit" className="btn-primary w-full" disabled={formState.isSubmitting}>
           {t('auth.register')}

@@ -8,6 +8,8 @@ export const env = {
   ),
   turnstileSiteKey: (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) ?? '',
   demoMode: import.meta.env.VITE_DEMO_MODE === 'true',
+  /** Supabase Auth bot protection (Turnstile) enabled in the dashboard → send captchaToken on sign-up. */
+  authCaptcha: import.meta.env.VITE_AUTH_CAPTCHA === 'true',
 };
 
 export const functionsUrl = `${env.supabaseUrl}/functions/v1`;

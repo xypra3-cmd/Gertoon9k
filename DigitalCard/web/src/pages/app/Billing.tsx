@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { annualSavingPercent, formatMnt, PLAN_COPY, planAmount, type BillingPeriod, type PlanId } from '@digitalcard/shared';
+import {
+  annualSavingPercent,
+  formatMnt,
+  PLAN_COPY,
+  planAmount,
+  type BillingPeriod,
+  type PlanId,
+} from '@digitalcard/shared';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { createInvoice, type Invoice } from '@/lib/payments';
@@ -90,7 +97,11 @@ export default function Billing() {
           <h2 id="choose" className="text-lg font-semibold">
             {t('billing.choose')}
           </h2>
-          <div role="radiogroup" aria-label={t('billingx.period')} className="relative flex rounded-full bg-slate-100 p-1 dark:bg-slate-800">
+          <div
+            role="radiogroup"
+            aria-label={t('billingx.period')}
+            className="relative flex rounded-full bg-slate-100 p-1 dark:bg-slate-800"
+          >
             <span
               aria-hidden="true"
               className="absolute inset-y-1 w-[calc(50%-4px)] rounded-full bg-white shadow-soft transition-transform duration-base ease-out dark:bg-slate-900"

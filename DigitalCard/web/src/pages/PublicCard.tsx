@@ -39,7 +39,12 @@ export default function PublicCardPage() {
   const embed = params.get('embed') === '1';
   const fromQr = params.get('src') === 'qr';
 
-  const [state, setState] = useState<{ loading: boolean; data: CardData | null; id: string | null; branding?: boolean }>({
+  const [state, setState] = useState<{
+    loading: boolean;
+    data: CardData | null;
+    id: string | null;
+    branding?: boolean;
+  }>({
     loading: true,
     data: null,
     id: null,
@@ -53,7 +58,12 @@ export default function PublicCardPage() {
     fetchPublicCard(slug)
       .then((row) => {
         if (!alive) return;
-        setState({ loading: false, data: row ? fromPublicCard(row) : null, id: row?.id ?? null, branding: !!row?.show_branding });
+        setState({
+          loading: false,
+          data: row ? fromPublicCard(row) : null,
+          id: row?.id ?? null,
+          branding: !!row?.show_branding,
+        });
         if (row && !embed) trackEvent(slug, fromQr ? 'qr_open' : 'view');
       })
       .catch(() => alive && setState({ loading: false, data: null, id: null }));

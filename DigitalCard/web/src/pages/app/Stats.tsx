@@ -112,7 +112,11 @@ export default function Stats() {
   const [range, setRange] = useState<StatsRange>('30d');
   const selected = params.get('card') ?? 'all';
   const reduced = useReducedMotion();
-  const anim = { isAnimationActive: !reduced, animationDuration: motion.duration.chart, animationEasing: 'ease-out' as const };
+  const anim = {
+    isAnimationActive: !reduced,
+    animationDuration: motion.duration.chart,
+    animationEasing: 'ease-out' as const,
+  };
 
   const allIds = useMemo(() => (cards.data ?? []).map((c) => c.id), [cards.data]);
   const ids = selected === 'all' ? allIds : [selected];

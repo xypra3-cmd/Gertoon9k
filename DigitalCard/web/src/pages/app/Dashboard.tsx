@@ -136,7 +136,10 @@ export default function Dashboard() {
       {error && <Banner tone="error">{error}</Banner>}
       {(cards.data ?? []).length === 0 && (
         <section className="card animate-fade-up relative overflow-hidden" data-testid="welcome-hero">
-          <div aria-hidden="true" className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br from-brand-400/30 to-accent-500/30 blur-3xl" />
+          <div
+            aria-hidden="true"
+            className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br from-brand-400/30 to-accent-500/30 blur-3xl"
+          />
           <div className="relative flex flex-wrap items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-bold">{t('welcome.heroTitle')}</h2>
@@ -263,7 +266,11 @@ export default function Dashboard() {
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {[...personalCards, ...orgCards].map((c, i) => (
-              <li key={c.id} style={{ animationDelay: `${i * 45}ms` }} className="card card-hover animate-fade-up flex flex-col gap-2">
+              <li
+                key={c.id}
+                style={{ animationDelay: `${i * 45}ms` }}
+                className="card card-hover animate-fade-up flex flex-col gap-2"
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="truncate font-semibold">

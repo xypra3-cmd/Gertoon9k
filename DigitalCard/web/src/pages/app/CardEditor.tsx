@@ -324,7 +324,13 @@ export default function CardEditor() {
           {input('bio', t('card.bio'), { textarea: true })}
           {fieldEnabled('bio') && (
             <div className="-mt-1 flex flex-wrap items-center gap-2">
-              <button type="button" className="btn-ai btn-sm" disabled={aiBusy} onClick={() => void writeBio()} data-testid="ai-bio">
+              <button
+                type="button"
+                className="btn-ai btn-sm"
+                disabled={aiBusy}
+                onClick={() => void writeBio()}
+                data-testid="ai-bio"
+              >
                 <SparklesIcon width={14} height={14} className={aiBusy ? 'animate-spin' : ''} />
                 {aiBusy ? t('ai.working') : t('ai.writeBio')}
               </button>

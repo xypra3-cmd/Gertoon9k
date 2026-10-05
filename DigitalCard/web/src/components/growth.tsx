@@ -82,7 +82,9 @@ export function GettingStarted({ growth, firstCardId }: { growth: Growth; firstC
               >
                 {s.done && <CheckIcon width={14} height={14} />}
               </span>
-              <span className={s.done ? 'line-through decoration-emerald-400/60' : ''}>{t(`growth.steps.${s.id}`)}</span>
+              <span className={s.done ? 'line-through decoration-emerald-400/60' : ''}>
+                {t(`growth.steps.${s.id}`)}
+              </span>
             </Link>
           </li>
         ))}
@@ -180,7 +182,10 @@ export function EmailSignatureButton({ card }: { card: Card }) {
         <div className="space-y-4">
           <p className="text-sm text-slate-500">{t('growth.signatureHelp')}</p>
           {/* HTML is generated from escaped card fields only (signatureHtml) */}
-          <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700" dangerouslySetInnerHTML={{ __html: html }} />
+          <div
+            className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
           <button type="button" className="btn-primary w-full" onClick={() => void copy()}>
             {copied ? <CheckIcon width={16} height={16} /> : <CopyIcon width={16} height={16} />}
             {copied ? t('common.copied') : t('growth.signatureCopy')}

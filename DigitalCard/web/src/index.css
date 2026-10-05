@@ -58,7 +58,12 @@
   }
   .skeleton {
     @apply animate-shimmer rounded-lg bg-[length:200%_100%];
-    background-image: linear-gradient(90deg, rgba(148, 163, 184, 0.12) 25%, rgba(148, 163, 184, 0.28) 50%, rgba(148, 163, 184, 0.12) 75%);
+    background-image: linear-gradient(
+      90deg,
+      rgba(148, 163, 184, 0.12) 25%,
+      rgba(148, 163, 184, 0.28) 50%,
+      rgba(148, 163, 184, 0.12) 75%
+    );
   }
   .gradient-text {
     @apply bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent;

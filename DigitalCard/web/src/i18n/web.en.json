@@ -318,5 +318,21 @@
     "perSeatShort": "/user ",
     "popular": "Most popular",
     "monthlyEquivalent": "Just {{amount}} per month"
+  },
+  "security": {
+    "title": "Two-factor authentication",
+    "text": "Keeps your card and contacts safe even if your password leaks. Works with Google Authenticator, 1Password and similar apps.",
+    "on": "On",
+    "off": "Off",
+    "enable": "Turn on",
+    "disable": "Turn off",
+    "disableConfirm": "Turn off 2FA?",
+    "scan": "Scan the QR with your app and enter the 6-digit code.",
+    "code": "6-digit code",
+    "verify": "Verify",
+    "enabled": "2FA is on.",
+    "disabled": "2FA is off.",
+    "challengeTitle": "Confirm sign-in",
+    "challengeText": "Enter the 6-digit code from your authenticator app."
   }
 }

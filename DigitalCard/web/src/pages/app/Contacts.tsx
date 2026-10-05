@@ -210,8 +210,15 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
   return (
     <div className="space-y-4">
       {!contact && (
-        <label className={`btn-ai w-full cursor-pointer ${ai === 'scan' ? 'pointer-events-none opacity-70' : ''}`} data-testid="ai-scan">
-          {ai === 'scan' ? <SparklesIcon width={16} height={16} className="animate-spin" /> : <CameraIcon width={16} height={16} />}
+        <label
+          className={`btn-ai w-full cursor-pointer ${ai === 'scan' ? 'pointer-events-none opacity-70' : ''}`}
+          data-testid="ai-scan"
+        >
+          {ai === 'scan' ? (
+            <SparklesIcon width={16} height={16} className="animate-spin" />
+          ) : (
+            <CameraIcon width={16} height={16} />
+          )}
           {ai === 'scan' ? t('ai.scanning') : t('ai.scanCard')}
           <input
             type="file"
@@ -339,17 +346,34 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
         </Field>
         {crm && (
           <div className="flex flex-wrap gap-2">
-            <button type="button" className="btn-ai btn-sm" disabled={!!ai || !s('note').trim()} onClick={() => void summarize()} data-testid="ai-note">
+            <button
+              type="button"
+              className="btn-ai btn-sm"
+              disabled={!!ai || !s('note').trim()}
+              onClick={() => void summarize()}
+              data-testid="ai-note"
+            >
               <SparklesIcon width={14} height={14} className={ai === 'note' ? 'animate-spin' : ''} />
               {ai === 'note' ? t('ai.working') : t('ai.summarize')}
             </button>
             {contact && (
               <span className="inline-flex items-center gap-1">
-                <select className="input !min-h-[36px] !w-auto !py-1 text-xs" aria-label={t('ai.channel')} value={channel} onChange={(e) => setChannel(e.target.value as 'email' | 'sms')}>
+                <select
+                  className="input !min-h-[36px] !w-auto !py-1 text-xs"
+                  aria-label={t('ai.channel')}
+                  value={channel}
+                  onChange={(e) => setChannel(e.target.value as 'email' | 'sms')}
+                >
                   <option value="email">{t('card.email')}</option>
                   <option value="sms">SMS / chat</option>
                 </select>
-                <button type="button" className="btn-ai btn-sm" disabled={!!ai} onClick={() => void draftFollowup()} data-testid="ai-followup">
+                <button
+                  type="button"
+                  className="btn-ai btn-sm"
+                  disabled={!!ai}
+                  onClick={() => void draftFollowup()}
+                  data-testid="ai-followup"
+                >
                   <SparklesIcon width={14} height={14} className={ai === 'followup' ? 'animate-spin' : ''} />
                   {ai === 'followup' ? t('ai.working') : t('ai.draftFollowup')}
                 </button>
@@ -358,7 +382,10 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
           </div>
         )}
         {noteAi && (
-          <div className="animate-scale-in space-y-2 rounded-xl border border-accent-500/30 bg-violet-50/60 p-3 text-sm dark:bg-violet-900/10" data-testid="ai-note-result">
+          <div
+            className="animate-scale-in space-y-2 rounded-xl border border-accent-500/30 bg-violet-50/60 p-3 text-sm dark:bg-violet-900/10"
+            data-testid="ai-note-result"
+          >
             <p>
               <strong>{t('ai.summary')}:</strong> {noteAi.summary}
             </p>
@@ -383,7 +410,10 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
           </div>
         )}
         {draftMsg && (
-          <div className="animate-scale-in space-y-2 rounded-xl border border-accent-500/30 bg-violet-50/60 p-3 text-sm dark:bg-violet-900/10" data-testid="ai-followup-result">
+          <div
+            className="animate-scale-in space-y-2 rounded-xl border border-accent-500/30 bg-violet-50/60 p-3 text-sm dark:bg-violet-900/10"
+            data-testid="ai-followup-result"
+          >
             {draftMsg.subject && (
               <p>
                 <strong>{draftMsg.subject}</strong>
@@ -394,7 +424,9 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
               <button
                 type="button"
                 className="btn-secondary btn-sm"
-                onClick={() => void navigator.clipboard.writeText(draftMsg.message).then(() => setOk(t('common.copied')))}
+                onClick={() =>
+                  void navigator.clipboard.writeText(draftMsg.message).then(() => setOk(t('common.copied')))
+                }
               >
                 <CopyIcon width={14} height={14} /> {t('ai.copy')}
               </button>
@@ -407,7 +439,10 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
                 </a>
               )}
               {channel === 'sms' && s('phone') && (
-                <a className="btn-primary btn-sm" href={`sms:${s('phone')}?&body=${encodeURIComponent(draftMsg.message)}`}>
+                <a
+                  className="btn-primary btn-sm"
+                  href={`sms:${s('phone')}?&body=${encodeURIComponent(draftMsg.message)}`}
+                >
                   {t('ai.openSms')}
                 </a>
               )}

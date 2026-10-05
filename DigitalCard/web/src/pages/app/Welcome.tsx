@@ -26,7 +26,9 @@ export default function Welcome() {
   const invalidate = useInvalidate();
   const [step, setStep] = useState<Step>(0);
   const fullDefault = profile?.full_name?.trim() ?? '';
-  const [lastName, setLastName] = useState(() => (fullDefault.split(/\s+/).length > 1 ? fullDefault.split(/\s+/)[0]! : ''));
+  const [lastName, setLastName] = useState(() =>
+    fullDefault.split(/\s+/).length > 1 ? fullDefault.split(/\s+/)[0]! : '',
+  );
   const [firstName, setFirstName] = useState(() => fullDefault.split(/\s+/).slice(-1)[0] ?? '');
   const [title, setTitle] = useState('');
   const [company, setCompany] = useState('');
@@ -70,7 +72,11 @@ export default function Welcome() {
     setBusy(true);
     setError(null);
     try {
-      const { result } = await runAi('bio', { name: `${lastName} ${firstName}`.trim(), title, company, keywords: bio }, locale);
+      const { result } = await runAi(
+        'bio',
+        { name: `${lastName} ${firstName}`.trim(), title, company, keywords: bio },
+        locale,
+      );
       setBio(result.bio.slice(0, 500));
     } catch (e) {
       setError(errorText(e));
@@ -168,13 +174,19 @@ export default function Welcome() {
           <li key={label} className="flex flex-1 items-center gap-2">
             <span
               className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm font-bold transition-colors duration-base ${
-                i < step ? 'bg-emerald-500 text-white' : i === step ? 'bg-brand-600 text-white' : 'bg-slate-200 text-slate-500 dark:bg-slate-800'
+                i < step
+                  ? 'bg-emerald-500 text-white'
+                  : i === step
+                    ? 'bg-brand-600 text-white'
+                    : 'bg-slate-200 text-slate-500 dark:bg-slate-800'
               }`}
               aria-current={i === step ? 'step' : undefined}
             >
               {i < step ? <CheckIcon width={16} height={16} /> : i + 1}
             </span>
-            <span className={`hidden text-sm sm:inline ${i === step ? 'font-semibold' : 'text-slate-500'}`}>{label}</span>
+            <span className={`hidden text-sm sm:inline ${i === step ? 'font-semibold' : 'text-slate-500'}`}>
+              {label}
+            </span>
             {i < steps.length - 1 && (
               <span className="h-0.5 flex-1 overflow-hidden rounded bg-slate-200 dark:bg-slate-800">
                 <span
@@ -195,27 +207,70 @@ export default function Welcome() {
             <>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Field label={t('card.lastName')} htmlFor="w-last">
-                  <input id="w-last" className="input" autoComplete="family-name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                  <input
+                    id="w-last"
+                    className="input"
+                    autoComplete="family-name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
                 </Field>
                 <Field label={`${t('card.firstName')} *`} htmlFor="w-first">
-                  <input id="w-first" className="input" autoComplete="given-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                  <input
+                    id="w-first"
+                    className="input"
+                    autoComplete="given-name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
                 </Field>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Field label={t('card.title')} htmlFor="w-title">
-                  <input id="w-title" className="input" autoComplete="organization-title" value={title} onChange={(e) => setTitle(e.target.value)} />
+                  <input
+                    id="w-title"
+                    className="input"
+                    autoComplete="organization-title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                  />
                 </Field>
                 <Field label={t('card.company')} htmlFor="w-company">
-                  <input id="w-company" className="input" autoComplete="organization" value={company} onChange={(e) => setCompany(e.target.value)} />
+                  <input
+                    id="w-company"
+                    className="input"
+                    autoComplete="organization"
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                  />
                 </Field>
               </div>
               <Field label={t('card.phone')} htmlFor="w-phone">
-                <input id="w-phone" className="input" type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                <input
+                  id="w-phone"
+                  className="input"
+                  type="tel"
+                  autoComplete="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
               </Field>
               <Field label={t('card.bio')} htmlFor="w-bio" hint={t('welcome.bioHint')}>
-                <textarea id="w-bio" className="input" rows={3} maxLength={500} value={bio} onChange={(e) => setBio(e.target.value)} />
+                <textarea
+                  id="w-bio"
+                  className="input"
+                  rows={3}
+                  maxLength={500}
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                />
               </Field>
-              <button type="button" className="btn-ai btn-sm" disabled={busy || !firstName.trim()} onClick={() => void aiBio()}>
+              <button
+                type="button"
+                className="btn-ai btn-sm"
+                disabled={busy || !firstName.trim()}
+                onClick={() => void aiBio()}
+              >
                 <SparklesIcon width={14} height={14} className={busy ? 'animate-spin' : ''} />
                 {busy ? t('ai.working') : t('ai.writeBio')}
               </button>
@@ -270,20 +325,39 @@ export default function Welcome() {
                   </li>
                 ))}
               </ul>
-              <p className="break-all rounded-xl bg-slate-100 px-3 py-2 font-mono text-xs dark:bg-slate-800">{publicCardUrl(slug)}</p>
+              <p className="break-all rounded-xl bg-slate-100 px-3 py-2 font-mono text-xs dark:bg-slate-800">
+                {publicCardUrl(slug)}
+              </p>
             </div>
           )}
 
           <div className="flex justify-between gap-2 pt-2">
-            <button type="button" className="btn-ghost" disabled={step === 0} onClick={() => setStep((s) => (s - 1) as Step)}>
+            <button
+              type="button"
+              className="btn-ghost"
+              disabled={step === 0}
+              onClick={() => setStep((s) => (s - 1) as Step)}
+            >
               {t('welcome.back')}
             </button>
             {step < 2 ? (
-              <button type="button" className="btn-primary" disabled={!canNext} onClick={() => setStep((s) => (s + 1) as Step)} data-testid="welcome-next">
+              <button
+                type="button"
+                className="btn-primary"
+                disabled={!canNext}
+                onClick={() => setStep((s) => (s + 1) as Step)}
+                data-testid="welcome-next"
+              >
                 {t('welcome.next')} <ArrowRightIcon width={16} height={16} />
               </button>
             ) : (
-              <button type="button" className="btn-primary" disabled={busy || !firstName.trim()} onClick={() => void publish()} data-testid="welcome-publish">
+              <button
+                type="button"
+                className="btn-primary"
+                disabled={busy || !firstName.trim()}
+                onClick={() => void publish()}
+                data-testid="welcome-publish"
+              >
                 {t('welcome.publish')}
               </button>
             )}
@@ -291,7 +365,10 @@ export default function Welcome() {
         </div>
 
         <div className="lg:sticky lg:top-20 lg:self-start">
-          <div className="rounded-3xl bg-gradient-to-br from-slate-100 to-slate-200/60 p-4 dark:from-slate-900 dark:to-slate-800/60" aria-label={t('editor.preview')}>
+          <div
+            className="rounded-3xl bg-gradient-to-br from-slate-100 to-slate-200/60 p-4 dark:from-slate-900 dark:to-slate-800/60"
+            aria-label={t('editor.preview')}
+          >
             <div key={`${template}-${scheme}`} className="animate-scale-in">
               <CardRenderer data={preview} />
             </div>

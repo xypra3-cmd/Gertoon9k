@@ -90,18 +90,24 @@ export function Reveal({
   }, []);
   const style: CSSProperties = { animationDelay: `${Math.min(index, 12) * motion.stagger}ms` };
   return (
-    <Tag
-      ref={ref as never}
-      style={style}
-      className={`${visible ? 'animate-fade-up' : 'opacity-0'} ${className}`}
-    >
+    <Tag ref={ref as never} style={style} className={`${visible ? 'animate-fade-up' : 'opacity-0'} ${className}`}>
       {children}
     </Tag>
   );
 }
 
 /** Circular progress (0..1) with an animated stroke. */
-export function ProgressRing({ value, size = 56, stroke = 6, label }: { value: number; size?: number; stroke?: number; label: string }) {
+export function ProgressRing({
+  value,
+  size = 56,
+  stroke = 6,
+  label,
+}: {
+  value: number;
+  size?: number;
+  stroke?: number;
+  label: string;
+}) {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const [v, setV] = useState(0);
@@ -110,14 +116,28 @@ export function ProgressRing({ value, size = 56, stroke = 6, label }: { value: n
     return () => cancelAnimationFrame(id);
   }, [value]);
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={label} className="-rotate-90">
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      role="img"
+      aria-label={label}
+      className="-rotate-90"
+    >
       <defs>
         <linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#3B6FF6" />
           <stop offset="100%" stopColor="#8B5CF6" />
         </linearGradient>
       </defs>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} className="stroke-slate-200 dark:stroke-slate-800" />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={r}
+        fill="none"
+        strokeWidth={stroke}
+        className="stroke-slate-200 dark:stroke-slate-800"
+      />
       <circle
         cx={size / 2}
         cy={size / 2}
@@ -141,7 +161,14 @@ export function burstConfetti(origin?: { x: number; y: number }) {
   const dpr = window.devicePixelRatio || 1;
   canvas.width = innerWidth * dpr;
   canvas.height = innerHeight * dpr;
-  Object.assign(canvas.style, { position: 'fixed', inset: '0', width: '100%', height: '100%', pointerEvents: 'none', zIndex: '60' });
+  Object.assign(canvas.style, {
+    position: 'fixed',
+    inset: '0',
+    width: '100%',
+    height: '100%',
+    pointerEvents: 'none',
+    zIndex: '60',
+  });
   document.body.appendChild(canvas);
   const ctx = canvas.getContext('2d');
   if (!ctx) return canvas.remove();
@@ -152,7 +179,15 @@ export function burstConfetti(origin?: { x: number; y: number }) {
   const parts = Array.from({ length: 90 }, () => {
     const a = Math.random() * Math.PI * 2;
     const s = 4 + Math.random() * 7;
-    return { x: ox, y: oy, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 4, r: 3 + Math.random() * 4, c: colors[Math.floor(Math.random() * colors.length)] ?? '#3B6FF6', rot: Math.random() * 6 };
+    return {
+      x: ox,
+      y: oy,
+      vx: Math.cos(a) * s,
+      vy: Math.sin(a) * s - 4,
+      r: 3 + Math.random() * 4,
+      c: colors[Math.floor(Math.random() * colors.length)] ?? '#3B6FF6',
+      rot: Math.random() * 6,
+    };
   });
   const start = performance.now();
   const frame = (now: number) => {
