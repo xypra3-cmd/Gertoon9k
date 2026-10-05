@@ -163,20 +163,23 @@ export function GrowBar({
   const reduced = useReducedMotion();
   const v = useSharedValue(0);
   useEffect(() => {
-    v.value = reduced
-      ? value
-      : withDelay(
-          delay,
-          withTiming(value, {
-            duration: motion.duration.chart,
-            easing: easeOut,
-          }),
-        );
+    v.set(
+      reduced
+        ? value
+        : withDelay(
+            delay,
+            withTiming(value, {
+              duration: motion.duration.chart,
+              easing: easeOut,
+            }),
+          ),
+    );
   }, [value, delay, reduced, v]);
-  const fill = useAnimatedStyle(() => (vertical ? { height: `${v.value * 100}%` } : { width: `${v.value * 100}%` }));
+  // vertical: animate pixels of the given track height (percent heights need a sized parent on every platform)
+  const fill = useAnimatedStyle(() => (vertical ? { height: v.get() * height } : { width: `${v.get() * 100}%` }));
   if (vertical) {
     return (
-      <View style={[{ flex: 1, justifyContent: 'flex-end' }, style]}>
+      <View style={[{ flex: 1, height, justifyContent: 'flex-end' }, style]}>
         <Animated.View
           style={[
             {

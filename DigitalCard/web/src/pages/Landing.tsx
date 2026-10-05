@@ -1,7 +1,14 @@
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { annualSavingPercent, formatMnt, PLAN_COPY, planMonthlyAmount, type PlanId } from '@digitalcard/shared';
+import {
+  annualSavingPercent,
+  byPlanOrder,
+  formatMnt,
+  PLAN_COPY,
+  planMonthlyAmount,
+  type PlanId,
+} from '@digitalcard/shared';
 import { useI18n } from '@/i18n/I18nProvider';
 import { fetchPlans } from '@/lib/publicApi';
 import { env } from '@/lib/env';
@@ -131,7 +138,7 @@ export default function Landing() {
           </p>
         )}
         <div className="mt-6 grid gap-4 md:grid-cols-3">
-          {(plans.data ?? []).map((p) => {
+          {[...(plans.data ?? [])].sort(byPlanOrder).map((p) => {
             const copy = PLAN_COPY[p.id as PlanId];
             const price = p.id === 'team' ? p.price_per_seat_mnt : planMonthlyAmount(p);
             return (

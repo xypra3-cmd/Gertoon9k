@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
   annualSavingPercent,
+  byPlanOrder,
   formatMnt,
   PLAN_COPY,
   planAmount,
@@ -128,7 +129,7 @@ export default function Billing() {
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
-          {(plans.data ?? []).map((p) => (
+          {[...(plans.data ?? [])].sort(byPlanOrder).map((p) => (
             <div
               key={p.id}
               className={`card card-hover relative flex flex-col ${p.id === 'pro' ? 'ring-2 ring-brand-600' : ''} ${p.id === current ? 'bg-brand-50/40 dark:bg-brand-900/10' : ''}`}

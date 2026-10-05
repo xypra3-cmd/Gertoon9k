@@ -52,6 +52,10 @@ export function planMonthlyAmount(
   return plan.price_mnt;
 }
 
+/** Display order of plans everywhere (Free → Pro → Team). */
+export const PLAN_ORDER: Record<string, number> = { free: 0, pro: 1, team: 2 };
+export const byPlanOrder = (a: { id: string }, b: { id: string }) => (PLAN_ORDER[a.id] ?? 9) - (PLAN_ORDER[b.id] ?? 9);
+
 export type BillingPeriod = 'month' | 'year';
 
 /** Amount for one billing period from the DB plan row. Annual prices live in plans.price_*_annual_mnt. */

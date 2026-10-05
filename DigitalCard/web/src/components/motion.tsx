@@ -90,7 +90,7 @@ export function Reveal({
   }, []);
   const style: CSSProperties = { animationDelay: `${Math.min(index, 12) * motion.stagger}ms` };
   return (
-    <Tag ref={ref as never} style={style} className={`${visible ? 'animate-fade-up' : 'opacity-0'} ${className}`}>
+    <Tag ref={ref as never} style={style} className={`${visible ? 'animate-fade-up' : 'opacity-0 print:opacity-100'} ${className}`}>
       {children}
     </Tag>
   );

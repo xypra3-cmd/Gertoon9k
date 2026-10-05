@@ -315,7 +315,7 @@
     "month": "Сараар",
     "year": "Жилээр",
     "perYear": "/жил",
-    "perSeatShort": "/хэрэглэгч ",
+    "perSeatShort": "/хэрэглэгч",
     "popular": "Хамгийн их сонгогддог",
     "monthlyEquivalent": "Сард ердөө {{amount}}"
   },

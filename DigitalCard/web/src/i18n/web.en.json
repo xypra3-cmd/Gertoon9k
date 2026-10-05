@@ -315,7 +315,7 @@
     "month": "Monthly",
     "year": "Yearly",
     "perYear": "/year",
-    "perSeatShort": "/user ",
+    "perSeatShort": "/user",
     "popular": "Most popular",
     "monthlyEquivalent": "Just {{amount}} per month"
   },

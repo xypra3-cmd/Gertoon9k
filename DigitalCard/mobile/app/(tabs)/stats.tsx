@@ -169,7 +169,7 @@ export default function Stats() {
           }}
         >
           {(daily.data ?? []).map(([day, v], i) => (
-            <GrowBar key={`${chartDays}-${day}`} vertical value={v / max} color={chartColors[0]} delay={i * (chartDays === 7 ? 40 : 12)} />
+            <GrowBar key={`${chartDays}-${day}`} vertical height={150} value={v / max} color={chartColors[0]} delay={i * (chartDays === 7 ? 40 : 12)} />
           ))}
         </View>
         {chartDays === 7 && (
