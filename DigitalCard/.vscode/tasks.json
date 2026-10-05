@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Digital Card: 0. бэлтгэл (нэг удаа)",
+      "type": "shell",
+      "windows": { "command": "powershell -ExecutionPolicy Bypass -File scripts/setup-windows.ps1" },
+      "command": "echo 'Windows-оос гадна: README.md → Хурдан эхлэх'",
+      "problemMatcher": []
+    },
+    {
+      "label": "Digital Card: 1. backend (Supabase + mock)",
+      "type": "shell",
+      "windows": { "command": "powershell -ExecutionPolicy Bypass -File scripts/dev-up-windows.ps1" },
+      "command": "scripts/dev-up.sh",
+      "problemMatcher": []
+    },
+    {
+      "label": "Digital Card: 2. web",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}/web" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Digital Card: 3. mobile (Expo)",
+      "type": "shell",
+      "command": "npx expo start",
+      "options": { "cwd": "${workspaceFolder}/mobile" },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Digital Card: бүгдийг асаах",
+      "dependsOrder": "sequence",
+      "dependsOn": ["Digital Card: 1. backend (Supabase + mock)", "Digital Card: web + mobile"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Digital Card: web + mobile",
+      "dependsOn": ["Digital Card: 2. web", "Digital Card: 3. mobile (Expo)"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Digital Card: бүх тест",
+      "type": "shell",
+      "command": "npm --prefix backend test && npm --prefix qa run test:api && npm --prefix qa run test:e2e && npm --prefix qa run test:store",
+      "problemMatcher": []
+    }
+  ]
+}

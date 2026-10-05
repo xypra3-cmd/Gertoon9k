@@ -1,0 +1,7 @@
+{
+  "deno.enablePaths": ["backend/supabase/functions"],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "typescript.tsdk": "web/node_modules/typescript/lib",
+  "files.eol": "\n"
+}

@@ -13,7 +13,18 @@ DigitalCard/
 └── docs/             # INTRODUCTION, USER_GUIDE (гарын авлага), MARKETING_PLAN, RESEARCH, PROJECT_OVERVIEW, LOGIC, DECISIONS, store/, screenshots/
 ```
 
-## Хурдан эхлэх
+## Windows + VS Code дээр ажиллуулах
+Шаардлага: Node.js 22 LTS, Docker Desktop (асаалттай), [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) (`scoop install supabase`), Git, VS Code. Android-д: Android Studio (emulator).
+
+1. VS Code → **File → Open Folder** → `DigitalCard` (санал болгосон extension-уудыг суулгана).
+2. **Terminal → Run Task → `Digital Card: 0. бэлтгэл (нэг удаа)`** — `.env` файлууд (local mock), бүх `npm install`.
+3. **Run Task → `Digital Card: бүгдийг асаах`** — Supabase + mock + seed → web (http://localhost:5173) + Expo (`a` дарвал Android emulator).
+4. Нэвтрэх: `pro@demo.mn` / `Demo1234!`. Ирсэн имэйлүүд: http://127.0.0.1:54324.
+
+Эсвэл PowerShell-ээр: `scripts\setup-windows.ps1`, дараа нь `scripts\dev-up-windows.ps1 -Reset`, `cd web; npm run dev`, `cd mobile; npx expo start`.
+Mobile-ийг бодит утсанд: `mobile\.env.local`-д `10.0.2.2`-ийн оронд компьютерийн LAN IP. Build, store: [`docs/MOBILE_BUILD_WINDOWS.md`](docs/MOBILE_BUILD_WINDOWS.md).
+
+## Хурдан эхлэх (Linux / macOS)
 ```bash
 cp backend/supabase/.env.example backend/supabase/.env   # local утгууд (backend/README.md), ANTHROPIC_* = mock
 npm --prefix backend run functions:deps                  # ai-assist-ийн Claude SDK

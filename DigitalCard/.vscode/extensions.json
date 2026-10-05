@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "denoland.vscode-deno",
+    "expo.vscode-expo-tools",
+    "ms-playwright.playwright",
+    "supabase.vscode-supabase-extension"
+  ]
+}
