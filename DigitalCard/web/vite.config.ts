@@ -17,7 +17,8 @@ export default defineConfig({
       { find: /^zod$/, replacement: r('./node_modules/zod') },
     ],
   },
-  server: { port: 5173, fs: { allow: ['..'] } },
+  // host: true → listen on IPv4 too, so the Android emulator (10.0.2.2) and phones on the LAN can reach it
+  server: { port: 5173, host: true, fs: { allow: ['..'] } },
   build: {
     target: 'es2020',
   },
