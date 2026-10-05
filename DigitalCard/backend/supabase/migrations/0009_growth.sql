@@ -372,6 +372,19 @@ create trigger cards_slug_lock
 -- -----------------------------------------------------------------------------
 -- 5. Public view: show_branding → «Made with Digital Card» on free personal cards
 -- -----------------------------------------------------------------------------
+-- Function calls inside a view are checked against the caller (anon), so expose only this boolean.
+create or replace function public.card_shows_branding(p_owner uuid, p_org uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select p_org is null and not public.has_active_plan(p_owner);
+$$;
+revoke execute on function public.card_shows_branding(uuid, uuid) from public;
+grant execute on function public.card_shows_branding(uuid, uuid) to anon, authenticated, service_role;
+
 create or replace view public.public_cards
 with (security_invoker = false, security_barrier = true)
 as
@@ -401,7 +414,7 @@ select
     from public.card_links l where l.card_id = c.id
   ), '[]'::jsonb) as links,
   c.updated_at,
-  (c.org_id is null and not public.has_active_plan(c.owner_id)) as show_branding
+  public.card_shows_branding(c.owner_id, c.org_id) as show_branding
 from public.cards c
 left join public.organizations o on o.id = c.org_id
 where c.is_published and c.deleted_at is null;

@@ -12,7 +12,7 @@ export const env = {
 
 export const functionsUrl = `${env.supabaseUrl}/functions/v1`;
 
-export function publicCardUrl(slug: string, src?: 'qr'): string {
+export function publicCardUrl(slug: string, src?: 'qr' | 'email'): string {
   return `${env.publicBaseUrl}/c/${slug}${src ? `?src=${src}` : ''}`;
 }
 

@@ -43,7 +43,15 @@ export function AutoFitText({
     };
     fit();
     if (typeof ResizeObserver === 'undefined') return;
-    const ro = new ResizeObserver(fit);
+    // Refit only when the available WIDTH changes: our own font change alters the parent's height,
+    // and reacting to that made some layouts oscillate between two sizes forever.
+    let lastWidth = el.parentElement?.clientWidth ?? 0;
+    const ro = new ResizeObserver(() => {
+      const w = el.parentElement?.clientWidth ?? 0;
+      if (w === lastWidth) return;
+      lastWidth = w;
+      fit();
+    });
     if (el.parentElement) ro.observe(el.parentElement);
     return () => ro.disconnect();
   }, [text, size, min, maxLines]);

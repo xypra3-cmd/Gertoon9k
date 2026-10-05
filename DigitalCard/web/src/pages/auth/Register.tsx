@@ -9,6 +9,7 @@ import { useI18n } from '@/i18n/I18nProvider';
 import { useErrorText } from '@/lib/useErrorText';
 import { Banner, Field } from '@/components/ui';
 import { AuthCard } from './Login';
+import { captureReferral, storedReferral } from '@/lib/growth';
 
 const schema = z.object({
   full_name: z.string().trim().min(1, 'errors.required').max(120),
@@ -25,6 +26,7 @@ export default function Register() {
   const nav = useNavigate();
   const [params] = useSearchParams();
   const plan = params.get('plan');
+  captureReferral(`?${params.toString()}`);
   const [error, setError] = useState<string | null>(null);
   const { register, handleSubmit, formState } = useForm<V>({ resolver: zodResolver(schema) });
 
@@ -35,11 +37,11 @@ export default function Register() {
     const { data, error: err } = await supabase.auth.signUp({
       email: v.email,
       password: v.password,
-      options: { data: { full_name: v.full_name, locale }, emailRedirectTo: `${window.location.origin}/app` },
+      options: { data: { full_name: v.full_name, locale, ref: storedReferral() ?? undefined }, emailRedirectTo: `${window.location.origin}/app` },
     });
     if (err) return setError(errorText(err));
     if (!data.session) return setError(t('authx.checkEmail'));
-    nav(plan === 'pro' ? '/app/billing' : plan === 'team' ? '/app/org' : '/app', { replace: true });
+    nav(plan === 'pro' ? '/app/billing' : plan === 'team' ? '/app/org' : '/app/welcome', { replace: true });
   };
 
   const e = (k: keyof V) => (formState.errors[k]?.message ? t(String(formState.errors[k]?.message)) : undefined);

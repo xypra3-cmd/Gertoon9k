@@ -22,7 +22,10 @@ import { useErrorText } from '@/lib/useErrorText';
 import { CardRenderer } from '@/templates';
 import { QrCode, qrPngDataUrl } from '@/components/QrCode';
 import { Banner, Field, Spinner, Tabs } from '@/components/ui';
-import { LockIcon } from '@/components/icons';
+import { LockIcon, SparklesIcon } from '@/components/icons';
+import { EmailSignatureButton } from '@/components/growth';
+import { burstConfetti } from '@/components/motion';
+import { runAi } from '@/lib/ai';
 
 type Draft = Pick<
   Card,
@@ -83,6 +86,7 @@ export default function CardEditor() {
   const [msg, setMsg] = useState<{ tone: 'success' | 'error'; text: string } | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
 
   useEffect(() => {
     if (!card.data) return;
@@ -117,6 +121,31 @@ export default function CardEditor() {
 
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setDraft((d) => (d ? { ...d, [k]: v } : d));
   const str = (k: keyof Draft) => (draft[k] as string | null) ?? '';
+
+  const writeBio = async () => {
+    setAiBusy(true);
+    setMsg(null);
+    try {
+      const { result } = await runAi(
+        'bio',
+        {
+          name: [draft.last_name, draft.first_name].filter(Boolean).join(' '),
+          title: draft.title,
+          company: draft.company,
+          keywords: draft.bio,
+        },
+        locale,
+      );
+      set('bio', result.bio.slice(0, 500));
+      if (!draft.slogan && fieldEnabled('slogan')) set('slogan', result.slogan.slice(0, 120));
+      setMsg({ tone: 'success', text: t('ai.bioReady') });
+      refresh();
+    } catch (e) {
+      setMsg({ tone: 'error', text: errorText(e) });
+    } finally {
+      setAiBusy(false);
+    }
+  };
 
   const save = async () => {
     setMsg(null);
@@ -169,8 +198,10 @@ export default function CardEditor() {
           if (ins.error) throw ins.error;
         }
       }
-      setMsg({ tone: 'success', text: t('editor.saved') });
-      invalidate('card', 'cards');
+      const firstPublish = draft.is_published && !c.published_at;
+      setMsg({ tone: 'success', text: firstPublish ? t('ai.publishedFirst') : t('editor.saved') });
+      if (firstPublish) burstConfetti();
+      invalidate('card', 'cards', 'growth');
     } catch (e) {
       setMsg({ tone: 'error', text: errorText(e) });
     } finally {
@@ -291,7 +322,25 @@ export default function CardEditor() {
           {input('address', t('card.address'))}
           {input('slogan', t('card.slogan'))}
           {input('bio', t('card.bio'), { textarea: true })}
-          {input('slug', t('editor.slug'))}
+          {fieldEnabled('bio') && (
+            <div className="-mt-1 flex flex-wrap items-center gap-2">
+              <button type="button" className="btn-ai btn-sm" disabled={aiBusy} onClick={() => void writeBio()} data-testid="ai-bio">
+                <SparklesIcon width={14} height={14} className={aiBusy ? 'animate-spin' : ''} />
+                {aiBusy ? t('ai.working') : t('ai.writeBio')}
+              </button>
+              <span className="text-xs text-slate-500">{t('ai.reviewHint')}</span>
+            </div>
+          )}
+          {c.published_at ? (
+            <Field label={t('editor.slug')} htmlFor="f-slug" hint={t('ai.slugLockedHint')}>
+              <div className="relative">
+                <input id="f-slug" className="input pr-10" value={draft.slug} disabled readOnly />
+                <LockIcon width={16} height={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              </div>
+            </Field>
+          ) : (
+            input('slug', t('editor.slug'))
+          )}
           <label className="flex items-center gap-2 text-sm font-medium">
             <input
               type="checkbox"
@@ -494,6 +543,7 @@ export default function CardEditor() {
             <Link to={`/app/cards/${c.id}/print`} className="btn-secondary">
               {t('editor.print')}
             </Link>
+            <EmailSignatureButton card={{ ...c, ...draft }} />
           </div>
         </div>
       )}

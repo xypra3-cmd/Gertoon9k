@@ -66,6 +66,7 @@ export default function Org() {
   const [msg, setMsg] = useState<{ tone: 'success' | 'error'; text: string } | null>(null);
   const [inviteEmail, setInviteEmail] = useState('');
   const [seats, setSeats] = useState(5);
+  const [period, setPeriod] = useState<'month' | 'year'>('month');
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [form, setForm] = useState<Pick<
     Organization,
@@ -194,7 +195,7 @@ export default function Org() {
 
   const buySeats = async () => {
     try {
-      setInvoice(await createInvoice({ plan_id: 'team', org_id: orgId, seats }));
+      setInvoice(await createInvoice({ plan_id: 'team', org_id: orgId, seats, period }));
     } catch (e) {
       setMsg({ tone: 'error', text: errorText(e) });
     }
@@ -228,10 +229,27 @@ export default function Org() {
               onChange={(e) => setSeats(Math.max(team?.min_seats ?? 5, Number(e.target.value) || 0))}
             />
           </Field>
+          <Field label={t('billingx.period')} htmlFor="period-n">
+            <select
+              id="period-n"
+              className="input !w-auto"
+              value={period}
+              onChange={(e) => setPeriod(e.target.value as 'month' | 'year')}
+            >
+              <option value="month">{t('billingx.month')}</option>
+              <option value="year">{t('billingx.year')}</option>
+            </select>
+          </Field>
           <button type="button" className="btn-primary" onClick={() => void buySeats()}>
             {active ? t('billing.renew') : t('org.buySeats')} —{' '}
-            {team ? formatMnt(team.price_per_seat_mnt * Math.max(seats, team.min_seats), locale) : ''}
-            {t('plans.perMonth')}
+            {team
+              ? formatMnt(
+                  (period === 'year' ? team.price_per_seat_annual_mnt : team.price_per_seat_mnt) *
+                    Math.max(seats, team.min_seats),
+                  locale,
+                )
+              : ''}
+            {period === 'year' ? t('billingx.perYear') : t('plans.perMonth')}
           </button>
         </div>
       </section>

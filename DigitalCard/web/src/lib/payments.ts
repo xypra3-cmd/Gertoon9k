@@ -14,6 +14,7 @@ export async function createInvoice(body: {
   plan_id: 'pro' | 'team';
   org_id?: string;
   seats?: number;
+  period?: 'month' | 'year';
 }): Promise<Invoice> {
   const { data, error } = await supabase.functions.invoke('qpay-create-invoice', { body });
   if (error) {

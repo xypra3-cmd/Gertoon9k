@@ -87,3 +87,30 @@ describe('template colors are readable (WCAG AA 4.5:1 for text on background)', 
         for (const k of ['fg', 'accent', 'muted'] as const) expect(ratio(c[k], c.bg)).toBeGreaterThanOrEqual(4.5);
       });
 });
+
+describe('annual billing helpers', () => {
+  it('computes annual amounts and savings from DB rows', async () => {
+    const { planAmount, annualSavingPercent } = await import('../src/plans');
+    const pro = { id: 'pro', price_mnt: 9900, price_per_seat_mnt: 0, price_annual_mnt: 79000, price_per_seat_annual_mnt: 0, min_seats: 1 };
+    const team = { id: 'team', price_mnt: 0, price_per_seat_mnt: 5000, price_annual_mnt: 0, price_per_seat_annual_mnt: 50000, min_seats: 5 };
+    expect(planAmount(pro, 'month')).toBe(9900);
+    expect(planAmount(pro, 'year')).toBe(79000);
+    expect(planAmount(team, 'year', 3)).toBe(250000);
+    expect(annualSavingPercent(9900, 79000)).toBe(34);
+    expect(annualSavingPercent(9900, 0)).toBe(0);
+  });
+});
+
+describe('ics', () => {
+  it('builds an all-day follow-up with escaping and folding', async () => {
+    const { buildIcs } = await import('../src/ics');
+    const ics = buildIcs([{ uid: 'c1', title: 'Follow-up: Бат, Монгол; ХХК', description: 'Үнийн санал\nилгээх', date: '2026-10-31' }],
+      new Date('2026-10-05T00:00:00Z'));
+    expect(ics).toContain('DTSTART;VALUE=DATE:20261031');
+    expect(ics).toContain('DTEND;VALUE=DATE:20261101');
+    expect(ics).toContain('Монгол\\; ХХК');
+    expect(ics).toContain('\\n');
+    for (const line of ics.split('\r\n')) expect(new TextEncoder().encode(line).length).toBeLessThanOrEqual(75);
+    expect(buildIcs([{ uid: 'x', title: 'bad', date: 'nope' }])).not.toContain('VEVENT');
+  });
+});

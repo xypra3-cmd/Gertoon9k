@@ -15,17 +15,25 @@ test('FUN-01 full user journey', async ({ page, browser }) => {
   await expect(page.locator('.field-error').first()).toBeVisible();
   await page.check('input[type=checkbox]');
   await page.click('button[type=submit]');
-  await page.waitForURL('**/app');
+  // First-run wizard: about you → design → publish (≈ 60 s for a real user)
+  await page.waitForURL('**/app/welcome');
+  await expect(page.locator('#w-first')).toHaveValue('Бат');
+  await page.fill('#w-title', 'Борлуулагч');
+  await page.getByTestId('welcome-next').click();
+  await page.getByRole('button', { name: 'Удирдлага' }).click();
+  await page.getByTestId('welcome-next').click();
+  await page.getByTestId('welcome-publish').click();
+  await expect(page.getByTestId('welcome-done')).toBeVisible();
+  const owner = (await admin.from('profiles').select('id').eq('full_name', 'Болд Бат').order('created_at', { ascending: false }).limit(1).single()).data!;
+  const created = (await admin.from('cards').select('id, slug, template_id, is_published, published_at').eq('owner_id', owner.id).single()).data!;
+  expect(created).toMatchObject({ template_id: 'executive', is_published: true });
+  expect(created.published_at).not.toBeNull();
+  const cardId = created.id;
+  const { slug } = created;
 
-  // Create + publish a card
-  await page.getByRole('button', { name: '+ Карт нэмэх' }).click();
-  await page.waitForURL(/\/app\/cards\/[0-9a-f-]+$/);
-  const cardId = page.url().split('/').pop()!;
-  await page.fill('#f-title', 'Борлуулагч');
-  await page.check('text=Нийтлэх');
-  await page.getByRole('button', { name: 'Хадгалах' }).click();
-  await expect(page.getByText('Хадгалагдлаа')).toBeVisible();
-  const { slug } = (await admin.from('cards').select('slug').eq('id', cardId).single()).data!;
+  // Dashboard shows the getting-started checklist with the first steps done
+  await page.goto('/app');
+  await expect(page.getByTestId('getting-started')).toContainText('2/6');
 
   // Another device scans the QR and leaves details
   const guestCtx = await browser.newContext({ viewport: { width: 390, height: 844 } });

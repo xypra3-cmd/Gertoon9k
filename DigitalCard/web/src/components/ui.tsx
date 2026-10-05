@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { XIcon } from './icons';
+import { AnimatedNumber } from './motion';
 import { useI18n } from '@/i18n/I18nProvider';
 
 export function Spinner({ label }: { label?: string }) {
@@ -106,9 +107,11 @@ export function Field({
 
 export function Stat({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
-    <div className="card !p-4">
+    <div className="card card-hover !p-4">
       <div className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</div>
-      <div className="mt-1 text-2xl font-bold tabular-nums">{value}</div>
+      <div className="mt-1 text-2xl font-bold tabular-nums">
+        {typeof value === 'number' ? <AnimatedNumber value={value} /> : value}
+      </div>
       {sub && <div className="mt-0.5 truncate text-xs text-slate-500">{sub}</div>}
     </div>
   );
@@ -138,9 +141,9 @@ export function Tabs<T extends string>({
           role="tab"
           aria-selected={value === it.id}
           onClick={() => onChange(it.id)}
-          className={`min-h-[40px] whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition ${
+          className={`min-h-[40px] whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition duration-base ease-out ${
             value === it.id
-              ? 'bg-white text-slate-900 shadow dark:bg-slate-900 dark:text-white'
+              ? 'bg-white text-slate-900 shadow-soft dark:bg-slate-900 dark:text-white'
               : 'text-slate-600 hover:text-slate-900 dark:text-slate-300'
           }`}
         >
@@ -149,4 +152,9 @@ export function Tabs<T extends string>({
       ))}
     </div>
   );
+}
+
+/** Shimmering placeholder blocks while data loads. */
+export function Skeleton({ className = '' }: { className?: string }) {
+  return <div aria-hidden="true" className={`skeleton ${className}`} />;
 }

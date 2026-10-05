@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { formatMnt, PLAN_COPY, type PlanId } from '@digitalcard/shared';
+import { annualSavingPercent, formatMnt, PLAN_COPY, planAmount, type BillingPeriod, type PlanId } from '@digitalcard/shared';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { createInvoice, type Invoice } from '@/lib/payments';
@@ -19,6 +19,7 @@ export default function Billing() {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [period, setPeriod] = useState<BillingPeriod>('year');
 
   const plans = useQuery({
     queryKey: ['plans'],
@@ -47,7 +48,7 @@ export default function Billing() {
     setBusy(true);
     setError(null);
     try {
-      setInvoice(await createInvoice({ plan_id: 'pro' }));
+      setInvoice(await createInvoice({ plan_id: 'pro', period }));
     } catch (e) {
       setError(errorText(e));
     } finally {
@@ -56,6 +57,17 @@ export default function Billing() {
   };
 
   const current = entitlements.personal_plan_id;
+  // Price of one unit (Pro: account, Team: seat) for the chosen period — amounts come from the plans table.
+  const unitPrice = (p: NonNullable<typeof plans.data>[number], pp: BillingPeriod) =>
+    p.id === 'team' ? (pp === 'year' ? p.price_per_seat_annual_mnt : p.price_per_seat_mnt) : planAmount(p, pp);
+  const maxSaving = Math.max(
+    0,
+    ...(plans.data ?? []).map((p) =>
+      p.id === 'team'
+        ? annualSavingPercent(p.price_per_seat_mnt, p.price_per_seat_annual_mnt)
+        : annualSavingPercent(p.price_mnt, p.price_annual_mnt),
+    ),
+  );
 
   return (
     <div className="space-y-6">
@@ -74,19 +86,66 @@ export default function Billing() {
       {error && <Banner tone="error">{error}</Banner>}
 
       <section aria-labelledby="choose">
-        <h2 id="choose" className="mb-3 text-lg font-semibold">
-          {t('billing.choose')}
-        </h2>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 id="choose" className="text-lg font-semibold">
+            {t('billing.choose')}
+          </h2>
+          <div role="radiogroup" aria-label={t('billingx.period')} className="relative flex rounded-full bg-slate-100 p-1 dark:bg-slate-800">
+            <span
+              aria-hidden="true"
+              className="absolute inset-y-1 w-[calc(50%-4px)] rounded-full bg-white shadow-soft transition-transform duration-base ease-out dark:bg-slate-900"
+              style={{ transform: period === 'year' ? 'translateX(100%)' : 'none' }}
+            />
+            {(['month', 'year'] as const).map((pp) => (
+              <button
+                key={pp}
+                type="button"
+                role="radio"
+                aria-checked={period === pp}
+                data-testid={`period-${pp}`}
+                onClick={() => setPeriod(pp)}
+                className={`relative z-10 min-h-[36px] min-w-[120px] rounded-full px-4 text-sm font-semibold transition-colors ${period === pp ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`}
+              >
+                {t(`billingx.${pp}`)}
+                {pp === 'year' && maxSaving > 0 && (
+                  <span className="ml-1.5 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                    −{maxSaving}%
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
         <div className="grid gap-4 md:grid-cols-3">
           {(plans.data ?? []).map((p) => (
-            <div key={p.id} className={`card flex flex-col ${p.id === current ? 'ring-2 ring-brand-600' : ''}`}>
-              <h3 className="text-lg font-semibold">{locale === 'mn' ? p.name_mn : p.name_en}</h3>
-              <p className="mt-1 text-2xl font-extrabold">
-                {formatMnt(p.id === 'team' ? p.price_per_seat_mnt : p.price_mnt, locale)}
+            <div
+              key={p.id}
+              className={`card card-hover relative flex flex-col ${p.id === 'pro' ? 'ring-2 ring-brand-600' : ''} ${p.id === current ? 'bg-brand-50/40 dark:bg-brand-900/10' : ''}`}
+            >
+              {p.id === 'pro' && (
+                <span className="absolute -top-3 left-4 rounded-full bg-gradient-to-r from-brand-600 to-accent-600 px-3 py-1 text-xs font-bold text-white shadow">
+                  {t('billingx.popular')}
+                </span>
+              )}
+              <h3 className="text-lg font-semibold">
+                {locale === 'mn' ? p.name_mn : p.name_en}
+                {p.id === current && <span className="chip ml-2 align-middle">{t('plans.current')}</span>}
+              </h3>
+              <p className="mt-1 text-2xl font-extrabold tabular-nums" data-testid={`price-${p.id}`}>
+                {formatMnt(unitPrice(p, p.id === 'free' ? 'month' : period), locale)}
                 <span className="text-sm font-medium text-slate-500">
-                  {p.id === 'team' ? t('plans.perSeat') : p.id === 'free' ? '' : t('plans.perMonth')}
+                  {p.id === 'free'
+                    ? ''
+                    : `${p.id === 'team' ? t('billingx.perSeatShort') : ''}${period === 'year' ? t('billingx.perYear') : t('plans.perMonth')}`}
                 </span>
               </p>
+              {period === 'year' && p.id !== 'free' && (
+                <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                  {t('billingx.monthlyEquivalent', {
+                    amount: formatMnt(Math.round(unitPrice(p, 'year') / 12), locale),
+                  })}
+                </p>
+              )}
               <ul className="mt-3 flex-1 space-y-1.5 text-sm">
                 {PLAN_COPY[p.id as PlanId]?.featureKeys.map((k) => (
                   <li key={k} className="flex gap-2">
@@ -139,6 +198,7 @@ export default function Billing() {
                   <td className="py-2 pr-4">
                     {t(`plans.${p.plan_id}`)}
                     {p.plan_id === 'team' ? ` ×${p.seats}` : ''}
+                    {p.period === 'year' ? ` · ${t('billingx.year')}` : ''}
                   </td>
                   <td className="py-2 pr-4 tabular-nums">{formatMnt(p.amount_mnt, locale)}</td>
                   <td className="py-2">{t(`billing.status${p.status[0]!.toUpperCase()}${p.status.slice(1)}`)}</td>

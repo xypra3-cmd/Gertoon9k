@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
+  buildIcs,
   buildVCard,
   CONTACT_STATUSES,
   contactSchema,
@@ -16,7 +17,8 @@ import { downloadText, toCsv } from '@/lib/download';
 import { useI18n } from '@/i18n/I18nProvider';
 import { useErrorText } from '@/lib/useErrorText';
 import { Banner, Field, Modal, Spinner } from '@/components/ui';
-import { LockIcon } from '@/components/icons';
+import { CalendarIcon, CameraIcon, CopyIcon, LockIcon, SparklesIcon } from '@/components/icons';
+import { imageToBase64, runAi, type AiResults } from '@/lib/ai';
 
 type FuFilter = '' | 'today' | 'overdue' | 'upcoming' | 'none';
 
@@ -38,7 +40,7 @@ const contactVcf = (c: Contact) =>
 function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id?: string) => void }) {
   const { t, locale } = useI18n();
   const errorText = useErrorText();
-  const { session, entitlements } = useAuth();
+  const { session, entitlements, refresh, profile } = useAuth();
   const crm = !!entitlements?.crm_enabled;
   const update = useUpdateContact();
   const create = useCreateContact();
@@ -63,6 +65,81 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
   const [tagInput, setTagInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
+  const [ai, setAi] = useState<'' | 'scan' | 'note' | 'followup'>('');
+  const [noteAi, setNoteAi] = useState<AiResults['note'] | null>(null);
+  const [draftMsg, setDraftMsg] = useState<AiResults['followup'] | null>(null);
+  const [channel, setChannel] = useState<'email' | 'sms'>('email');
+
+  const scanCard = async (file: File | undefined) => {
+    if (!file) return;
+    setAi('scan');
+    setError(null);
+    try {
+      const img = await imageToBase64(file);
+      const { result } = await runAi('scan', { image_base64: img.data, media_type: img.mediaType }, locale);
+      setV((o) => ({
+        ...o,
+        name: [result.last_name, result.first_name].filter(Boolean).join(' ') || o.name,
+        title: result.title || o.title,
+        company: result.company || o.company,
+        phone: result.phone || o.phone,
+        email: result.email || o.email,
+        website: result.website || o.website,
+      }));
+      setOk(t('ai.scanReady'));
+      refresh();
+    } catch (e) {
+      setError(errorText(e));
+    } finally {
+      setAi('');
+    }
+  };
+
+  const summarize = async () => {
+    setAi('note');
+    setError(null);
+    try {
+      const { result } = await runAi('note', { note: s('note'), name: s('name'), company: s('company') }, locale);
+      setNoteAi(result);
+      refresh();
+    } catch (e) {
+      setError(errorText(e));
+    } finally {
+      setAi('');
+    }
+  };
+
+  const applyNoteAi = () => {
+    if (!noteAi) return;
+    const merged = [...new Set([...tags, ...noteAi.tags.map((x) => x.slice(0, 30))])].slice(0, 20);
+    const days = Math.min(60, Math.max(1, Math.round(noteAi.follow_up_days || 3)));
+    setV((o) => ({
+      ...o,
+      tags: merged,
+      follow_up_at: addDays(today, days),
+      status: o.status === 'new' ? 'follow_up' : o.status,
+      note: `${(o.note as string) || ''}\n— ${noteAi.summary}\n→ ${noteAi.next_step}`.trim(),
+    }));
+    setNoteAi(null);
+  };
+
+  const draftFollowup = async () => {
+    setAi('followup');
+    setError(null);
+    try {
+      const { result } = await runAi(
+        'followup',
+        { name: s('name'), company: s('company'), note: s('note'), channel, sender: profile?.full_name ?? '' },
+        locale,
+      );
+      setDraftMsg(result);
+      refresh();
+    } catch (e) {
+      setError(errorText(e));
+    } finally {
+      setAi('');
+    }
+  };
 
   useEffect(() => {
     setV(contact ? { ...contact } : { ...empty, met_at: crm ? today : null });
@@ -132,6 +209,19 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
 
   return (
     <div className="space-y-4">
+      {!contact && (
+        <label className={`btn-ai w-full cursor-pointer ${ai === 'scan' ? 'pointer-events-none opacity-70' : ''}`} data-testid="ai-scan">
+          {ai === 'scan' ? <SparklesIcon width={16} height={16} className="animate-spin" /> : <CameraIcon width={16} height={16} />}
+          {ai === 'scan' ? t('ai.scanning') : t('ai.scanCard')}
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            capture="environment"
+            className="sr-only"
+            onChange={(e) => void scanCard(e.target.files?.[0])}
+          />
+        </label>
+      )}
       {contact && (
         <div className="flex flex-wrap gap-2 text-xs">
           <span className="chip">{t(`contacts.source.${contact.source}`)}</span>
@@ -247,6 +337,86 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
             onChange={(e) => set('note', e.target.value)}
           />
         </Field>
+        {crm && (
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className="btn-ai btn-sm" disabled={!!ai || !s('note').trim()} onClick={() => void summarize()} data-testid="ai-note">
+              <SparklesIcon width={14} height={14} className={ai === 'note' ? 'animate-spin' : ''} />
+              {ai === 'note' ? t('ai.working') : t('ai.summarize')}
+            </button>
+            {contact && (
+              <span className="inline-flex items-center gap-1">
+                <select className="input !min-h-[36px] !w-auto !py-1 text-xs" aria-label={t('ai.channel')} value={channel} onChange={(e) => setChannel(e.target.value as 'email' | 'sms')}>
+                  <option value="email">{t('card.email')}</option>
+                  <option value="sms">SMS / chat</option>
+                </select>
+                <button type="button" className="btn-ai btn-sm" disabled={!!ai} onClick={() => void draftFollowup()} data-testid="ai-followup">
+                  <SparklesIcon width={14} height={14} className={ai === 'followup' ? 'animate-spin' : ''} />
+                  {ai === 'followup' ? t('ai.working') : t('ai.draftFollowup')}
+                </button>
+              </span>
+            )}
+          </div>
+        )}
+        {noteAi && (
+          <div className="animate-scale-in space-y-2 rounded-xl border border-accent-500/30 bg-violet-50/60 p-3 text-sm dark:bg-violet-900/10" data-testid="ai-note-result">
+            <p>
+              <strong>{t('ai.summary')}:</strong> {noteAi.summary}
+            </p>
+            <p>
+              <strong>{t('ai.nextStep')}:</strong> {noteAi.next_step} · {t('ai.inDays', { n: noteAi.follow_up_days })}
+            </p>
+            <div className="flex flex-wrap gap-1">
+              {noteAi.tags.map((x) => (
+                <span key={x} className="chip">
+                  {x}
+                </span>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button type="button" className="btn-primary btn-sm" onClick={applyNoteAi}>
+                {t('ai.apply')}
+              </button>
+              <button type="button" className="btn-ghost btn-sm" onClick={() => setNoteAi(null)}>
+                {t('common.cancel')}
+              </button>
+            </div>
+          </div>
+        )}
+        {draftMsg && (
+          <div className="animate-scale-in space-y-2 rounded-xl border border-accent-500/30 bg-violet-50/60 p-3 text-sm dark:bg-violet-900/10" data-testid="ai-followup-result">
+            {draftMsg.subject && (
+              <p>
+                <strong>{draftMsg.subject}</strong>
+              </p>
+            )}
+            <p className="whitespace-pre-line">{draftMsg.message}</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                className="btn-secondary btn-sm"
+                onClick={() => void navigator.clipboard.writeText(draftMsg.message).then(() => setOk(t('common.copied')))}
+              >
+                <CopyIcon width={14} height={14} /> {t('ai.copy')}
+              </button>
+              {channel === 'email' && s('email') && (
+                <a
+                  className="btn-primary btn-sm"
+                  href={`mailto:${s('email')}?subject=${encodeURIComponent(draftMsg.subject)}&body=${encodeURIComponent(draftMsg.message)}`}
+                >
+                  {t('ai.openMail')}
+                </a>
+              )}
+              {channel === 'sms' && s('phone') && (
+                <a className="btn-primary btn-sm" href={`sms:${s('phone')}?&body=${encodeURIComponent(draftMsg.message)}`}>
+                  {t('ai.openSms')}
+                </a>
+              )}
+              <button type="button" className="btn-ghost btn-sm" onClick={() => setDraftMsg(null)}>
+                {t('common.close')}
+              </button>
+            </div>
+          </div>
+        )}
         <Field label={t('contacts.tags')} htmlFor="c-tag">
           <div className="flex flex-wrap items-center gap-2">
             {tags.map((tg) => (
@@ -431,6 +601,21 @@ export default function Contacts() {
       'text/csv;charset=utf-8',
     );
   const exportVcf = () => downloadText(filtered.map(contactVcf).join(''), `contacts-${today}.vcf`, VCARD_MIME);
+  const exportIcs = () =>
+    downloadText(
+      buildIcs(
+        all
+          .filter((c) => c.follow_up_at && c.status !== 'closed')
+          .map((c) => ({
+            uid: c.id,
+            title: `Follow-up: ${c.name}${c.company ? `, ${c.company}` : ''}`,
+            description: [c.phone, c.email, c.note].filter(Boolean).join('\n'),
+            date: c.follow_up_at!,
+          })),
+      ),
+      `followups-${today}.ics`,
+      'text/calendar;charset=utf-8',
+    );
 
   const list = (
     <div className="space-y-3">
@@ -541,6 +726,11 @@ export default function Contacts() {
           <button type="button" className="btn-secondary btn-sm" onClick={exportVcf}>
             {t('common.export')} {t('contactsx.exportVcf')}
           </button>
+          {entitlements.crm_enabled && (
+            <button type="button" className="btn-secondary btn-sm" onClick={exportIcs} data-testid="export-ics">
+              <CalendarIcon width={14} height={14} /> {t('ai.exportIcs')}
+            </button>
+          )}
           <button type="button" className="btn-primary btn-sm" onClick={() => setCreating(true)}>
             + {t('contactsx.new')}
           </button>

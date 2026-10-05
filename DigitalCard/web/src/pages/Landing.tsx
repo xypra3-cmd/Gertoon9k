@@ -1,10 +1,14 @@
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { formatMnt, PLAN_COPY, planMonthlyAmount, type PlanId } from '@digitalcard/shared';
+import { annualSavingPercent, formatMnt, PLAN_COPY, planMonthlyAmount, type PlanId } from '@digitalcard/shared';
 import { useI18n } from '@/i18n/I18nProvider';
 import { fetchPlans } from '@/lib/publicApi';
 import { env } from '@/lib/env';
-import { CheckIcon } from '@/components/icons';
+import { CheckIcon, Icon } from '@/components/icons';
+import { Reveal } from '@/components/motion';
+import { captureReferral } from '@/lib/growth';
+import type { IconName } from '@digitalcard/shared/icons';
 import { CardRenderer } from '@/templates';
 import type { CardData } from '@digitalcard/shared';
 
@@ -36,14 +40,32 @@ export default function Landing() {
   const { t, locale } = useI18n();
   const plans = useQuery({ queryKey: ['plans-public'], queryFn: fetchPlans });
 
-  const features = [1, 2, 3, 4].map((i) => ({ title: t(`landing.f${i}t`), text: t(`landing.f${i}d`) }));
+  const loc = useLocation();
+  useEffect(() => captureReferral(loc.search), [loc.search]);
+  const icons: IconName[] = ['qr', 'send', 'users', 'calendar', 'sparkles', 'pen'];
+  const features = [1, 2, 3, 4, 5, 6].map((i) => ({
+    title: t(`landing.f${i}t`),
+    text: t(`landing.f${i}d`),
+    icon: icons[i - 1]!,
+  }));
+  const proPlan = plans.data?.find((p) => p.id === 'pro');
+  const saving = proPlan ? annualSavingPercent(proPlan.price_mnt, proPlan.price_annual_mnt) : 0;
   const faqs = [1, 2, 3, 4].map((i) => ({ q: t(`landing.q${i}`), a: t(`landing.a${i}`) }));
 
   return (
     <div>
-      <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 md:grid-cols-2 md:py-20">
-        <div>
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">{t('landing.heroTitle')}</h1>
+      <section className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 md:grid-cols-2 md:py-20">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-24 right-0 -z-10 h-[420px] w-[420px] rounded-full bg-gradient-to-br from-brand-400/25 via-accent-500/20 to-transparent blur-3xl"
+        />
+        <div className="animate-fade-up">
+          <span className="chip !bg-brand-50 !text-brand-700 dark:!bg-brand-900/40 dark:!text-brand-200">
+            ✦ {t('landing.badge')}
+          </span>
+          <h1 className="mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl">
+            {t('landing.heroTitle')} <span className="gradient-text">{t('landing.heroAccent')}</span>
+          </h1>
           <p className="mt-5 text-lg text-slate-600 dark:text-slate-300">{t('landing.heroText')}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/register" className="btn-primary px-6">
@@ -59,8 +81,10 @@ export default function Landing() {
             )}
           </div>
         </div>
-        <div aria-hidden="true" className="pointer-events-none">
-          <CardRenderer data={SAMPLE} />
+        <div aria-hidden="true" className="pointer-events-none animate-scale-in [animation-delay:150ms]">
+          <div className="motion-safe:animate-[float_6s_ease-in-out_infinite]">
+            <CardRenderer data={SAMPLE} />
+          </div>
         </div>
       </section>
 
@@ -68,12 +92,15 @@ export default function Landing() {
         <h2 id="features" className="text-2xl font-bold">
           {t('landing.featuresTitle')}
         </h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((f) => (
-            <div key={f.title} className="card">
-              <h3 className="font-semibold">{f.title}</h3>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((f, i) => (
+            <Reveal key={f.title} index={i} className="card card-hover">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-brand-50 to-violet-50 text-brand-700 dark:from-brand-900/40 dark:to-violet-900/30 dark:text-brand-200">
+                <Icon name={f.icon} />
+              </span>
+              <h3 className="mt-3 font-semibold">{f.title}</h3>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{f.text}</p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -84,12 +111,12 @@ export default function Landing() {
         </h2>
         <ol className="mt-6 grid gap-4 sm:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <li key={i} className="card flex items-start gap-3">
+            <Reveal as="li" key={i} index={i} className="card flex items-start gap-3">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-600 font-bold text-white">
                 {i}
               </span>
               <span>{t(`landing.s${i}`)}</span>
-            </li>
+            </Reveal>
           ))}
         </ol>
       </section>
@@ -98,6 +125,11 @@ export default function Landing() {
         <h2 id="pricing" className="text-2xl font-bold">
           {t('landing.pricingTitle')}
         </h2>
+        {saving > 0 && proPlan && (
+          <p className="mt-2 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+            {t('landing.annualNote', { saving, amount: formatMnt(proPlan.price_annual_mnt, locale) })}
+          </p>
+        )}
         <div className="mt-6 grid gap-4 md:grid-cols-3">
           {(plans.data ?? []).map((p) => {
             const copy = PLAN_COPY[p.id as PlanId];

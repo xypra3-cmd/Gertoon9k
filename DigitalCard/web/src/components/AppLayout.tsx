@@ -40,7 +40,7 @@ export default function AppLayout() {
           end={i.end}
           onClick={() => setOpen(false)}
           className={({ isActive }) =>
-            `rounded-lg px-3 py-2 text-sm font-medium ${isActive ? 'bg-brand-50 text-brand-700 dark:bg-brand-700/20 dark:text-brand-100' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'}`
+            `rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-fast ${isActive ? 'bg-brand-50 text-brand-700 dark:bg-brand-700/20 dark:text-brand-100' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'}`
           }
         >
           {i.label}
@@ -81,7 +81,7 @@ export default function AppLayout() {
           </div>
         )}
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      <main key={loc.pathname} className="mx-auto max-w-6xl animate-fade-up px-4 py-6">
         <Outlet />
       </main>
     </div>

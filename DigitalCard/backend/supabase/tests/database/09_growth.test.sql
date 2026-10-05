@@ -1,7 +1,7 @@
 -- Growth features: annual billing, referral reward, slug lock, branding flag, AI quota (0009_growth)
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(20);
+select plan(21);
 
 insert into auth.users (id, email, aud, role, raw_user_meta_data) values
   ('99999999-0000-4000-8000-000000000001', 't-ref-a@test.mn', 'authenticated', 'authenticated', '{}');
@@ -72,6 +72,10 @@ select throws_ok($$update public.cards set slug = 'growth-again' where id = '999
 -- ---------------- branding flag ----------------
 select is((select show_branding from public.public_cards where slug = 'growth-free-c'), true, 'Free card shows «Made with Digital Card»');
 select is((select show_branding from public.public_cards where slug = 'saraa-g'), false, 'Pro cards hide branding');
+
+set local role anon;
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
+select is((select show_branding from public.public_cards where slug = 'growth-free-c'), true, 'anon can read public_cards incl. show_branding');
 
 -- ---------------- AI quota ----------------
 reset role;

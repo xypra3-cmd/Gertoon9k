@@ -29,6 +29,8 @@ export interface Entitlements {
   editable_card_ids: string[];
   orgs: OrgEntitlement[];
   is_admin: boolean;
+  ai_daily_limit: number;
+  ai_used_today: number;
 }
 
 interface AuthCtx {

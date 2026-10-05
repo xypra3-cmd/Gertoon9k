@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/i18n/I18nProvider';
 import { Banner, Modal } from './ui';
 import { CheckIcon } from './icons';
+import { burstConfetti } from './motion';
 
 /** Shows the QPay QR + bank deeplinks and polls payments.status every 3 s. */
 export function PayModal({ invoice, onClose }: { invoice: Invoice | null; onClose: () => void }) {
@@ -23,6 +24,7 @@ export function PayModal({ invoice, onClose }: { invoice: Invoice | null; onClos
       if (data && data.status !== 'pending') {
         setStatus(data.status);
         clearInterval(timer);
+        if (data.status === 'paid') burstConfetti();
         refresh();
         void qc.invalidateQueries({ queryKey: ['payments'] });
         void qc.invalidateQueries({ queryKey: ['subscription'] });

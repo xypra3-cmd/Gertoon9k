@@ -1,6 +1,6 @@
 {
   "landing": {
-    "heroTitle": "Never forget anyone you meet",
+    "heroTitle": "Never forget",
     "heroText": "A free digital business card. Show your QR — guests open your card without an app and leave their details. Note where you met and get reminded when to follow up.",
     "ctaStart": "Start free",
     "ctaLogin": "Log in",
@@ -15,7 +15,7 @@
     "f4t": "Follow-up reminders",
     "f4d": "A 'contact today' list and a morning e-mail.",
     "stepsTitle": "3 steps",
-    "s1": "Sign up and create your card in 2 minutes",
+    "s1": "Sign up and create your card in 60 seconds",
     "s2": "Show your QR or share your link",
     "s3": "Follow up with people on time",
     "pricingTitle": "Plans",
@@ -30,7 +30,14 @@
     "a4": "We never store visitors' IP addresses. Only you see your contacts.",
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
-    "refund": "Refund Policy"
+    "refund": "Refund Policy",
+    "badge": "With AI assist · Made for Mongolia",
+    "heroAccent": "anyone you meet",
+    "f5t": "AI assist",
+    "f5d": "Contacts from a card photo, note summaries, follow-up drafts and bios.",
+    "f6t": "E-mail signature",
+    "f6d": "Every e-mail shares your card — copy it in one click.",
+    "annualNote": "Pay yearly and save {saving}% — Pro is {amount} per year."
   },
   "authx": {
     "noAccount": "No account?",
@@ -231,5 +238,85 @@
       "lockedTemplate": "Locked template",
       "teamDashboard": "Team dashboard"
     }
+  },
+  "growth": {
+    "title": "Getting started",
+    "subtitle": "Finish 6 steps to get the most out of your card.",
+    "progress": "{done}/{total} steps done",
+    "steps": {
+      "card": "Create your card",
+      "photo": "Add a photo",
+      "links": "Add social links",
+      "publish": "Publish",
+      "share": "Share your QR for the first time",
+      "contact": "Add your first contact"
+    },
+    "inviteTitle": "Invite a friend — get 1 month of Pro",
+    "inviteBody": "When a friend who joined with your link makes their first payment, you get 1 month of Pro.",
+    "inviteStats": "Invited: {invited} · Rewarded: {rewarded}",
+    "inviteCta": "Copy invite link",
+    "inviteShareText": "Create your digital business card in 60 seconds",
+    "signature": "E-mail signature",
+    "signatureTitle": "E-mail signature",
+    "signatureHelp": "A button to your card under every e-mail. Copy it and paste into your Gmail/Outlook settings.",
+    "signatureCopy": "Copy signature",
+    "signatureWhere": "Gmail: Settings → See all settings → Signature. Outlook: Settings → Mail → Signatures."
+  },
+  "ai": {
+    "writeBio": "Write bio with AI",
+    "working": "Thinking…",
+    "reviewHint": "Review the result before saving.",
+    "bioReady": "Bio ready — review it and press Save.",
+    "slugLockedHint": "The link is locked after publishing so printed QR codes never break.",
+    "publishedFirst": "Congrats! Your card is live 🎉",
+    "scanCard": "Scan a paper business card (AI)",
+    "scanning": "Reading…",
+    "scanReady": "Fields filled — review and save.",
+    "summarize": "AI: summary + next step",
+    "draftFollowup": "AI: follow-up message",
+    "channel": "Channel",
+    "summary": "Summary",
+    "nextStep": "Next step",
+    "inDays": "in {n} days",
+    "apply": "Apply",
+    "copy": "Copy",
+    "openMail": "Open in e-mail",
+    "openSms": "Open in SMS",
+    "exportIcs": "Calendar (.ics)"
+  },
+  "welcome": {
+    "kicker": "Welcome 👋",
+    "title": "Let's build your card in 60 seconds",
+    "progress": "Progress",
+    "step1": "About you",
+    "step2": "Design",
+    "step3": "Publish",
+    "sampleFirst": "Your name",
+    "sampleTitle": "Job title",
+    "bioHint": "Write a few words and polish them with AI.",
+    "scheme": "Color {n}",
+    "readyTitle": "All set!",
+    "ready1": "Your card gets a link and a QR code that open instantly",
+    "ready2": "Guests leave their details without installing an app",
+    "ready3": "Add a photo and links any time later",
+    "back": "Back",
+    "next": "Continue",
+    "publish": "Publish",
+    "doneTitle": "Your card is live!",
+    "doneBody": "Show your QR or share your link.",
+    "addPhoto": "Add photo & links",
+    "toDashboard": "Dashboard",
+    "heroTitle": "Create your first card",
+    "heroBody": "3 steps, 60 seconds. Edit any time.",
+    "heroCta": "Create card"
+  },
+  "billingx": {
+    "period": "Billing period",
+    "month": "Monthly",
+    "year": "Yearly",
+    "perYear": "/year",
+    "perSeatShort": "/user ",
+    "popular": "Most popular",
+    "monthlyEquivalent": "Just {amount} per month"
   }
 }

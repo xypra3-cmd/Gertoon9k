@@ -39,7 +39,7 @@ export default function PublicCardPage() {
   const embed = params.get('embed') === '1';
   const fromQr = params.get('src') === 'qr';
 
-  const [state, setState] = useState<{ loading: boolean; data: CardData | null; id: string | null }>({
+  const [state, setState] = useState<{ loading: boolean; data: CardData | null; id: string | null; branding?: boolean }>({
     loading: true,
     data: null,
     id: null,
@@ -53,7 +53,7 @@ export default function PublicCardPage() {
     fetchPublicCard(slug)
       .then((row) => {
         if (!alive) return;
-        setState({ loading: false, data: row ? fromPublicCard(row) : null, id: row?.id ?? null });
+        setState({ loading: false, data: row ? fromPublicCard(row) : null, id: row?.id ?? null, branding: !!row?.show_branding });
         if (row && !embed) trackEvent(slug, fromQr ? 'qr_open' : 'view');
       })
       .catch(() => alive && setState({ loading: false, data: null, id: null }));
@@ -184,13 +184,25 @@ export default function PublicCardPage() {
         actions={actions}
         onLinkClick={(kind) => !embed && trackEvent(slug, 'link_click', kind)}
       />
-      {!embed && (
-        <p className="mt-6 text-center text-xs text-slate-600 dark:text-slate-400">
-          <Link to="/" className="hover:underline">
-            Digital Card
-          </Link>
-        </p>
-      )}
+      {!embed &&
+        (state.branding ? (
+          <div className="mx-auto mt-6 max-w-[440px] animate-fade-up [animation-delay:400ms]">
+            <Link
+              to="/?utm_source=card&utm_medium=footer"
+              className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+              data-testid="made-with"
+            >
+              <span className="text-slate-600 dark:text-slate-300">{t('card.madeWith')}</span>
+              <span className="font-semibold text-brand-700 dark:text-brand-200">{t('card.createYours')} →</span>
+            </Link>
+          </div>
+        ) : (
+          <p className="mt-6 text-center text-xs text-slate-600 dark:text-slate-400">
+            <Link to="/" className="hover:underline">
+              Digital Card
+            </Link>
+          </p>
+        ))}
 
       <Modal open={exchangeOpen} onClose={() => setExchangeOpen(false)} title={t('exchange.title')}>
         {sentTo !== null ? (

@@ -6,3 +6,6 @@ export * from './vcard';
 export * from './format';
 export * from './errors';
 export * from './i18n';
+export * from './design';
+export * from './ics';
+export * from './icons';

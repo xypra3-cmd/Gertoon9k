@@ -15,6 +15,7 @@ const Register = lazy(() => import('./pages/auth/Register'));
 const Forgot = lazy(() => import('./pages/auth/Forgot'));
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'));
 const Dashboard = lazy(() => import('./pages/app/Dashboard'));
+const Welcome = lazy(() => import('./pages/app/Welcome'));
 const CardEditor = lazy(() => import('./pages/app/CardEditor'));
 const CardPrint = lazy(() => import('./pages/app/CardPrint'));
 const Contacts = lazy(() => import('./pages/app/Contacts'));
@@ -51,6 +52,7 @@ export default function App() {
                 </Route>
                 <Route element={<AppLayout />}>
                   <Route path="/app" element={<Dashboard />} />
+                  <Route path="/app/welcome" element={<Welcome />} />
                   <Route path="/app/cards/:id" element={<CardEditor />} />
                   <Route path="/app/cards/:id/print" element={<CardPrint />} />
                   <Route path="/app/contacts" element={<Contacts />} />

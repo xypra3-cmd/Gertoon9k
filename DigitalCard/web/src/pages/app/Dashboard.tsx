@@ -9,7 +9,9 @@ import { publicCardUrl } from '@/lib/env';
 import { useI18n } from '@/i18n/I18nProvider';
 import { useErrorText } from '@/lib/useErrorText';
 import { Banner, Spinner } from '@/components/ui';
-import { LockIcon } from '@/components/icons';
+import { LockIcon, SparklesIcon } from '@/components/icons';
+import { EmailSignatureButton, GettingStarted, InviteCard } from '@/components/growth';
+import { useGrowth } from '@/lib/growth';
 
 function FollowupRow({ c, today }: { c: Contact; today: string }) {
   const { t } = useI18n();
@@ -60,6 +62,7 @@ export default function Dashboard() {
   const { session, profile, entitlements, refresh } = useAuth();
   const cards = useMyCards();
   const contacts = useContacts();
+  const growth = useGrowth();
   const invalidate = useInvalidate();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -131,6 +134,21 @@ export default function Dashboard() {
       </h1>
 
       {error && <Banner tone="error">{error}</Banner>}
+      {(cards.data ?? []).length === 0 && (
+        <section className="card animate-fade-up relative overflow-hidden" data-testid="welcome-hero">
+          <div aria-hidden="true" className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br from-brand-400/30 to-accent-500/30 blur-3xl" />
+          <div className="relative flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold">{t('welcome.heroTitle')}</h2>
+              <p className="text-slate-500">{t('welcome.heroBody')}</p>
+            </div>
+            <Link to="/app/welcome" className="btn-primary">
+              <SparklesIcon width={16} height={16} /> {t('welcome.heroCta')}
+            </Link>
+          </div>
+        </section>
+      )}
+      {growth.data && <GettingStarted growth={growth.data} firstCardId={cards.data?.[0]?.id ?? null} />}
       {pendingInvites.map((o) => (
         <Banner
           key={o.org_id}
@@ -244,8 +262,8 @@ export default function Dashboard() {
           </div>
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {[...personalCards, ...orgCards].map((c) => (
-              <li key={c.id} className="card flex flex-col gap-2">
+            {[...personalCards, ...orgCards].map((c, i) => (
+              <li key={c.id} style={{ animationDelay: `${i * 45}ms` }} className="card card-hover animate-fade-up flex flex-col gap-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="truncate font-semibold">
@@ -278,12 +296,15 @@ export default function Dashboard() {
                   <Link to={`/app/stats?card=${c.id}`} className="btn-ghost btn-sm">
                     {t('nav.stats')}
                   </Link>
+                  {c.is_published && <EmailSignatureButton card={c} />}
                 </div>
               </li>
             ))}
           </ul>
         )}
       </section>
+
+      {growth.data && <InviteCard growth={growth.data} />}
 
       <section className="card flex flex-wrap items-center justify-between gap-3">
         <div>

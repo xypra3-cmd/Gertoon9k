@@ -70,7 +70,9 @@
     "design": "Design",
     "links": "Links",
     "qr": "QR",
-    "addedToContacts": "Added to your contacts"
+    "addedToContacts": "Added to your contacts",
+    "madeWith": "Made with Digital Card",
+    "createYours": "Create yours free"
   },
   "exchange": {
     "title": "Leave your details",
@@ -170,6 +172,13 @@
     "not_found": "Not found.",
     "invalid": "Invalid data.",
     "invalid_email": "Invalid email.",
-    "not_authenticated": "Please log in."
+    "not_authenticated": "Please log in.",
+    "slug_locked": "The link of a published card is locked so printed QR codes never break.",
+    "ai_quota_exceeded": "You've used today's AI assist limit. Try again tomorrow.",
+    "ai_unavailable": "AI assist is temporarily unavailable. Please try again later.",
+    "ai_refused": "AI couldn't process this request. Try rephrasing it.",
+    "image_too_large": "The image is too large (max 4 MB).",
+    "referral_invalid": "Invalid invite code.",
+    "referral_window_closed": "Invite codes can be added within 7 days of sign-up, before any payment."
   }
 }

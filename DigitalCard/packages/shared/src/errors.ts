@@ -23,6 +23,13 @@ export const KNOWN_ERROR_KEYS = [
   'invalid',
   'invalid_email',
   'not_authenticated',
+  'slug_locked',
+  'ai_quota_exceeded',
+  'ai_unavailable',
+  'ai_refused',
+  'image_too_large',
+  'referral_invalid',
+  'referral_window_closed',
 ] as const;
 
 export type KnownErrorKey = (typeof KNOWN_ERROR_KEYS)[number];

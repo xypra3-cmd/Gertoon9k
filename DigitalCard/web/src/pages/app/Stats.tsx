@@ -1,18 +1,20 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
+  Area,
+  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   Legend,
-  Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
+import { chartColors, motion } from '@digitalcard/shared/design';
 import { displayName } from '@digitalcard/shared';
 import { useAuth } from '@/lib/auth';
 import { useCardStats, useMyCards, type CardStatsRow } from '@/lib/queries';
@@ -21,6 +23,14 @@ import { addDays, formatDate, rangeStart, ubToday, type StatsRange } from '@/lib
 import { env, publicCardUrl } from '@/lib/env';
 import { useI18n } from '@/i18n/I18nProvider';
 import { Spinner, Stat, Tabs } from '@/components/ui';
+import { useReducedMotion } from '@/components/motion';
+
+const tooltipStyle = {
+  borderRadius: 12,
+  border: '1px solid rgba(148,163,184,.25)',
+  boxShadow: '0 12px 32px -12px rgba(16,24,40,.25)',
+  fontSize: 12,
+};
 
 export function sumStats(rows: CardStatsRow[]): CardStatsRow {
   const z: CardStatsRow = {
@@ -64,9 +74,14 @@ export function Funnel({ s }: { s: CardStatsRow }) {
     { label: t('stats.followups'), value: s.followups, prev: s.exchanges },
   ];
   const max = Math.max(1, s.total_opens);
+  const [grown, setGrown] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setGrown(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
   return (
-    <ol className="space-y-2" data-testid="funnel">
-      {steps.map((st) => (
+    <ol className="space-y-3" data-testid="funnel">
+      {steps.map((st, i) => (
         <li key={st.label}>
           <div className="flex justify-between text-sm">
             <span>{st.label}</span>
@@ -74,10 +89,13 @@ export function Funnel({ s }: { s: CardStatsRow }) {
               {st.value} {st.prev !== null && <span className="text-slate-500">({pct(st.value, st.prev)})</span>}
             </span>
           </div>
-          <div className="mt-1 h-3 rounded-full bg-slate-100 dark:bg-slate-800">
+          <div className="mt-1 h-3 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
             <div
-              className="h-3 rounded-full bg-brand-600"
-              style={{ width: `${Math.max(2, (st.value / max) * 100)}%` }}
+              className="h-3 rounded-full bg-gradient-to-r from-brand-500 to-accent-500"
+              style={{
+                width: grown ? `${Math.max(2, (st.value / max) * 100)}%` : '0%',
+                transition: `width ${motion.duration.chart}ms cubic-bezier(0.22,1,0.36,1) ${i * 120}ms`,
+              }}
             />
           </div>
         </li>
@@ -93,6 +111,8 @@ export default function Stats() {
   const [params, setParams] = useSearchParams();
   const [range, setRange] = useState<StatsRange>('30d');
   const selected = params.get('card') ?? 'all';
+  const reduced = useReducedMotion();
+  const anim = { isAnimationActive: !reduced, animationDuration: motion.duration.chart, animationEasing: 'ease-out' as const };
 
   const allIds = useMemo(() => (cards.data ?? []).map((c) => c.id), [cards.data]);
   const ids = selected === 'all' ? allIds : [selected];
@@ -217,41 +237,56 @@ export default function Stats() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="card" aria-labelledby="c30">
+        <section className="card animate-fade-up" aria-labelledby="c30">
           <h2 id="c30" className="mb-3 font-semibold">
             {t('statsx.chart30')}
           </h2>
           <div className="h-64">
             <ResponsiveContainer>
-              <LineChart data={chart} margin={{ left: -20, right: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#94a3b833" />
-                <XAxis dataKey="day" fontSize={11} interval={4} />
-                <YAxis allowDecimals={false} fontSize={11} />
-                <Tooltip />
-                <Legend />
-                <Line
-                  isAnimationActive={false}
+              <AreaChart data={chart} margin={{ left: -20, right: 8 }}>
+                <defs>
+                  <linearGradient id="gOpens" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={chartColors[0]} stopOpacity={0.35} />
+                    <stop offset="100%" stopColor={chartColors[0]} stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gQr" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={chartColors[2]} stopOpacity={0.3} />
+                    <stop offset="100%" stopColor={chartColors[2]} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#94a3b833" />
+                <XAxis dataKey="day" fontSize={11} interval={4} tickLine={false} axisLine={false} />
+                <YAxis allowDecimals={false} fontSize={11} tickLine={false} axisLine={false} />
+                <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: '#94a3b8', strokeDasharray: '4 4' }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+                <Area
+                  {...anim}
                   type="monotone"
                   dataKey="opens"
                   name={t('stats.totalOpens')}
-                  stroke="#2557E6"
-                  strokeWidth={2}
+                  stroke={chartColors[0]}
+                  strokeWidth={2.5}
+                  fill="url(#gOpens)"
                   dot={false}
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff' }}
                 />
-                <Line
-                  isAnimationActive={false}
+                <Area
+                  {...anim}
+                  animationBegin={150}
                   type="monotone"
                   dataKey="qr"
                   name={t('stats.qrOpens')}
-                  stroke="#10B981"
-                  strokeWidth={2}
+                  stroke={chartColors[2]}
+                  strokeWidth={2.5}
+                  fill="url(#gQr)"
                   dot={false}
+                  activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff' }}
                 />
-              </LineChart>
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </section>
-        <section className="card" aria-labelledby="pl">
+        <section className="card animate-fade-up [animation-delay:90ms]" aria-labelledby="pl">
           <h2 id="pl" className="mb-3 font-semibold">
             {t('statsx.perLink')}
           </h2>
@@ -261,17 +296,15 @@ export default function Stats() {
             <div className="h-64">
               <ResponsiveContainer>
                 <BarChart data={linksChart} margin={{ left: -20, right: 8 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#94a3b833" />
-                  <XAxis dataKey="kind" fontSize={11} />
-                  <YAxis allowDecimals={false} fontSize={11} />
-                  <Tooltip />
-                  <Bar
-                    isAnimationActive={false}
-                    dataKey="clicks"
-                    name={t('stats.linkClicks')}
-                    fill="#2557E6"
-                    radius={[6, 6, 0, 0]}
-                  />
+                  <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#94a3b833" />
+                  <XAxis dataKey="kind" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis allowDecimals={false} fontSize={11} tickLine={false} axisLine={false} />
+                  <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#94a3b81a' }} />
+                  <Bar {...anim} dataKey="clicks" name={t('stats.linkClicks')} radius={[8, 8, 0, 0]} maxBarSize={48}>
+                    {linksChart.map((l, i) => (
+                      <Cell key={l.kind} fill={chartColors[i % chartColors.length]} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -279,7 +312,7 @@ export default function Stats() {
         </section>
       </div>
 
-      <section className="card" aria-labelledby="fn">
+      <section className="card animate-fade-up [animation-delay:180ms]" aria-labelledby="fn">
         <h2 id="fn" className="mb-3 font-semibold">
           {t('stats.funnel')}
         </h2>
