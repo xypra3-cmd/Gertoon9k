@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Хувилбар (git) | салбар `claude/awesome-ramanujan-6j82t4`, энэ тайлантай commit |
-| Огноо | 2026-10-04 |
+| Огноо | 2026-10-05 |
 | Орчин | ☑ Local (Linux container) ☐ Staging ☐ Production |
 | Supabase | CLI 2.119 local stack (Postgres, Auth, Storage, Edge Runtime) |
 | Web build | Vite production build, `vite preview` :5173 |
@@ -38,10 +38,17 @@
 | SEC-05 | High | 5 MB / .svg / .exe / бусдын хавтас | **PASS** | api/high |
 | SEC-06 | High | 100 хүсэлт → 30 тоологдоно | **PASS** | api/high |
 | STORE-01 | High | Mobile bundle-д ₮ / QPay / /billing | **PASS** | qa/mobile/store-check (35 bundled first-party модуль) |
+| GROW-01 | High | Жилийн төлбөр: дүн `plans.price_annual_mnt`, 1 жил сунгана; UI сар/жил сэлгүүр | **PASS** | pgTAP 09, functions, e2e/growth |
+| GROW-02 | High | Урилга: анхны төлбөрт урьсан хүнд +1 сар Pro, нэг л удаа; клиент хуурамчаар бичихгүй; өөрийгөө урихгүй | **PASS** | pgTAP 09 |
+| GROW-03 | High | Нийтэлсэн картын slug түгжигдэнэ (буулгасан ч) | **PASS** | pgTAP 09, e2e/growth |
+| GROW-04 | Medium | Free картын «Digital Card-аар бүтээв» footer, Pro-д байхгүй; anon уншина | **PASS** | pgTAP 09, e2e/growth |
+| AI-01 | High | ai-assist: нэвтрэлт, даалгаврын шалгалт, structured output + fallbacks, refusal → кредит буцаана, Free 3/өдөр, CRM даалгавар Free-д 403 | **PASS** | functions (Claude API mock) |
+| AI-02 | Medium | Editor-ийн AI био талбарыг бөглөнө, хадгалахгүй | **PASS** | e2e/growth |
+| ONB-01 | High | Бүртгэл → 3 алхамт wizard → нийтлэгдсэн карт, эхлэх жагсаалт 2/6 | **PASS** | e2e/fun-01 |
 | Load | — | 200 VU, 5 мин: **p95 = 36 ms**, алдаа **0.005 %** (157 812 хүсэлт) | **PASS** | qa/load/public-card.js |
 | Lighthouse | — | /c/:slug mobile: Performance 97, Accessibility 100, SEO 100 | **PASS** | web/README |
 
-Нийт автомат тест: pgTAP 82 · Edge Function 15 · API 35 · E2E 12 · unit 55 (shared 49, web 6) — **бүгд PASS**.
+Нийт автомат тест: pgTAP 103 · Edge Function 19 · API 35 · E2E 15 · unit 57 (shared 51, web 6) · STORE-01 (40 bundled модуль) — **бүгд PASS**.
 
 ## 2. Гараар шалгах шаардлагатай (энэ орчинд боломжгүй)
 | ID | Шалтгаан | Төлөв |
@@ -50,6 +57,7 @@
 | M-04..M-06 | Development build суулгах, Universal/App Links (домэйн + Team ID + SHA-256) | ⏳ Хийгээгүй |
 | M-07 | QPay sandbox (merchant бүртгэл хэрэгтэй) | ⏳ Хийгээгүй |
 | M-08 | Cloudflare Turnstile жинхэнэ widget | ⏳ Хийгээгүй |
+| AI бодит загвар | `ANTHROPIC_API_KEY`-тэй staging дээр 4 даалгаврыг монгол/англи хэлээр шалгах (local-д mock) | ⏳ |
 | Maestro flows | Emulator/simulator шаардлагатай | ⏳ Бэлэн, ажиллуулаагүй |
 | EAS build (APK/AAB/iOS) | Expo бүртгэл, Apple Developer шаардлагатай | ⏳ Хийгээгүй |
 | k6 staging | Production-той ижил Supabase tier дээр давтах | ⏳ |

@@ -127,3 +127,38 @@ MVP-д зөвхөн имэйл/нууц үг → App Store 4.8 шаардахг�
 
 ### D-38 Апп дотор Free/Pro ялгаа
 Апп нь багцын нэр, үнэ, upsell харуулахгүй. Эрхгүй үед зөвхөн «Таны бүртгэл одоогоор засварлах эрхгүй байна». CRM талбарууд эрхгүй үед зүгээр харагдахгүй.
+
+## Өсөлт, AI, дизайн (2026-10)
+
+### D-39 Жилийн төлбөр
+Pro: 79,000₮/жил (12 × 9,900 = 118,800₮-өөс 34% хямд, ≈ 8 сарын үнэ). Team: 50,000₮/хэрэглэгч/жил (10 сарын үнэ). Үнэ зөвхөн `plans.price_annual_mnt`, `plans.price_per_seat_annual_mnt`-д. `payments.period` нь `apply_payment_check`-д сунгах хугацааг (1 сар / 1 жил) тодорхойлно. Billing хуудас анхдагчаар «Жилээр»-ийг сонгосон байна (мөнгөн урсгал, churn ↓). Хэрэглэгч хариулаагүй тул энэ саналаар явав.
+
+### D-40 Slug түгжих
+Карт анх нийтлэгдэхэд `cards.published_at` тавигдана; түүнээс хойш клиент slug-ийг өөрчилж чадахгүй (`slug_locked`). Нийтлэлээс буулгасан ч түгжээтэй хэвээр — хэвлэсэн QR, нэрийн хуудас хэзээ ч эвдрэхгүй. Service role (админ дэмжлэг) өөрчилж чадна.
+
+### D-41 Урилгын хөтөлбөр
+Профайл бүр 8 тэмдэгтийн `referral_code`-той. `?ref=CODE`-оор бүртгүүлсэн хэрэглэгч анх төлбөр хийхэд (сервер талд баталгаажсан) урьсан хүнд +1 сар Pro (`reward_referral`, нэг хэрэглэгчид нэг удаа). OAuth-аар бүртгүүлсэн бол 7 хоногийн дотор, төлбөрөөс өмнө `claim_referral`. Mobile-д урилга харуулахгүй (шагнал нь багцтай холбоотой → store-ийн upsell дүрэм).
+
+### D-42 «Digital Card-аар бүтээв» footer
+Free хувийн картын доор жижиг CTA (`public_cards.show_branding`). Pro, Team-д нуугдана → вирал өсөлт + Pro руу шилжих нэмэлт шалтгаан. View дотор функц дуудахад anon-ийн EXECUTE эрх шалгагддаг тул зөвхөн boolean буцаадаг `card_shows_branding()` SECURITY DEFINER функц.
+
+### D-43 AI туслах (чатботгүй)
+Edge Function `ai-assist`: `bio`, `scan` (нэрийн хуудасны зураг → контакт), `note` (хураангуй, tag, дараагийн алхам, хоног), `followup` (имэйл/SMS ноорог). Claude API — албан ёсны `@anthropic-ai/sdk` (Deno, `nodeModulesDir: manual` → `npm run functions:deps`), загвар `claude-opus-5-5` (`AI_MODEL` secret-ээр солигдоно), `output_config.effort: low` + JSON schema structured output, `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`), `stop_reason: refusal` → кредит буцаана. Квот DB-д: Free 3/өдөр, төлбөртэй 100/өдөр, CRM даалгавар зөвхөн CRM-тэй багцад. Хэрэглэгч үр дүнг шалгаад өөрөө хадгална. Агуулга лог-д бичигдэхгүй. `ANTHROPIC_API_KEY` зөвхөн Edge Function secret. Зардал бууруулах шаардлага гарвал `AI_MODEL`-ийг хямд загвар руу сольж болно.
+
+### D-44 Нэгдмэл дизайн систем
+`packages/shared/src/design.ts` (өнгө, радиус, хөдөлгөөний хурд/easing/spring) ба `icons.ts` (icon-ы геометр). Web: Tailwind config + CSS keyframes; mobile: theme + Reanimated 4 + expo-haptics. Хоёулаа OS-ийн «reduce motion»-ийг хүндэтгэнэ. Анимацийн номын сан нэмээгүй (bundle жижиг).
+
+### D-45 Статистикийн анимаци
+Web: recharts Area (gradient) + Bar (өнгө тус бүр) 900 ms ease-out, KPI count-up, funnel өргөн нь stagger-тэй өснө; reduced-motion үед анимацигүй. Playwright E2E `reducedMotion: 'reduce'` → тогтвортой.
+
+### D-46 Хоёр шатлалт баталгаажуулалт (бүх хэрэглэгчид сонголтот)
+Тохиргоо → 2FA (TOTP). Factor-той хэрэглэгч шинэ session бүрт `MfaGate`-ээр код оруулна. Платформ админд заавал (aal2, DB-д).
+
+### D-47 Бүртгэлийн Turnstile
+Supabase Auth → Bot protection (Turnstile)-ийг production-д асаавал `VITE_AUTH_CAPTCHA=true` → бүртгэлийн маягт captchaToken илгээнэ. Local/CI-д унтраастай (Cloudflare хүрэхгүй).
+
+### D-48 AutoFitText хэлбэлзэл
+Нэрийн фонт багасгах үед эцэг элементийн өндөр өөрчлөгдөж ResizeObserver дахин дуудагдан 14↔24px мөнхийн давталт үүсдэг байсан (Dark загвар). Зөвхөн өргөн өөрчлөгдөхөд дахин тооцоолно.
+
+### D-49 Mobile web build
+Апп нь iOS/Android-д зориулагдсан; `lib/secureStorage.web.ts` нь зөвхөн дизайны preview/screenshot-д (sessionStorage).

@@ -14,13 +14,15 @@ backend/
     │   ├── 0003_rls.sql             RLS, public_cards, card_daily_stats
     │   ├── 0004_storage.sql         avatars/logos bucket
     │   ├── 0005_service_functions.sql  төлбөр, event, exchange, digest, stats RPC
-    │   └── 0006_cron.sql            pg_cron → Edge Functions
+    │   ├── 0006_cron.sql            pg_cron → Edge Functions
+    │   ├── 0007/0008                апп RPC, org owner select
+    │   └── 0009_growth.sql          жилийн төлбөр, урилга, slug түгжих, branding, AI квот
     ├── functions/               # Deno Edge Functions (+ _shared/)
     ├── seed.sql                 # ЗӨВХӨН local
     └── tests/
-        ├── database/*.test.sql  # pgTAP (74 тест)
-        ├── functions/*.test.mjs # Edge Function integration (15 тест)
-        └── mocks/mock-server.mjs   # QPay v2 + Turnstile mock
+        ├── database/*.test.sql  # pgTAP (103 тест)
+        ├── functions/*.test.mjs # Edge Function integration (19 тест)
+        └── mocks/mock-server.mjs   # QPay v2 + Turnstile + Claude API mock
 ```
 
 ## 1. Local-д ажиллуулах
@@ -46,7 +48,11 @@ TURNSTILE_SECRET=1x0000000000000000000000000000000AA
 TURNSTILE_VERIFY_URL=http://host.docker.internal:54399/turnstile/v0/siteverify
 PUBLIC_FUNCTIONS_URL=http://127.0.0.1:54321/functions/v1
 CRON_SECRET=<урт санамсаргүй мөр>
+ANTHROPIC_API_KEY=local-mock
+ANTHROPIC_BASE_URL=http://host.docker.internal:54399
 ```
+
+`ai-assist` нь албан ёсны Claude SDK-г local `node_modules`-оос ачаална: `npm run functions:deps` (deploy-оос өмнө ч).
 
 > QPay sandbox-той шууд ажиллуулах бол `QPAY_BASE_URL=https://merchant-sandbox.qpay.mn` болон QPay-ээс авсан sandbox нэр, нууц үг, invoice code-ыг тавина.
 > `.env`-ийг өөрчилсний дараа `supabase stop && supabase start`.
@@ -126,6 +132,7 @@ DB нь SQLSTATE `42501` (→ HTTP 403) эсвэл `P0001` (→ 400) + тогт�
 | `expire-subscriptions` | Cron өдөр бүр | Дууссаныг `expired`, 3 хоногийн өмнөх сануулга |
 | `followup-digest` | Cron 09:00 (UB) | Хэрэглэгч бүрт өдөрт 1 имэйл (`email_queue.dedupe_key`) |
 | `org-invite` | Org admin JWT | Төлсөн суудлаас хэтрүүлэхгүй |
+| `ai-assist` | Хэрэглэгчийн JWT | `{ task: bio\|scan\|note\|followup, locale, input }` → structured JSON. Квот `consume_ai_credit` (Free 3, төлбөртэй 100/өдөр), refusal/алдаанд кредит буцаана. Агуулга лог-д бичигдэхгүй |
 
 Cron endpoint-ууд `x-cron-secret: $CRON_SECRET` header шаардана. Имэйл: `email_queue` → `RESEND_API_KEY` тохируулсан бол Resend-ээр илгээнэ, үгүй бол дараалалд үлдэнэ.
 
@@ -140,7 +147,7 @@ supabase secrets set --env-file ./supabase/.env.production   # git-д оруул
 supabase functions deploy
 ```
 
-Production secrets: `QPAY_BASE_URL` (https://merchant.qpay.mn), `QPAY_USERNAME`, `QPAY_PASSWORD`, `QPAY_INVOICE_CODE`, `STATS_SALT_SECRET`, `TURNSTILE_SECRET`, `PUBLIC_FUNCTIONS_URL`, `CRON_SECRET`, `PUBLIC_APP_URL`, `ALLOWED_ORIGINS`, `RESEND_API_KEY`, `MAIL_FROM`. `TURNSTILE_VERIFY_URL`-ийг production-д тавихгүй.
+Production secrets: `QPAY_BASE_URL` (https://merchant.qpay.mn), `QPAY_USERNAME`, `QPAY_PASSWORD`, `QPAY_INVOICE_CODE`, `STATS_SALT_SECRET`, `TURNSTILE_SECRET`, `PUBLIC_FUNCTIONS_URL`, `CRON_SECRET`, `PUBLIC_APP_URL`, `ALLOWED_ORIGINS`, `RESEND_API_KEY`, `MAIL_FROM`, `ANTHROPIC_API_KEY` (заавал биш: `AI_MODEL`). `ANTHROPIC_BASE_URL`-ийг production-д тавихгүй. `TURNSTILE_VERIFY_URL`-ийг production-д тавихгүй.
 
 Cron-ийг идэвхжүүлэх (SQL editor дээр нэг удаа, утгыг Vault-д хадгална):
 
@@ -157,6 +164,7 @@ Auth: Dashboard → Authentication → MFA → TOTP идэвхжүүлнэ (ад
 
 ```sql
 update public.plans set price_mnt = 12900 where id = 'pro';
+update public.plans set price_annual_mnt = 99000 where id = 'pro';   -- жилийн үнэ
 ```
 
 ## 7. TypeScript төрөл

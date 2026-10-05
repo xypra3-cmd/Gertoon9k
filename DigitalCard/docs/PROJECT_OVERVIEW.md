@@ -755,3 +755,20 @@ flowchart LR
 | Огноо | Өөрчлөлт |
 | --- | --- |
 | 2026.10.04 | Анхны хувилбар: Basic/Pro/Org → Free/Pro/Team, contact exchange, follow-up, web-first, Phase 0 |
+
+---
+
+## Шинэчлэл 2026-10: өсөлт, AI, нэгдмэл дизайн
+
+| Чиглэл | Юу нэмэгдсэн | Хаана |
+|---|---|---|
+| Ашиг | Жилийн төлбөр (Pro 79,000₮, Team 50,000₮/хэрэглэгч), анхдагчаар «Жилээр», хэмнэлтийн тэмдэг | `0009_growth.sql`, Billing, Org |
+| Вирал | Урилга (+1 сар Pro), Free картын footer, имэйл гарын үсэг | `reward_referral`, `public_cards.show_branding`, `components/growth.tsx` |
+| Анхны мэдрэмж | 60 секундын wizard (/app/welcome), эхлэх жагсаалт + явцын цагираг, баярын анимаци | `pages/app/Welcome.tsx`, `get_my_growth()`, mobile `GettingStarted` |
+| Итгэл | Нийтэлсэн картын slug түгжих | `cards_slug_lock` trigger |
+| AI (чатботгүй) | Био, нэрийн хуудас скан, тэмдэглэлийн хураангуй, follow-up ноорог | Edge Function `ai-assist` (Claude), `ai_usage` квот |
+| Интеграц | Follow-up → календарь (.ics) | `packages/shared/src/ics.ts` |
+| Аюулгүй байдал | Бүх хэрэглэгчид 2FA (TOTP), бүртгэлийн Turnstile (flag) | `components/TwoFactor.tsx`, `VITE_AUTH_CAPTCHA` |
+| Дизайн | Нэг токен + icon (web = Android = iOS), spring/fade анимаци, haptics, анимацитай график | `packages/shared/src/design.ts`, `icons.ts`, web `motion.tsx`, mobile `components/motion.tsx` |
+
+Баримтууд: `INTRODUCTION.md` (танилцуулга), `USER_GUIDE.md` (гарын авлага), `MARKETING_PLAN.md` (ашиг, маркетинг), `RESEARCH.md` (зах зээл), `DECISIONS.md` D-39…D-49.

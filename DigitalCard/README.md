@@ -1,6 +1,6 @@
 # Digital Card
 
-Үнэгүй дижитал нэрийн хуудас + уулзалтын санах ой (contact exchange, CRM, follow-up). Web-first, Supabase + QPay; Android, iOS нь нэг Expo source-оос.
+Үнэгүй дижитал нэрийн хуудас + уулзалтын санах ой (contact exchange, CRM, follow-up) + AI туслах (чатботгүй). Web-first, Supabase + QPay (сар/жил); Android, iOS нь нэг Expo source-оос. Web = Android = iOS: нэг дизайн токен, icon, хөдөлгөөн.
 
 ```
 DigitalCard/
@@ -10,12 +10,13 @@ DigitalCard/
 ├── mobile/           # Prompt 02/03 — Expo SDK 57 (Android + iOS), апп дотор төлбөргүй        ✅
 ├── qa/               # Prompt 04 — API, Playwright, Maestro, k6, STORE-01, тайлан            ✅
 ├── scripts/dev-up.sh # local stack-ийг нэг командаар асаана
-└── docs/             # PROJECT_OVERVIEW, LOGIC, USER_GUIDE, DECISIONS, store/
+└── docs/             # INTRODUCTION, USER_GUIDE (гарын авлага), MARKETING_PLAN, RESEARCH, PROJECT_OVERVIEW, LOGIC, DECISIONS, store/, screenshots/
 ```
 
 ## Хурдан эхлэх
 ```bash
-cp backend/supabase/.env.example backend/supabase/.env   # local утгууд (backend/README.md)
+cp backend/supabase/.env.example backend/supabase/.env   # local утгууд (backend/README.md), ANTHROPIC_* = mock
+npm --prefix backend run functions:deps                  # ai-assist-ийн Claude SDK
 scripts/dev-up.sh --reset                                # Supabase + QPay/Turnstile mock + seed
 
 cd web && cp .env.example .env.local && npm install && npm run dev       # http://localhost:5173
@@ -25,7 +26,7 @@ Demo бүртгэл (зөвхөн local): `basic@demo.mn`, `pro@demo.mn`, `org-o
 
 ## Тест
 ```bash
-npm --prefix backend test                 # pgTAP (82) + Edge Function (15)
+npm --prefix backend test                 # pgTAP (103) + Edge Function (19)
 cd qa && npm install
 npm run test:api                          # Critical + High API (35)
 npm run test:e2e                          # Playwright (12, 20 visual baseline)
