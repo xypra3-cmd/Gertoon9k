@@ -41,6 +41,10 @@ SetKey '..\web\.env.local' 'VITE_SUPABASE_ANON_KEY' $anon
 SetKey '..\web\.env.local' 'VITE_DEMO_MODE' 'true'
 SetKey '..\mobile\.env.local' 'EXPO_PUBLIC_SUPABASE_ANON_KEY' $anon
 
+if (-not (Get-NetFirewallRule -DisplayName 'DigitalCard local mock 54399' -ErrorAction SilentlyContinue)) {
+  Write-Host "`n! AI / QPay mock-д Docker-оос хандахын тулд (нэг удаа, админ PowerShell):" -ForegroundColor Yellow
+  Write-Host "  New-NetFirewallRule -DisplayName 'DigitalCard local mock 54399' -Direction Inbound -Protocol TCP -LocalPort 54399 -Action Allow"
+}
 Write-Host "`nStack бэлэн:" -ForegroundColor Green
 Write-Host '  API        http://127.0.0.1:54321'
 Write-Host '  Имэйл (Mailpit) http://127.0.0.1:54324'

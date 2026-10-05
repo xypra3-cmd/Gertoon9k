@@ -336,7 +336,10 @@ export default function Welcome() {
               type="button"
               className="btn-ghost"
               disabled={step === 0}
-              onClick={() => setStep((s) => (s - 1) as Step)}
+              onClick={() => {
+                setError(null);
+                setStep((s) => (s - 1) as Step);
+              }}
             >
               {t('welcome.back')}
             </button>
@@ -345,7 +348,10 @@ export default function Welcome() {
                 type="button"
                 className="btn-primary"
                 disabled={!canNext}
-                onClick={() => setStep((s) => (s + 1) as Step)}
+                onClick={() => {
+                  setError(null);
+                  setStep((s) => (s + 1) as Step);
+                }}
                 data-testid="welcome-next"
               >
                 {t('welcome.next')} <ArrowRightIcon width={16} height={16} />

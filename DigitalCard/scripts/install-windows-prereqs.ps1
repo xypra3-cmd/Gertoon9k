@@ -36,6 +36,10 @@ $env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [En
 scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
 scoop install supabase
 
+# Docker (WSL2) доторх Edge Function нь компьютер дээрх mock сервер (QPay/Turnstile/Claude, :54399) руу
+# хандана. Windows Firewall үүнийг "Public" сүлжээ гэж хаадаг тул зөвхөн энэ портыг нээнэ.
+New-NetFirewallRule -DisplayName 'DigitalCard local mock 54399' -Direction Inbound -Protocol TCP -LocalPort 54399 -Action Allow -ErrorAction SilentlyContinue | Out-Null
+
 # Expo / EAS CLI (mobile build)
 $env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [Environment]::GetEnvironmentVariable('Path', 'User')
 npm install -g eas-cli

@@ -12,7 +12,7 @@ export default function Modern({ data, colors, actions, onLinkClick }: TemplateP
           <Logo data={data} height={22} />
         </div>
       </div>
-      <div className="-mt-12 px-6">
+      <div className="relative -mt-12 px-6">
         <div className="inline-block rounded-full" style={{ boxShadow: `0 0 0 4px ${colors.bg}` }}>
           <Avatar data={data} size={96} colors={colors} />
         </div>
