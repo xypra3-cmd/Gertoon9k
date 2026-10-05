@@ -9,6 +9,7 @@
     "mock": "node supabase/tests/mocks/mock-server.mjs",
     "test:functions": "node --test supabase/tests/functions/*.test.mjs",
     "test": "supabase db reset && supabase test db && node --test supabase/tests/functions/*.test.mjs",
-    "types": "supabase gen types typescript --local > ../packages/shared/src/database.types.ts"
+    "types": "supabase gen types typescript --local > ../packages/shared/src/database.types.ts",
+    "functions:deps": "npm ci --no-audit --no-fund --prefix supabase/functions/ai-assist"
   }
 }

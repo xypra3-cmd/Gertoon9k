@@ -1,4 +1,4 @@
-// POST { plan_id: 'pro' | 'team', org_id?: uuid, seats?: number } with the user's JWT.
+// POST { plan_id: 'pro' | 'team', org_id?: uuid, seats?: number, period?: 'month' | 'year' } with the user's JWT.
 // Creates a pending payment (amount from the plans table) and a QPay v2 invoice.
 import { env, json, logEvent, preflight, readJson } from '../_shared/http.ts';
 import { DbError, getUser, rpc } from '../_shared/db.ts';
@@ -8,6 +8,7 @@ interface Body {
   plan_id?: string;
   org_id?: string | null;
   seats?: number | null;
+  period?: 'month' | 'year' | null;
 }
 
 interface Pending {
@@ -36,6 +37,7 @@ Deno.serve(async (req) => {
       p_plan_id: body.plan_id,
       p_org_id: body.org_id ?? null,
       p_seats: body.seats ?? null,
+      p_period: body.period === 'year' ? 'year' : 'month',
     });
     pending = rows[0];
   } catch (e) {

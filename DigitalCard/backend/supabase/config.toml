@@ -393,6 +393,8 @@ TURNSTILE_SECRET = "env(TURNSTILE_SECRET)"
 TURNSTILE_VERIFY_URL = "env(TURNSTILE_VERIFY_URL)"
 PUBLIC_FUNCTIONS_URL = "env(PUBLIC_FUNCTIONS_URL)"
 CRON_SECRET = "env(CRON_SECRET)"
+ANTHROPIC_API_KEY = "env(ANTHROPIC_API_KEY)"
+ANTHROPIC_BASE_URL = "env(ANTHROPIC_BASE_URL)"
 
 [analytics]
 enabled = false
@@ -426,6 +428,8 @@ enabled = true
 # Edge Functions. JWT is verified inside the functions that need a user
 # (qpay-create-invoice, org-invite); public & cron endpoints check their own auth.
 # ---------------------------------------------------------------------------
+[functions.ai-assist]
+verify_jwt = false
 [functions.qpay-create-invoice]
 verify_jwt = false
 [functions.qpay-callback]

@@ -10,7 +10,8 @@ const PORT = Number(process.env.MOCK_PORT ?? 54399);
 const TURNSTILE_PASS = 'XXXX.DUMMY.TOKEN.XXXX'; // Cloudflare's documented dummy token
 
 let invoices = new Map(); // invoice_id → { amount, sender_invoice_no, paid: null | { amount } }
-let calls = { token: 0, invoice: 0, check: 0, turnstile: 0 };
+let calls = { token: 0, invoice: 0, check: 0, turnstile: 0, ai: 0 };
+let lastAi = null; // last /v1/messages request body (tests assert on the shape)
 
 const send = (res, status, body) => {
   res.writeHead(status, { 'Content-Type': 'application/json' });
@@ -74,6 +75,24 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
+  // Claude Messages API mock (ai-assist): answers with schema-shaped JSON per task.
+  if (url.pathname === '/v1/messages') {
+    calls.ai++;
+    lastAi = body;
+    if (!req.headers['x-api-key']) return send(res, 401, { type: 'error', error: { type: 'authentication_error', message: 'no key' } });
+    const sys = String(body.system ?? '');
+    const userText = JSON.stringify(body.messages ?? []);
+    const base = { id: 'msg_mock', type: 'message', role: 'assistant', model: body.model, stop_sequence: null,
+      usage: { input_tokens: 10, output_tokens: 20 } };
+    if (userText.includes('REFUSE_ME')) return send(res, 200, { ...base, content: [], stop_reason: 'refusal' });
+    const out = sys.includes('card bio') ? { bio: 'Туршлагатай борлуулалтын менежер.', slogan: 'Итгэлтэй түнш' }
+      : sys.includes('business card') && sys.includes('photographed') ? { first_name: 'Бат', last_name: 'Дорж', title: 'Менежер',
+          company: 'Монгол ХХК', phone: '+97699001122', email: 'bat@example.mn', website: '', address: '' }
+      : sys.includes('meeting note') ? { summary: 'Түншлэлийн санал ярилцсан.', tags: ['түнш', 'санал'], next_step: 'Үнийн санал илгээх', follow_up_days: 3 }
+      : { subject: 'Уулзалтын дараа', message: 'Сайн байна уу! Уулзсандаа баяртай байлаа.' };
+    return send(res, 200, { ...base, content: [{ type: 'text', text: JSON.stringify(out) }], stop_reason: 'end_turn' });
+  }
+
   if (url.pathname === '/turnstile/v0/siteverify') {
     calls.turnstile++;
     const params = new URLSearchParams(raw.includes('=') && !raw.includes('Content-Disposition') ? raw : '');
@@ -97,7 +116,7 @@ const server = http.createServer(async (req, res) => {
     return send(res, 200, { ok: true });
   }
   if (url.pathname === '/__mock/state') {
-    return send(res, 200, { calls, invoices: Object.fromEntries(invoices) });
+    return send(res, 200, { calls, invoices: Object.fromEntries(invoices), lastAi });
   }
   return send(res, 404, { error: 'not found' });
 });

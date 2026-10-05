@@ -293,3 +293,59 @@ test('storage: only own folder, ≤ 2 MB, jpeg/png/webp', async () => {
   assert.ok((await upload(basic.token, `${basic.id}/x.svg`, svg, 'image/svg+xml')) >= 400, 'svg rejected');
   assert.ok((await upload(basic.token, `${basic.id}/x.exe`, png, 'application/x-msdownload')) >= 400, 'exe rejected');
 });
+
+// ---------------------------------------------------------------------------
+// ai-assist (Claude API mocked by the mock server)
+// ---------------------------------------------------------------------------
+const mockState = async () => (await fetch(`${MOCK}/__mock/state`)).json();
+
+test('ai-assist: requires login, validates task', async () => {
+  assert.equal((await call('ai-assist', { body: { task: 'bio', input: { name: 'A' } } })).status, 401);
+  const { token } = await login('pro@demo.mn');
+  assert.equal((await call('ai-assist', { token, body: { task: 'chat', input: { q: 'hi' } } })).status, 400);
+  assert.equal((await call('ai-assist', { token, body: { task: 'bio', input: {} } })).status, 400);
+});
+
+test('ai-assist: bio returns structured result, request uses structured output + fallbacks', async () => {
+  const { token } = await login('pro@demo.mn');
+  const r = await call('ai-assist', { token, body: { task: 'bio', locale: 'mn', input: { name: 'Сараа', title: 'Зөвлөх' } } });
+  assert.equal(r.status, 200, JSON.stringify(r.body));
+  assert.equal(typeof r.body.result.bio, 'string');
+  assert.equal(typeof r.body.remaining, 'number');
+  const { lastAi } = await mockState();
+  assert.equal(lastAi.output_config.format.type, 'json_schema');
+  assert.equal(lastAi.fallbacks, 'default');
+  assert.ok(!('thinking' in lastAi) || lastAi.thinking.type !== 'disabled');
+});
+
+test('ai-assist: CRM tasks need a CRM plan; free quota is 3/day; refusal refunds the credit', async () => {
+  const free = await login('basic@demo.mn');
+  // basic@demo.mn may have been upgraded by the QPay test above → use a fresh free user
+  const email = `ai-free-${Date.now()}@test.mn`;
+  await fetch(`${API}/auth/v1/admin/users`, { method: 'POST', headers: svc,
+    body: JSON.stringify({ email, password: 'Demo1234!', email_confirm: true }) });
+  const { token } = await login(email);
+  assert.ok(free.token);
+  assert.equal((await call('ai-assist', { token, body: { task: 'note', input: { note: 'x' } } })).status, 403);
+
+  const refused = await call('ai-assist', { token, body: { task: 'bio', input: { name: 'REFUSE_ME' } } });
+  assert.equal(refused.status, 422);
+  for (let i = 0; i < 3; i++) {
+    assert.equal((await call('ai-assist', { token, body: { task: 'bio', input: { name: `N${i}` } } })).status, 200);
+  }
+  const over = await call('ai-assist', { token, body: { task: 'bio', input: { name: 'N4' } } });
+  assert.equal(over.status, 429);
+  assert.equal(over.body.error, 'ai_quota_exceeded');
+});
+
+test('qpay-create-invoice: annual period charges plans.price_annual_mnt', async () => {
+  const email = `annual-${Date.now()}@test.mn`;
+  await fetch(`${API}/auth/v1/admin/users`, { method: 'POST', headers: svc,
+    body: JSON.stringify({ email, password: 'Demo1234!', email_confirm: true }) });
+  const { token } = await login(email);
+  const r = await call('qpay-create-invoice', { token, body: { plan_id: 'pro', period: 'year' } });
+  assert.equal(r.status, 200, JSON.stringify(r.body));
+  const [plan] = await rest('plans?id=eq.pro&select=price_annual_mnt');
+  assert.equal(r.body.amount_mnt, plan.price_annual_mnt);
+  assert.equal((await paymentByInv(r.body.sender_invoice_no)).period, 'year');
+});

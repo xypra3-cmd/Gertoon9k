@@ -54,7 +54,11 @@ jobs:
           TURNSTILE_VERIFY_URL=http://host.docker.internal:54399/turnstile/v0/siteverify
           PUBLIC_FUNCTIONS_URL=http://127.0.0.1:54321/functions/v1
           CRON_SECRET=local-cron-secret
+          ANTHROPIC_API_KEY=ci-mock
+          ANTHROPIC_BASE_URL=http://host.docker.internal:54399
           ENV
+      - name: Edge Function dependencies (Claude SDK for ai-assist)
+        run: cd backend && npm run functions:deps
       - name: Start Supabase
         run: cd backend && supabase start -x studio,logflare,vector,imgproxy,supavisor,realtime,postgres-meta
       - name: QPay / Turnstile mock

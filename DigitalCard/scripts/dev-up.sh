@@ -14,12 +14,16 @@ docker info >/dev/null 2>&1 || { echo "Docker is not running"; exit 1; }
 
 cd "$ROOT/backend"
 [ -f supabase/.env ] || { echo "Create backend/supabase/.env from supabase/.env.example first"; exit 1; }
+# ai-assist imports the Claude SDK from a local node_modules (nodeModulesDir: manual)
+[ -d supabase/functions/ai-assist/node_modules ] || npm run functions:deps >/dev/null
 EXCLUDE="studio,logflare,vector,imgproxy,supavisor,realtime,postgres-meta"
 # A cold start can time out while Postgres boots, or skip the edge runtime: retry until healthy.
 for attempt in 1 2 3; do
   if timeout 60 supabase status >/dev/null 2>&1 && ! timeout 60 supabase status 2>&1 | grep -q "edge_runtime"; then break; fi
   timeout 120 supabase stop >/dev/null 2>&1 || true
-  supabase start -x "$EXCLUDE" || sleep 5
+  # Host variables must not leak into the edge runtime (they override supabase/.env).
+  env -u ANTHROPIC_API_KEY -u ANTHROPIC_BASE_URL -u SSL_CERT_FILE -u DENO_CERT -u DENO_TLS_CA_STORE \
+    supabase start -x "$EXCLUDE" || sleep 5
 done
 
 if ! curl -s -o /dev/null http://127.0.0.1:54399/__mock/state; then
