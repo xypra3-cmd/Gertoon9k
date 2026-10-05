@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { buildVCard, vcardFileName } from '@digitalcard/shared/vcard';
-import { contactSchema } from '@digitalcard/shared/validation';
+import { CONTACT_STATUSES, contactSchema } from '@digitalcard/shared/validation';
 import type { Contact } from '@digitalcard/shared/types';
 import { useAuth } from '@/lib/auth';
 import { useContacts, ubToday } from '@/lib/cards';
@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase';
 import { useI18n } from '@/lib/i18n';
 import { errorText } from '@/lib/errors';
 import { Button, Card, Field, Loading, Notice, Screen, Txt } from '@/components/ui';
-import { Appear, haptic, Icon } from '@/components/motion';
+import { Appear, haptic, Icon, PressScale } from '@/components/motion';
 import { photographCard, runAi, type AiResults } from '@/lib/ai';
 import { useTheme } from '@/lib/theme';
 
@@ -54,6 +54,8 @@ function ContactForm({ id, existing, startScan }: { id: string; existing: Contac
             email: existing.email ?? '',
             note: existing.note ?? '',
             follow_up_at: existing.follow_up_at ?? '',
+            status: existing.status ?? 'new',
+            tags: (existing.tags ?? []).join(', '),
           }
         : {},
   );
@@ -175,7 +177,18 @@ function ContactForm({ id, existing, startScan }: { id: string; existing: Contac
       title: d.title ?? null,
       phone: d.phone ?? null,
       email: d.email ?? null,
-      ...(crm ? { note: d.note ?? null, follow_up_at: d.follow_up_at ?? null } : {}),
+      ...(crm
+        ? {
+            note: d.note ?? null,
+            follow_up_at: d.follow_up_at ?? null,
+            status: (v.status as Contact['status']) || 'new',
+            tags: (v.tags ?? '')
+              .split(',')
+              .map((x) => x.trim().slice(0, 30))
+              .filter(Boolean)
+              .slice(0, 20),
+          }
+        : {}),
     };
     setBusy(true);
     const res = isNew ? await supabase.from('contacts').insert({ ...row, owner_id: session!.user.id, source: 'manual' }) : await supabase.from('contacts').update(row).eq('id', id);
@@ -259,6 +272,38 @@ function ContactForm({ id, existing, startScan }: { id: string; existing: Contac
       <Field label={t('card.email')} value={v.email ?? ''} onChangeText={set('email')} keyboardType="email-address" autoCapitalize="none" />
       {crm ? (
         <>
+          <View style={{ gap: 6 }}>
+            <Txt muted size={14} weight="600">
+              {t('m.status')}
+            </Txt>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+              {CONTACT_STATUSES.map((st) => {
+                const on = (v.status || 'new') === st;
+                return (
+                  <PressScale
+                    key={st}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: on }}
+                    onPress={() => setV((o) => ({ ...o, status: st }))}
+                    style={{
+                      paddingHorizontal: 12,
+                      minHeight: 36,
+                      justifyContent: 'center',
+                      borderRadius: 18,
+                      backgroundColor: on ? th.primary : th.card,
+                      borderWidth: 1,
+                      borderColor: on ? th.primary : th.border,
+                    }}
+                  >
+                    <Txt size={13} weight="600" style={{ color: on ? th.onPrimary : th.text }}>
+                      {t(`contacts.status.${st}`)}
+                    </Txt>
+                  </PressScale>
+                );
+              })}
+            </View>
+          </View>
+          <Field label={t('contacts.tags')} value={v.tags ?? ''} onChangeText={set('tags')} placeholder={t('m.tagsHint')} autoCapitalize="none" />
           <Field label={t('contacts.note')} value={v.note ?? ''} onChangeText={set('note')} multiline style={{ minHeight: 96 }} />
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <View style={{ flex: 1 }}>

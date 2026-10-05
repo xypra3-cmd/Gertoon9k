@@ -1,20 +1,22 @@
 // Card editing on mobile: fields only (templates are chosen on the web and simply not shown here).
 // Org employees can only change the fields their organization allows. The DB enforces all of it.
 import { useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, Switch, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import { cardSchema, IMAGE_UPLOAD, linkSchema, LINK_KINDS } from '@digitalcard/shared/validation';
 import type { TablesUpdate } from '@digitalcard/shared/types';
 import { useAuth } from '@/lib/auth';
-import { useMyCards } from '@/lib/cards';
+import { useMyCards , fromCardRow } from '@/lib/cards';
 import { supabase } from '@/lib/supabase';
 import { useI18n } from '@/lib/i18n';
 import { errorText } from '@/lib/errors';
 import { useTheme } from '@/lib/theme';
 import { Button, Card, Field, Loading, Notice, Screen, Txt } from '@/components/ui';
-import { haptic, Icon } from '@/components/motion';
+import { Appear, haptic, Icon } from '@/components/motion';
+import { CardView } from '@/components/CardView';
+import { TEMPLATES, type TemplateId } from '@digitalcard/shared/templates';
 import { runAi } from '@/lib/ai';
 
 type LinkRow = {
@@ -22,7 +24,7 @@ type LinkRow = {
   label: string;
   url: string;
 };
-const FIELDS = ['first_name', 'last_name', 'title', 'company', 'phone', 'email', 'website', 'bio'] as const;
+const FIELDS = ['first_name', 'last_name', 'title', 'company', 'phone', 'email', 'website', 'address', 'slogan', 'bio'] as const;
 
 type CardRow = NonNullable<ReturnType<typeof useMyCards>['data']>[number];
 
@@ -52,6 +54,9 @@ function EditForm({ card }: { card: CardRow }) {
       })),
   );
   const [avatar, setAvatar] = useState<string | null>(card.avatar_path);
+  const [template, setTemplate] = useState<TemplateId>(card.template_id as TemplateId);
+  const [scheme, setScheme] = useState<'a' | 'b'>((card.color_scheme as 'a' | 'b') ?? 'a');
+  const [published, setPublished] = useState(card.is_published);
   const [msg, setMsg] = useState<{
     tone: 'error' | 'success';
     text: string;
@@ -71,6 +76,11 @@ function EditForm({ card }: { card: CardRow }) {
   const org = card.org_id ? entitlements.orgs.find((o) => o.org_id === card.org_id) : null;
   const isOrgAdmin = !!org && (org.role === 'owner' || org.role === 'admin');
   const allowed = (f: string) => !card.org_id || isOrgAdmin || (org?.allow_employee_edit_fields ?? []).includes(f);
+  const canDesign = !card.org_id || isOrgAdmin;
+  const preview = fromCardRow(
+    { ...card, ...Object.fromEntries(FIELDS.map((f) => [f, v[f] || null])), first_name: v.first_name || card.first_name, template_id: template, color_scheme: scheme, avatar_path: avatar },
+    links.filter((l) => l.url.startsWith('https://')),
+  );
 
   const pickPhoto = async () => {
     const res = await ImagePicker.launchImageLibraryAsync({
@@ -132,6 +142,9 @@ function EditForm({ card }: { card: CardRow }) {
       if (allowed(f) && nv !== (card[f] ?? null)) patch[f] = nv;
     });
     if (allowed('avatar_path') && avatar !== card.avatar_path) patch.avatar_path = avatar;
+    if (canDesign && template !== card.template_id) patch.template_id = template;
+    if (canDesign && scheme !== card.color_scheme) patch.color_scheme = scheme;
+    if (allowed('is_published') && published !== card.is_published) patch.is_published = published;
     setBusy(true);
     try {
       if (Object.keys(patch).length) {
@@ -176,11 +189,65 @@ function EditForm({ card }: { card: CardRow }) {
     phone: t('card.phone'),
     email: t('card.email'),
     website: t('card.website'),
+    address: t('card.address'),
+    slogan: t('card.slogan'),
     bio: t('card.bio'),
   };
 
   return (
     <Screen>
+      <Appear>
+        <CardView data={preview} interactive={false} />
+      </Appear>
+      {canDesign ? (
+        <Card>
+          <Txt weight="600">{t('m.design')}</Txt>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {TEMPLATES.map((tpl) => {
+              const on = tpl.id === template;
+              return (
+                <Pressable
+                  key={tpl.id}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: on }}
+                  accessibilityLabel={tpl.name[locale]}
+                  onPress={() => {
+                    haptic.tap();
+                    setTemplate(tpl.id);
+                  }}
+                  style={{ width: '31%', gap: 4, padding: 6, borderRadius: 12, borderWidth: 2, borderColor: on ? th.primary : th.border }}
+                >
+                  <View style={{ flexDirection: 'row', height: 24, borderRadius: 6, overflow: 'hidden' }}>
+                    <View style={{ flex: 1, backgroundColor: tpl.colors[scheme].bg }} />
+                    <View style={{ width: 10, backgroundColor: tpl.colors[scheme].accent }} />
+                  </View>
+                  <Txt size={12} weight={on ? '700' : '400'}>
+                    {tpl.name[locale]}
+                  </Txt>
+                </Pressable>
+              );
+            })}
+          </View>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {(['a', 'b'] as const).map((s) => (
+              <View key={s} style={{ flex: 1 }}>
+                <Button title={t('welcome.scheme', { n: s === 'a' ? 1 : 2 })} variant={scheme === s ? 'primary' : 'secondary'} onPress={() => setScheme(s)} />
+              </View>
+            ))}
+          </View>
+        </Card>
+      ) : null}
+      {allowed('is_published') ? (
+        <Card style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flex: 1 }}>
+            <Txt weight="600">{t('card.published')}</Txt>
+            <Txt muted size={13}>
+              {published ? t('m.publishedHint') : t('m.draftHint')}
+            </Txt>
+          </View>
+          <Switch value={published} onValueChange={(x) => setPublished(x)} accessibilityLabel={t('card.published')} />
+        </Card>
+      ) : null}
       {FIELDS.map((f) => (
         <Field
           key={f}

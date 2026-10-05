@@ -1,19 +1,19 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Platform, Pressable, Share, View, useWindowDimensions } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as Brightness from 'expo-brightness';
 import * as Clipboard from 'expo-clipboard';
 import QRCode from 'react-native-qrcode-svg';
-import { WebView } from 'react-native-webview';
 import { displayName } from '@digitalcard/shared/format';
 import { useAuth } from '@/lib/auth';
-import { useMyCards } from '@/lib/cards';
+import { fromCardRow, ubToday, useContacts, useMyCards } from '@/lib/cards';
 import { publicCardUrl } from '@/lib/env';
 import { useI18n } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
 import { Button, Card, Loading, Notice, Screen, Txt } from '@/components/ui';
 import { GettingStarted } from '@/components/GettingStarted';
-import { Appear, haptic } from '@/components/motion';
+import { CardView } from '@/components/CardView';
+import { Appear, haptic, Icon, PressScale } from '@/components/motion';
 
 /** Raise screen brightness while the QR is visible; restore on leave (helps scanners in daylight). */
 function useQrBrightness() {
@@ -39,6 +39,43 @@ function useQrBrightness() {
   );
 }
 
+function TodayFollowups() {
+  const { t } = useI18n();
+  const th = useTheme();
+  const router = useRouter();
+  const contacts = useContacts();
+  const today = ubToday();
+  const due = useMemo(() => (contacts.data?.rows ?? []).filter((c) => c.follow_up_at && c.follow_up_at <= today && c.status !== 'closed').slice(0, 5), [contacts.data, today]);
+  if (due.length === 0) return null;
+  return (
+    <Appear index={2}>
+      <Card>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Icon name="calendar" color={th.primary} size={18} />
+          <Txt weight="700">{t('m.todayFollowups', { n: due.length })}</Txt>
+        </View>
+        {due.map((c) => (
+          <PressScale key={c.id} accessibilityRole="button" accessibilityLabel={c.name} onPress={() => router.push(`/contact/${c.id}`)}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderTopWidth: 1, borderTopColor: th.border }}>
+              <View style={{ flex: 1 }}>
+                <Txt weight="600">{c.name}</Txt>
+                {c.company ? (
+                  <Txt muted size={13}>
+                    {c.company}
+                  </Txt>
+                ) : null}
+              </View>
+              <Txt size={13} style={{ color: c.follow_up_at! < today ? th.danger : th.primary }}>
+                {c.follow_up_at! < today ? t('contacts.overdue') : t('m.today')}
+              </Txt>
+            </View>
+          </PressScale>
+        ))}
+      </Card>
+    </Appear>
+  );
+}
+
 export default function MyCard() {
   const { t } = useI18n();
   const th = useTheme();
@@ -51,24 +88,40 @@ export default function MyCard() {
   useQrBrightness();
 
   if (cards.isLoading) return <Loading />;
-  const published = (cards.data ?? []).filter((c) => c.is_published);
+  const all = cards.data ?? [];
+  const published = all.filter((c) => c.is_published);
+
   if (published.length === 0) {
+    const draft = all[0];
     return (
       <Screen>
-        <Notice text={t('m.noCard')} />
+        <Appear>
+          <Card style={{ alignItems: 'center', gap: 12, paddingVertical: 28 }}>
+            <View style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: th.primarySoft, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="sparkles" color={th.primary} size={30} />
+            </View>
+            <Txt size={22} weight="700" style={{ textAlign: 'center' }}>
+              {draft ? t('m.publishTitle') : t('welcome.heroTitle')}
+            </Txt>
+            <Txt muted style={{ textAlign: 'center' }}>
+              {draft ? t('m.publishBody') : t('welcome.heroBody')}
+            </Txt>
+            <View style={{ alignSelf: 'stretch' }}>
+              <Button title={draft ? t('m.editCard') : t('welcome.heroCta')} onPress={() => router.push(draft ? `/edit/${draft.id}` : '/welcome')} />
+            </View>
+          </Card>
+        </Appear>
         <GettingStarted />
       </Screen>
     );
   }
+
   const card = published[Math.min(index, published.length - 1)]!;
   const url = publicCardUrl(card.slug);
-  const qrSize = Math.min(width - 96, 320);
+  const qrSize = Math.min(width - 112, 280);
   const editable = entitlements?.editable_card_ids.includes(card.id) ?? false;
-  const name = displayName({
-    firstName: card.first_name,
-    lastName: card.last_name,
-    nameFormat: card.name_format as 'initial' | 'full',
-  });
+  const name = displayName({ firstName: card.first_name, lastName: card.last_name, nameFormat: card.name_format as 'initial' | 'full' });
+  const data = fromCardRow(card, card.card_links ?? []);
 
   return (
     <Screen>
@@ -80,39 +133,34 @@ export default function MyCard() {
               accessibilityRole="tab"
               accessibilityState={{ selected: i === index }}
               accessibilityLabel={`${t('m.switchCard')}: ${c.slug}`}
-              onPress={() => setIndex(i)}
+              onPress={() => {
+                haptic.tap();
+                setIndex(i);
+              }}
               style={{
-                paddingHorizontal: 12,
+                paddingHorizontal: 14,
                 minHeight: 40,
                 justifyContent: 'center',
                 borderRadius: 20,
                 backgroundColor: i === index ? th.primary : th.card,
                 borderWidth: 1,
-                borderColor: th.border,
+                borderColor: i === index ? th.primary : th.border,
               }}
             >
-              <Txt size={14} style={{ color: i === index ? th.onPrimary : th.text }}>
+              <Txt size={14} weight="600" style={{ color: i === index ? th.onPrimary : th.text }}>
                 /{c.slug}
               </Txt>
             </Pressable>
           ))}
         </View>
       )}
-      <Appear>
-        <Card style={{ alignItems: 'center', gap: 12 }}>
+      <Appear key={card.id}>
+        <Card style={{ alignItems: 'center', gap: 10 }}>
           <Txt size={22} weight="700">
             {name}
           </Txt>
           {card.title ? <Txt muted>{card.title}</Txt> : null}
-          <View
-            accessible
-            accessibilityLabel={`QR: ${url}`}
-            style={{
-              backgroundColor: '#FFFFFF',
-              padding: 16,
-              borderRadius: 16,
-            }}
-          >
+          <View accessible accessibilityLabel={`QR: ${url}`} style={{ backgroundColor: '#FFFFFF', padding: 16, borderRadius: 20 }}>
             <QRCode value={publicCardUrl(card.slug, 'qr')} size={qrSize} ecl="M" />
           </View>
           <Txt muted size={13} selectable>
@@ -125,12 +173,13 @@ export default function MyCard() {
       </Appear>
       <View style={{ flexDirection: 'row', gap: 8 }}>
         <View style={{ flex: 1 }}>
-          <Button title={t('common.share')} onPress={() => void Share.share({ message: url, url })} />
+          <Button title={t('common.share')} icon={<Icon name="share" color={th.onPrimary} size={18} />} onPress={() => void Share.share({ message: url, url })} />
         </View>
         <View style={{ flex: 1 }}>
           <Button
             title={copied ? t('common.copied') : t('common.copyLink')}
             variant="secondary"
+            icon={<Icon name={copied ? 'check' : 'copy'} color={th.text} size={18} />}
             onPress={async () => {
               await Clipboard.setStringAsync(url);
               haptic.success();
@@ -140,20 +189,21 @@ export default function MyCard() {
           />
         </View>
       </View>
+      {editable ? (
+        <Button title={t('m.editCard')} variant="secondary" icon={<Icon name="pen" color={th.text} size={18} />} onPress={() => router.push(`/edit/${card.id}`)} />
+      ) : (
+        <Notice text={t('m.noEditRights')} />
+      )}
+      <TodayFollowups />
       <GettingStarted />
-      {editable ? <Button title={t('m.editCard')} variant="secondary" onPress={() => router.push(`/edit/${card.id}`)} /> : <Notice text={t('m.noEditRights')} />}
-      {/* Preview renders the real web template (no duplicated template code in the app). */}
-      <View
-        style={{
-          height: 560,
-          borderRadius: 16,
-          overflow: 'hidden',
-          borderWidth: 1,
-          borderColor: th.border,
-        }}
-      >
-        <WebView source={{ uri: `${url}?embed=1` }} originWhitelist={['https://*', 'http://*']} setSupportMultipleWindows={false} accessibilityLabel={t('m.preview')} />
-      </View>
+      <Appear index={3}>
+        <Txt weight="700" style={{ marginTop: 4 }}>
+          {t('m.preview')}
+        </Txt>
+      </Appear>
+      <Appear index={4}>
+        <CardView data={data} />
+      </Appear>
     </Screen>
   );
 }

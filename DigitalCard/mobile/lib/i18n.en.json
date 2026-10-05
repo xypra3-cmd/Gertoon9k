@@ -14,7 +14,7 @@
     }
   },
   "m": {
-    "noCard": "You have no published card. Create one on the web.",
+    "noCard": "You have no published card.",
     "switchCard": "Switch card",
     "brightness": "Screen brightness raised while showing the QR",
     "scanHint": "Place the QR code inside the frame",
@@ -58,7 +58,25 @@
     "notifDaily": "Check today's follow-ups",
     "preview": "Preview",
     "empty": "No contacts.",
-    "remindersDevBuild": "Reminders are not available in Expo Go. They work in a development or store build."
+    "remindersDevBuild": "Reminders are not available in Expo Go. They work in a development or store build.",
+    "todayFollowups": "Follow up today ({{n}})",
+    "today": "Today",
+    "publishTitle": "Publish your card",
+    "publishBody": "Your card is a draft. Once published, the QR and link start working.",
+    "design": "Design and color",
+    "publishedHint": "QR and link are live",
+    "draftHint": "Draft — only you can see it",
+    "filter": {
+      "all": "All",
+      "today": "Today",
+      "overdue": "Overdue",
+      "new": "New"
+    },
+    "scanShort": "AI scan",
+    "contactCount": "{{count}} / {{limit}} contacts",
+    "status": "Status",
+    "tagsHint": "comma separated: partner, expo",
+    "add": "Add"
   },
   "ai": {
     "writeBio": "Write bio with AI",
@@ -87,5 +105,29 @@
       "share": "Share your QR",
       "contact": "First contact"
     }
+  },
+  "welcome": {
+    "title": "Create your card",
+    "step1": "About you",
+    "step2": "Design",
+    "step3": "Publish",
+    "sampleFirst": "Your name",
+    "sampleTitle": "Job title",
+    "bioHint": "Write a few words and polish them with AI.",
+    "scheme": "Color {{n}}",
+    "readyTitle": "All set!",
+    "ready1": "Your card gets a link and a QR code that open instantly",
+    "ready2": "Guests leave their details without installing an app",
+    "ready3": "Add a photo and links any time later",
+    "back": "Back",
+    "next": "Continue",
+    "publish": "Publish",
+    "doneTitle": "Your card is live!",
+    "doneBody": "Show your QR or share your link.",
+    "addPhoto": "Add photo & links",
+    "toHome": "Home",
+    "heroTitle": "Create your first card",
+    "heroBody": "3 steps, 60 seconds. Edit any time.",
+    "heroCta": "Create card"
   }
 }

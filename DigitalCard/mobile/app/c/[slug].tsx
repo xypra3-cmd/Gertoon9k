@@ -12,7 +12,9 @@ import { supabase } from '@/lib/supabase';
 import { trackEvent } from '@/lib/track';
 import { openAppSettings, saveToPhone } from '@/lib/phoneContacts';
 import { errorText } from '@/lib/errors';
-import { Button, Card, Loading, Notice, Screen, Txt } from '@/components/ui';
+import { Button, Loading, Notice, Screen } from '@/components/ui';
+import { CardView } from '@/components/CardView';
+import { Appear } from '@/components/motion';
 
 export default function ScannedCard() {
   const { slug = '', src } = useLocalSearchParams<{ slug: string; src?: string }>();
@@ -65,15 +67,9 @@ export default function ScannedCard() {
   return (
     <Screen>
       <Stack.Screen options={{ title: name }} />
-      <Card>
-        <Txt size={24} weight="700">
-          {name}
-        </Txt>
-        {card.title ? <Txt>{card.title}</Txt> : null}
-        {card.company ? <Txt muted>{card.company}</Txt> : null}
-        {card.phone ? <Txt selectable>{card.phone}</Txt> : null}
-        {card.email ? <Txt selectable>{card.email}</Txt> : null}
-      </Card>
+      <Appear>
+        <CardView data={card} />
+      </Appear>
       {msg ? <Notice tone={msg.tone} text={msg.text} /> : null}
       {msg?.settings ? <Button title={t('m.openSettings')} variant="secondary" onPress={() => void openAppSettings()} /> : null}
       <Button title={t('card.saveToPhone')} onPress={() => void save()} />

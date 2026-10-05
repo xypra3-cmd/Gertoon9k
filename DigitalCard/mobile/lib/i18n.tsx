@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getLocales } from 'expo-localization';
 import { messages, type Locale } from '@digitalcard/shared/i18n';
 import mobileMn from './i18n.mn.json';
 import mobileEn from './i18n.en.json';
@@ -29,8 +28,8 @@ interface Ctx {
 const I18nCtx = createContext<Ctx | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const device = getLocales()[0]?.languageCode === 'en' ? 'en' : 'mn';
-  const [locale, setLocaleState] = useState<Locale>(device);
+  // Mongolian first (the product's primary language); the user can switch in Settings and the choice is saved.
+  const [locale, setLocaleState] = useState<Locale>('mn');
   useEffect(() => {
     void AsyncStorage.getItem('dc-locale').then((v) => (v === 'mn' || v === 'en') && setLocaleState(v));
   }, []);
@@ -38,10 +37,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     setLocaleState(l);
     void AsyncStorage.setItem('dc-locale', l);
   }, []);
-  const t = useCallback<T>(
-    (key, params = {}) => (lookup(dicts[locale], key) ?? lookup(dicts.mn, key) ?? key).replace(/\{\{(\w+)\}\}/g, (_, p: string) => String(params[p] ?? '')),
-    [locale],
-  );
+  const t = useCallback<T>((key, params = {}) => (lookup(dicts[locale], key) ?? lookup(dicts.mn, key) ?? key).replace(/\{\{(\w+)\}\}/g, (_, p: string) => String(params[p] ?? '')), [locale]);
   const value = useMemo(() => ({ locale, setLocale, t }), [locale, setLocale, t]);
   return <I18nCtx.Provider value={value}>{children}</I18nCtx.Provider>;
 }

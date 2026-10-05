@@ -76,3 +76,46 @@ export function rangeStartIso(days: number | null): string | null {
   const day = new Date(Date.now() + 8 * 3600e3 - (days - 1) * 864e5).toISOString().slice(0, 10);
   return new Date(Date.parse(`${day}T00:00:00Z`) - 8 * 3600e3).toISOString();
 }
+
+type CardRowLike = {
+  slug: string;
+  template_id: string;
+  color_scheme: string;
+  first_name: string;
+  last_name: string | null;
+  name_format: string;
+  title: string | null;
+  company: string | null;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  address: string | null;
+  bio: string | null;
+  slogan: string | null;
+  avatar_path: string | null;
+  logo_path: string | null;
+};
+
+/** Own card row (+ links) → the same CardData the web templates render. */
+export function fromCardRow(c: CardRowLike, links: { kind: string; label: string | null; url: string; sort?: number }[] = []): CardData {
+  return {
+    slug: c.slug,
+    templateId: c.template_id,
+    colorScheme: (c.color_scheme as 'a' | 'b') ?? 'a',
+    firstName: c.first_name,
+    lastName: c.last_name,
+    nameFormat: (c.name_format as 'initial' | 'full') ?? 'initial',
+    title: c.title,
+    company: c.company,
+    phone: c.phone,
+    email: c.email,
+    website: c.website,
+    address: c.address,
+    bio: c.bio,
+    slogan: c.slogan,
+    avatarUrl: storageUrl('avatars', c.avatar_path),
+    logoUrl: storageUrl('logos', c.logo_path),
+    brandColor: null,
+    links: [...links].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0)).map((l) => ({ kind: l.kind as LinkKind, label: l.label, url: l.url })),
+  };
+}
