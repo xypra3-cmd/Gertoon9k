@@ -14,6 +14,7 @@ DigitalCard/
 ```
 
 ## Windows + VS Code дээр ажиллуулах
+Шаардлагатай программуудыг нэг командаар: администратороор PowerShell → `powershell -ExecutionPolicy Bypass -File scripts\install-windows-prereqs.ps1` → restart.
 Шаардлага: Node.js 22 LTS, Docker Desktop (асаалттай), [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) (`scoop install supabase`), Git, VS Code. Android-д: Android Studio (emulator).
 
 1. VS Code → **File → Open Folder** → `DigitalCard` (санал болгосон extension-уудыг суулгана).
