@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Linking, Switch, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Notifications from 'expo-notifications';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { useI18n } from '@/lib/i18n';
@@ -9,18 +8,7 @@ import { env } from '@/lib/env';
 import { errorText } from '@/lib/errors';
 import { useTheme } from '@/lib/theme';
 import { Button, Card, Notice, Screen, Txt } from '@/components/ui';
-
-async function setDailyReminder(on: boolean, title: string, body: string) {
-  await Notifications.cancelAllScheduledNotificationsAsync();
-  if (!on) return true;
-  const perm = await Notifications.requestPermissionsAsync();
-  if (!perm.granted) return false;
-  await Notifications.scheduleNotificationAsync({
-    content: { title, body },
-    trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: 9, minute: 0 },
-  });
-  return true;
-}
+import { setDailyReminder } from '@/lib/reminders';
 
 export default function Settings() {
   const { t, locale, setLocale } = useI18n();
@@ -50,7 +38,9 @@ export default function Settings() {
   };
 
   const toggleReminders = async (v: boolean) => {
-    const ok = await setDailyReminder(v, t('m.notifDaily'), t('m.notifBody'));
+    const res = await setDailyReminder(v, t('m.notifDaily'), t('m.notifBody'));
+    const ok = res === 'ok';
+    if (res === 'unsupported') setMsg({ tone: 'error', text: t('m.remindersDevBuild') });
     setReminders(v && ok);
     await AsyncStorage.setItem('dc-reminders', v && ok ? '1' : '0');
   };

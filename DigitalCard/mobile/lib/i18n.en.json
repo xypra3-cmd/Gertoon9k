@@ -57,7 +57,8 @@
     "checkEmail": "Account created. Confirm your e-mail and log in.",
     "notifDaily": "Check today's follow-ups",
     "preview": "Preview",
-    "empty": "No contacts."
+    "empty": "No contacts.",
+    "remindersDevBuild": "Reminders are not available in Expo Go. They work in a development or store build."
   },
   "ai": {
     "writeBio": "Write bio with AI",
