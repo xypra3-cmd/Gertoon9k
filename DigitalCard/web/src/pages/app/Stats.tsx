@@ -212,11 +212,7 @@ export default function Stats() {
           <Stat label={t('stats.uniqueVisitors')} value={total.unique_visitors} />
           <Stat label={t('stats.linkClicks')} value={total.link_clicks} />
           <Stat label={t('stats.contactSaves')} value={total.contact_saves} />
-          <Stat
-            label={t('stats.topLink')}
-            value={total.top_link_clicks || '—'}
-            sub={total.top_link_kind ?? undefined}
-          />
+          <Stat label={t('stats.topLink')} value={linksChart[0]?.clicks ?? '—'} sub={linksChart[0]?.kind} />
         </div>
       )}
 
@@ -234,6 +230,7 @@ export default function Stats() {
                 <Tooltip />
                 <Legend />
                 <Line
+                  isAnimationActive={false}
                   type="monotone"
                   dataKey="opens"
                   name={t('stats.totalOpens')}
@@ -242,6 +239,7 @@ export default function Stats() {
                   dot={false}
                 />
                 <Line
+                  isAnimationActive={false}
                   type="monotone"
                   dataKey="qr"
                   name={t('stats.qrOpens')}
@@ -267,7 +265,13 @@ export default function Stats() {
                   <XAxis dataKey="kind" fontSize={11} />
                   <YAxis allowDecimals={false} fontSize={11} />
                   <Tooltip />
-                  <Bar dataKey="clicks" name={t('stats.linkClicks')} fill="#2557E6" radius={[6, 6, 0, 0]} />
+                  <Bar
+                    isAnimationActive={false}
+                    dataKey="clicks"
+                    name={t('stats.linkClicks')}
+                    fill="#2557E6"
+                    radius={[6, 6, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>

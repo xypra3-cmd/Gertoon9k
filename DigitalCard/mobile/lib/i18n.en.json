@@ -4,7 +4,14 @@
     "scan": "Scan",
     "contacts": "Contacts",
     "stats": "Statistics",
-    "settings": "Settings"
+    "settings": "Settings",
+    "short": {
+      "card": "Card",
+      "scan": "Scan",
+      "contacts": "Contacts",
+      "stats": "Stats",
+      "settings": "Settings"
+    }
   },
   "m": {
     "noCard": "You have no published card. Create one on the web.",

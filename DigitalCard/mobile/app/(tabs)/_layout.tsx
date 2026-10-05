@@ -25,11 +25,11 @@ export default function TabsLayout() {
         headerTitleStyle: { color: th.text },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: t('tabs.card'), tabBarIcon: glyph('▣'), tabBarAccessibilityLabel: t('tabs.card') }} />
-      <Tabs.Screen name="scan" options={{ title: t('tabs.scan'), tabBarIcon: glyph('⌖'), tabBarAccessibilityLabel: t('tabs.scan') }} />
-      <Tabs.Screen name="contacts" options={{ title: t('tabs.contacts'), tabBarIcon: glyph('☰'), tabBarAccessibilityLabel: t('tabs.contacts') }} />
-      <Tabs.Screen name="stats" options={{ title: t('tabs.stats'), tabBarIcon: glyph('▤'), tabBarAccessibilityLabel: t('tabs.stats') }} />
-      <Tabs.Screen name="settings" options={{ title: t('tabs.settings'), tabBarIcon: glyph('⚙'), tabBarAccessibilityLabel: t('tabs.settings') }} />
+      <Tabs.Screen name="index" options={{ title: t('tabs.card'), tabBarLabel: t('tabs.short.card'), tabBarIcon: glyph('▣'), tabBarAccessibilityLabel: t('tabs.card') }} />
+      <Tabs.Screen name="scan" options={{ title: t('tabs.scan'), tabBarLabel: t('tabs.short.scan'), tabBarIcon: glyph('⌖'), tabBarAccessibilityLabel: t('tabs.scan') }} />
+      <Tabs.Screen name="contacts" options={{ title: t('tabs.contacts'), tabBarLabel: t('tabs.short.contacts'), tabBarIcon: glyph('☰'), tabBarAccessibilityLabel: t('tabs.contacts') }} />
+      <Tabs.Screen name="stats" options={{ title: t('tabs.stats'), tabBarLabel: t('tabs.short.stats'), tabBarIcon: glyph('▤'), tabBarAccessibilityLabel: t('tabs.stats') }} />
+      <Tabs.Screen name="settings" options={{ title: t('tabs.settings'), tabBarLabel: t('tabs.short.settings'), tabBarIcon: glyph('⚙'), tabBarAccessibilityLabel: t('tabs.settings') }} />
     </Tabs>
   );
 }
