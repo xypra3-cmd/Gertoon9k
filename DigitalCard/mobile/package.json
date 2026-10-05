@@ -48,6 +48,8 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "dev:android": "eas build -p android --profile development-device",
+    "dev:ios": "eas build -p ios --profile development-device",
     "typecheck": "tsc --noEmit",
     "lint": "eslint app lib components",
     "prebuild:android": "expo prebuild --platform android --clean",
@@ -57,6 +59,7 @@
     "build:aab": "eas build -p android --profile production",
     "build:ios": "eas build -p ios --profile production",
     "submit:ios": "eas submit -p ios --latest",
+    "submit:android": "eas submit -p android --latest",
     "store-check": "node ../qa/mobile/store-check.mjs"
   },
   "private": true

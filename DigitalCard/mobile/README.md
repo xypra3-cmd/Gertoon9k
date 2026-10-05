@@ -17,8 +17,11 @@ Android emulator-оос local Supabase: `http://10.0.2.2:54321`. Жинхэнэ 
 | `npm run export:android` | JS bundle + source map (STORE-01 шалгалтад) |
 | `npm run store-check` | STORE-01: ₮ / QPay / /billing байхгүй |
 | `npm run prebuild:android` / `prebuild:ios` | Native project үүсгэх (git-д оруулахгүй — CNG) |
+| `npm run dev:android` / `dev:ios` | Бодит утсанд суулгах development build (Windows-оос iPhone-д ч) |
 | `npm run build:apk` / `build:aab` / `build:ios` | EAS build (preview APK / Play AAB / App Store) |
-| `npm run submit:ios` | TestFlight руу илгээх |
+| `npm run submit:ios` / `submit:android` | TestFlight / Play Internal руу илгээх |
+
+Windows-оос build, store хүртэлх бүрэн заавар: [`docs/MOBILE_BUILD_WINDOWS.md`](../docs/MOBILE_BUILD_WINDOWS.md).
 
 ## Бүтэц
 ```
