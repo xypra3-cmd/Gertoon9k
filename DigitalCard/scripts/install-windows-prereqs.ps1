@@ -25,11 +25,14 @@ foreach ($a in $apps) {
 Write-Host '→ WSL2' -ForegroundColor Cyan
 wsl --install --no-distribution
 
-# Supabase CLI — scoop-оор (энгийн хэрэглэгчийн эрхээр суудаг)
+# Supabase CLI — scoop-оор. Scoop нь RemoteSigned execution policy шаарддаг.
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+$env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [Environment]::GetEnvironmentVariable('Path', 'User')
 if (-not (Get-Command scoop -ErrorAction SilentlyContinue)) {
   Write-Host '→ scoop' -ForegroundColor Cyan
   Invoke-Expression "& {$(Invoke-RestMethod https://get.scoop.sh)} -RunAsAdmin"
 }
+$env:Path = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [Environment]::GetEnvironmentVariable('Path', 'User') + ";$env:USERPROFILE\scoop\shims"
 scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
 scoop install supabase
 
