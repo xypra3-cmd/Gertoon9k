@@ -14,12 +14,20 @@ Need npm      'Node.js-тэй хамт суудаг'
 Need docker   'Docker Desktop суулгаад асаана'
 Need supabase 'scoop bucket add supabase https://github.com/supabase/scoop-bucket.git; scoop install supabase'
 
+# BOM-гүй UTF-8: Windows PowerShell 5.1-ийн `Set-Content -Encoding utf8` BOM нэмдэг, Supabase/Vite түүнийг уншихгүй.
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+function WriteText($path, $text) { [System.IO.File]::WriteAllText((Join-Path $root $path), $text, $utf8NoBom) }
+function StripBom($path) {
+  $full = Join-Path $root $path
+  if (Test-Path $full) { WriteText $path ([System.IO.File]::ReadAllText($full).TrimStart([char]0xFEFF)) }
+}
+
 function RandomSecret { -join ((48..57) + (65..90) + (97..122) | Get-Random -Count 40 | ForEach-Object { [char]$_ }) }
 
 # backend/supabase/.env — зөвхөн local mock утгууд, санамсаргүй нууц (git-д орохгүй)
 $envFile = 'backend\supabase\.env'
 if (-not (Test-Path $envFile)) {
-  @"
+  WriteText $envFile @"
 QPAY_BASE_URL=http://host.docker.internal:54399
 QPAY_USERNAME=local
 QPAY_PASSWORD=local
@@ -31,11 +39,12 @@ PUBLIC_FUNCTIONS_URL=http://127.0.0.1:54321/functions/v1
 CRON_SECRET=$(RandomSecret)
 ANTHROPIC_API_KEY=local-mock
 ANTHROPIC_BASE_URL=http://host.docker.internal:54399
-"@ | Set-Content -Encoding utf8 $envFile
+"@
   Write-Host "✓ $envFile үүсгэлээ (QPay/Turnstile/Claude = local mock)"
 }
 if (-not (Test-Path 'web\.env.local'))    { Copy-Item 'web\.env.example' 'web\.env.local' }
 if (-not (Test-Path 'mobile\.env.local')) { Copy-Item 'mobile\.env.example' 'mobile\.env.local' }
+foreach ($f in $envFile, 'web\.env.local', 'mobile\.env.local') { StripBom $f }   # өмнөх хувилбарын BOM-ыг арилгана
 
 foreach ($p in @('packages\shared', 'web', 'mobile', 'qa', 'backend\supabase\functions\ai-assist')) {
   Write-Host "→ npm install ($p)"
