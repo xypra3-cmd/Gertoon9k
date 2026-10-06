@@ -168,6 +168,37 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"nearby_pulses": {
+                  Row: {
+                    "card_id": string | null,"claimed_at": string | null,"code": string | null,"created_at": string,"geohash": string | null,"id": string,"kind": string,"partner_pulse": string | null,"user_id": string
+                  }
+                  Insert: {
+                    "card_id"?: string | null,"claimed_at"?: string | null,"code"?: string | null,"created_at"?: string,"geohash"?: string | null,"id"?: string,"kind": string,"partner_pulse"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "card_id"?: string | null,"claimed_at"?: string | null,"code"?: string | null,"created_at"?: string,"geohash"?: string | null,"id"?: string,"kind"?: string,"partner_pulse"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "nearby_pulses_card_id_fkey"
+      columns: ["card_id"]
+isOneToOne: false
+      referencedRelation: "cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "nearby_pulses_card_id_fkey"
+      columns: ["card_id"]
+isOneToOne: false
+      referencedRelation: "public_cards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "nearby_pulses_partner_pulse_fkey"
+      columns: ["partner_pulse"]
+isOneToOne: false
+      referencedRelation: "nearby_pulses"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"org_members": {
                   Row: {
                     "created_at": string,"id": string,"invited_email": string | null,"org_id": string,"role": string,"status": string,"user_id": string | null
@@ -360,6 +391,9 @@ isOneToOne: false
 "card_quota":
 { Args: { "uid": string }; Returns: number
                            },
+"card_shows_branding":
+{ Args: { "p_org": string,"p_owner": string }; Returns: boolean
+                           },
 "claim_referral":
 { Args: { "p_code": string }; Returns: string
                            },
@@ -435,6 +469,33 @@ isOneToOne: false
                            },
 "is_platform_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"nearby_bump":
+{ Args: { "p_card_id": string,"p_geohash": string }; Returns: Json
+                           },
+"nearby_card_info":
+{ Args: { "p_card": string }; Returns: Json
+                           },
+"nearby_code_claim":
+{ Args: { "p_card_id": string,"p_code": string }; Returns: Json
+                           },
+"nearby_code_create":
+{ Args: { "p_card_id": string }; Returns: Json
+                           },
+"nearby_matched":
+{ Args: { "p_partner_card": string,"p_save": Json }; Returns: Json
+                           },
+"nearby_my_card":
+{ Args: { "p_card": string }; Returns: string
+                           },
+"nearby_poll":
+{ Args: { "p_pulse_id": string }; Returns: Json
+                           },
+"nearby_rate_ok":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"nearby_save_contact":
+{ Args: { "p_my_card": string,"p_partner_card": string }; Returns: Json
                            },
 "org_has_active_plan":
 { Args: { "org": string }; Returns: boolean

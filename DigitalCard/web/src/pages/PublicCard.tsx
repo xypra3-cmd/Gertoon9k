@@ -12,6 +12,9 @@ import { useI18n } from '@/i18n/I18nProvider';
 import { DownloadIcon, MailIcon, PhoneIcon, SendIcon, ShareIcon, UserPlusIcon } from '@/components/icons';
 import { Banner, Modal, Spinner } from '@/components/ui';
 const ExchangeForm = lazy(() => import('@/components/ExchangeForm'));
+const QrCode = lazy(() => import('@/components/QrCode').then((m) => ({ default: m.QrCode })));
+import { FlipCard } from '@/components/FlipCard';
+import { Icon } from '@/components/icons';
 import { LanguageSwitch } from '@/components/LanguageSwitch';
 
 function setMeta(property: string, content: string) {
@@ -52,6 +55,8 @@ export default function PublicCardPage() {
   const [exchangeOpen, setExchangeOpen] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [notice, setNotice] = useState<{ tone: 'success' | 'error'; text: string } | null>(null);
+  const [turns, setTurns] = useState(0);
+  const flipped = Math.abs(turns) % 2 === 1;
 
   useEffect(() => {
     let alive = true;
@@ -180,7 +185,17 @@ export default function PublicCardPage() {
   return (
     <main className={embed ? 'p-2' : 'min-h-screen bg-slate-100 px-3 py-4 dark:bg-slate-950 sm:py-10'}>
       {!embed && (
-        <div className="mx-auto mb-3 flex max-w-[440px] justify-end">
+        <div className="mx-auto mb-3 flex max-w-[440px] items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => setTurns((n) => n + 1)}
+            className="inline-flex min-h-[40px] items-center gap-2 rounded-full bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:text-slate-100 dark:ring-slate-800"
+            aria-pressed={flipped}
+            data-testid="flip-button"
+          >
+            <Icon name={flipped ? 'refresh' : 'qr'} className="h-4 w-4" />
+            {flipped ? t('card.flipToCard') : t('card.flipToQr')}
+          </button>
           <LanguageSwitch />
         </div>
       )}
@@ -189,11 +204,37 @@ export default function PublicCardPage() {
           <Banner tone={notice.tone}>{notice.text}</Banner>
         </div>
       )}
-      <CardRenderer
-        data={data}
-        actions={actions}
-        onLinkClick={(kind) => !embed && trackEvent(slug, 'link_click', kind)}
-      />
+      {embed ? (
+        <CardRenderer data={data} actions={actions} onLinkClick={() => undefined} />
+      ) : (
+        <FlipCard
+          turns={turns}
+          onTurn={setTurns}
+          front={
+            <CardRenderer data={data} actions={actions} onLinkClick={(kind) => trackEvent(slug, 'link_click', kind)} />
+          }
+          back={
+            <div className="mx-auto flex h-full max-w-[440px] flex-col items-center justify-center gap-4 rounded-3xl bg-white p-8 text-center shadow-xl ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">{name}</p>
+              {data.title && <p className="-mt-3 text-slate-600 dark:text-slate-300">{data.title}</p>}
+              <div className="rounded-2xl bg-white p-3 ring-1 ring-slate-200">
+                {turns !== 0 && (
+                  <Suspense fallback={<div className="h-[240px] w-[240px]" />}>
+                    <QrCode
+                      value={publicCardUrl(data.slug, 'qr')}
+                      size={240}
+                      title={`QR: ${publicCardUrl(data.slug)}`}
+                    />
+                  </Suspense>
+                )}
+              </div>
+              <p className="break-all text-sm text-slate-600 dark:text-slate-400">{publicCardUrl(data.slug)}</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">{t('card.scanToSave')}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{t('card.flipHint')}</p>
+            </div>
+          }
+        />
+      )}
       {!embed &&
         (state.branding ? (
           <div className="mx-auto mt-6 max-w-[440px] animate-fade-up [animation-delay:400ms]">

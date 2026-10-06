@@ -72,7 +72,12 @@
     "qr": "QR",
     "addedToContacts": "Added to your contacts",
     "madeWith": "Made with Digital Card",
-    "createYours": "Create yours free"
+    "createYours": "Create yours free",
+    "flip": "Flip",
+    "flipToQr": "Show QR (flip card)",
+    "flipToCard": "Back to card",
+    "scanToSave": "Let others scan this QR to get the card",
+    "flipHint": "Tap or swipe sideways to flip"
   },
   "exchange": {
     "title": "Leave your details",

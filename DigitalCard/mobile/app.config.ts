@@ -78,6 +78,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ['expo-contacts', { contactsPermission: 'Уншсан нэрийн хуудсыг таны утасны contact-д хадгалахад ашиглана.' }],
     ['expo-image-picker', { photosPermission: 'Нэрийн хуудасны зураг сонгоход ашиглана.', cameraPermission: 'Нэрийн хуудасны QR код уншихад камер ашиглана.', microphonePermission: false }],
     ['expo-notifications', { color: '#2557E6' }],
+    ['expo-location', { locationWhenInUsePermission: 'Утас ойртуулж карт солилцоход ойролцоо бүсийг (≈1 км) тодорхойлно. Нарийн байршил хадгалагдахгүй.', locationAlwaysAndWhenInUsePermission: false, locationAlwaysPermission: false, isIosBackgroundLocationEnabled: false, isAndroidBackgroundLocationEnabled: false }],
+    ['expo-sensors', { motionPermission: 'Утсаа нөгөө утсанд тулгасныг мэдрэхэд ашиглана.' }],
     ['expo-build-properties', { android: { minSdkVersion: 24 } }],
   ],
   experiments: { typedRoutes: false },

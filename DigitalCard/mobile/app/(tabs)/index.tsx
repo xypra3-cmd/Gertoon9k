@@ -13,6 +13,7 @@ import { useTheme } from '@/lib/theme';
 import { Button, Card, Loading, Notice, Screen, Txt } from '@/components/ui';
 import { GettingStarted } from '@/components/GettingStarted';
 import { CardView } from '@/components/CardView';
+import { FlipCard } from '@/components/FlipCard';
 import { Appear, haptic, Icon, PressScale } from '@/components/motion';
 
 /** Raise screen brightness while the QR is visible; restore on leave (helps scanners in daylight). */
@@ -155,22 +156,45 @@ export default function MyCard() {
         </View>
       )}
       <Appear key={card.id}>
-        <Card style={{ alignItems: 'center', gap: 10 }}>
-          <Txt size={22} weight="700">
-            {name}
-          </Txt>
-          {card.title ? <Txt muted>{card.title}</Txt> : null}
-          <View accessible accessibilityLabel={`QR: ${url}`} style={{ backgroundColor: '#FFFFFF', padding: 16, borderRadius: 20 }}>
-            <QRCode value={publicCardUrl(card.slug, 'qr')} size={qrSize} ecl="M" />
-          </View>
-          <Txt muted size={13} selectable>
-            {url}
-          </Txt>
-          <Txt muted size={12}>
-            {t('m.brightness')}
-          </Txt>
-        </Card>
+        <FlipCard
+          label={t('m.flipHint')}
+          front={(backHeight) => (
+            <Card style={{ alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: backHeight }}>
+              <Txt size={22} weight="700">
+                {name}
+              </Txt>
+              {card.title ? <Txt muted>{card.title}</Txt> : null}
+              <View accessible accessibilityLabel={`QR: ${url}`} style={{ backgroundColor: '#FFFFFF', padding: 16, borderRadius: 20 }}>
+                <QRCode value={publicCardUrl(card.slug, 'qr')} size={qrSize} ecl="M" />
+              </View>
+              <Txt muted size={13} selectable>
+                {url}
+              </Txt>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Icon name="refresh" color={th.muted} size={14} />
+                <Txt muted size={12}>
+                  {t('m.flipHint')}
+                </Txt>
+              </View>
+            </Card>
+          )}
+          back={<CardView data={data} interactive={false} />}
+        />
       </Appear>
+      <PressScale accessibilityRole="button" accessibilityLabel={t('nearby.title')} onPress={() => router.push('/nearby')}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, backgroundColor: th.primarySoft }}>
+          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: th.primary, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="nearby" color={th.onPrimary} size={20} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Txt weight="700">{t('nearby.title')}</Txt>
+            <Txt muted size={13}>
+              {t('nearby.homeHint')}
+            </Txt>
+          </View>
+          <Icon name="chevronRight" color={th.primary} size={18} />
+        </View>
+      </PressScale>
       <View style={{ flexDirection: 'row', gap: 8 }}>
         <View style={{ flex: 1 }}>
           <Button title={t('common.share')} icon={<Icon name="share" color={th.onPrimary} size={18} />} onPress={() => void Share.share({ message: url, url })} />
@@ -196,14 +220,6 @@ export default function MyCard() {
       )}
       <TodayFollowups />
       <GettingStarted />
-      <Appear index={3}>
-        <Txt weight="700" style={{ marginTop: 4 }}>
-          {t('m.preview')}
-        </Txt>
-      </Appear>
-      <Appear index={4}>
-        <CardView data={data} />
-      </Appear>
     </Screen>
   );
 }

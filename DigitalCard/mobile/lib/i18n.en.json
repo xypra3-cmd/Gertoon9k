@@ -76,7 +76,8 @@
     "contactCount": "{{count}} / {{limit}} contacts",
     "status": "Status",
     "tagsHint": "comma separated: partner, expo",
-    "add": "Add"
+    "add": "Add",
+    "flipHint": "Tap or swipe sideways to flip the card"
   },
   "ai": {
     "writeBio": "Write bio with AI",
@@ -129,5 +130,39 @@
     "heroTitle": "Create your first card",
     "heroBody": "3 steps, 60 seconds. Edit any time.",
     "heroCta": "Create card"
+  },
+  "nearby": {
+    "title": "Tap to exchange",
+    "homeHint": "Touch phones to swap cards — no QR needed",
+    "tab": {
+      "bump": "Tap phones",
+      "code": "6-digit code"
+    },
+    "now": "Now!",
+    "searching": "Searching…",
+    "bumpTitle": "Gently tap your phone against theirs",
+    "bumpBody": "Both open this screen, then tap the phones together or press «Now!» at the same time. Both cards are saved on both phones.",
+    "noPartner": "No other phone found. Try again together.",
+    "ambiguous": "Several people nearby are exchanging at once. Try again in a few seconds.",
+    "rateLimited": "Too many attempts. Please wait a moment.",
+    "codeNotFound": "Wrong or expired code.",
+    "ownCode": "That is your own code.",
+    "noCard": "Publish your card first to exchange.",
+    "locationNeeded": "Tap-to-exchange needs your approximate location (≈1 km). Without it, use the 6-digit code.",
+    "showThisCode": "Show this code to the other person",
+    "expiresIn": "Expires in {{s}} s",
+    "makeCode": "Create code",
+    "enterCode": "Their code",
+    "exchange": "Exchange",
+    "saved": "Added to your contacts. Your card went to them too.",
+    "alreadySaved": "This person is already in your contacts.",
+    "limit": "Contact limit reached, so it was not saved. You can still open their card.",
+    "notSaved": "The card was not saved.",
+    "undone": "Removed from contacts.",
+    "openCard": "Open card",
+    "openContact": "Open contact",
+    "wrongPerson": "Wrong person — undo",
+    "again": "Exchange again",
+    "privacy": "No precise location or IP is stored. The area code is deleted within 10 minutes."
   }
 }

@@ -41,6 +41,11 @@ export const ICONS = {
   scan: [p('M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10')],
   arrowRight: [p('M5 12h14M12 5l7 7-7 7')],
   trophy: [p('M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.7V17c0 .6-.5 1-1 1.2C7.8 18.8 7 20.2 7 22M14 14.7V17c0 .6.5 1 1 1.2 1.2.6 2 2 2 3.8'), p('M18 2H6v7a6 6 0 0 0 12 0z')],
+  refresh: [p('M21 12a9 9 0 0 1-15.5 6.2L3 16M3 12a9 9 0 0 1 15.5-6.2L21 8'), p('M21 3v5h-5M3 21v-5h5')],
+  // Two phones with signal arcs between them (nearby exchange).
+  nearby: [r(2, 6, 7, 13, 1.5), r(15, 5, 7, 13, 1.5), p('M11 10.5a2.5 2.5 0 0 1 2 0M10.2 7.8a5 5 0 0 1 3.6 0')],
+  chevronRight: [p('m9 18 6-6-6-6')],
+  hash: [p('M4 9h16M4 15h16M10 3 8 21M16 3l-2 18')],
 } satisfies Record<string, IconNode[]>;
 
 export type IconName = keyof typeof ICONS;

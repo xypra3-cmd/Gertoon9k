@@ -37,6 +37,7 @@ function Gate() {
       <Stack.Screen name="c/[slug]" options={{ title: 'Digital Card' }} />
       <Stack.Screen name="edit/[id]" options={{ title: t('m.editCard') }} />
       <Stack.Screen name="welcome" options={{ title: t('welcome.title') }} />
+      <Stack.Screen name="nearby" options={{ title: t('nearby.title') }} />
     </Stack>
   );
 }
