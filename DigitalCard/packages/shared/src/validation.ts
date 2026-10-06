@@ -168,7 +168,7 @@ export function safeNextPath(raw: string | null | undefined, fallback = '/app'):
   return raw;
 }
 
-/** Links handed to us by third parties (e.g. QPay bank deep links): never javascript:/data:/file:. */
+/** Links handed to us by third parties (e.g. bank app deep links): never javascript:/data:/file:. */
 export function isSafeExternalLink(url: string): boolean {
   const m = /^([a-z][a-z0-9+.-]*):/i.exec(url.trim());
   return !!m?.[1] && !['javascript', 'data', 'vbscript', 'file', 'blob'].includes(m[1].toLowerCase());
