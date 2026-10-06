@@ -3,13 +3,35 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, View, type 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { radius } from '@digitalcard/shared/design';
 import { useTheme } from '@/lib/theme';
+import { font, type Weight } from '@/lib/fonts';
 import { PressScale } from './motion';
 
-export function Screen({ children, scroll = true, style }: { children: ReactNode; scroll?: boolean; style?: ViewStyle }) {
+/** Large in-page title (tab screens hide the navigation header for a calmer, iOS-style look). */
+export function LargeTitle({ title, subtitle, right }: { title: string; subtitle?: string; right?: ReactNode }) {
   const th = useTheme();
-  const inner = <View style={[{ padding: 16, gap: 12 }, style]}>{children}</View>;
   return (
-    <SafeAreaView edges={['left', 'right']} style={{ flex: 1, backgroundColor: th.bg }}>
+    <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 12, paddingTop: 8, paddingBottom: 4 }}>
+      <View style={{ flex: 1 }}>
+        {subtitle ? <Text style={{ color: th.muted, fontSize: 14, ...font('500') }}>{subtitle}</Text> : null}
+        <Text accessibilityRole="header" style={{ color: th.text, fontSize: 30, letterSpacing: -0.6, ...font('800') }} numberOfLines={1} adjustsFontSizeToFit>
+          {title}
+        </Text>
+      </View>
+      {right}
+    </View>
+  );
+}
+
+export function Screen({ children, scroll = true, style, title, subtitle, right }: { children: ReactNode; scroll?: boolean; style?: ViewStyle; title?: string; subtitle?: string; right?: ReactNode }) {
+  const th = useTheme();
+  const inner = (
+    <View style={[{ padding: 16, gap: 14, paddingBottom: title ? 120 : 16 }, style]}>
+      {title ? <LargeTitle title={title} subtitle={subtitle} right={right} /> : null}
+      {children}
+    </View>
+  );
+  return (
+    <SafeAreaView edges={title ? ['top', 'left', 'right'] : ['left', 'right']} style={{ flex: 1, backgroundColor: th.bg }}>
       {scroll ? (
         <ScrollView contentInsetAdjustmentBehavior="automatic" keyboardShouldPersistTaps="handled">
           {inner}
@@ -54,11 +76,13 @@ export function Txt({
   weight,
   style,
   selectable,
+  numberOfLines,
 }: {
   children: ReactNode;
+  numberOfLines?: number;
   muted?: boolean;
   size?: number;
-  weight?: '400' | '600' | '700';
+  weight?: Weight;
   style?: object;
   selectable?: boolean;
 }) {
@@ -67,11 +91,12 @@ export function Txt({
   return (
     <Text
       selectable={selectable}
+      numberOfLines={numberOfLines}
       style={[
         {
           color: muted ? th.muted : th.text,
           fontSize: size,
-          fontWeight: weight,
+          ...font(weight ?? '400'),
         },
         style,
       ]}
@@ -129,7 +154,7 @@ export function Button({
       }}
     >
       {loading ? <ActivityIndicator color={fg} /> : icon}
-      {!loading || icon ? <Text style={{ color: fg, fontWeight: '600', fontSize: 16 }}>{title}</Text> : null}
+      {!loading || icon ? <Text style={{ color: fg, fontSize: 16, ...font('600') }}>{title}</Text> : null}
     </PressScale>
   );
 }
@@ -138,7 +163,7 @@ export function Field({ label, hint, ...props }: TextInputProps & { label: strin
   const th = useTheme();
   return (
     <View style={{ gap: 4 }}>
-      <Text style={{ color: th.muted, fontSize: 14, fontWeight: '600' }}>{label}</Text>
+      <Text style={{ color: th.muted, fontSize: 14, ...font('600') }}>{label}</Text>
       <TextInput
         accessibilityLabel={label}
         placeholderTextColor={th.muted}
@@ -152,6 +177,7 @@ export function Field({ label, hint, ...props }: TextInputProps & { label: strin
           color: props.editable === false ? th.muted : th.text,
           backgroundColor: props.editable === false ? th.bg : th.card,
           fontSize: 16,
+          ...font('400'),
         }}
       />
       {hint ? <Text style={{ color: th.muted, fontSize: 12 }}>{hint}</Text> : null}
@@ -189,7 +215,7 @@ export function Notice({ text, tone = 'info' }: { text: string; tone?: 'info' | 
         padding: 12,
       }}
     >
-      <Text style={{ color }}>{text}</Text>
+      <Text style={{ color, ...font('500') }}>{text}</Text>
     </View>
   );
 }

@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
+import { FONT_ASSETS, font } from '@/lib/fonts';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { I18nProvider, useI18n } from '@/lib/i18n';
@@ -28,7 +30,17 @@ function Gate() {
 
   if (!ready) return <Loading />;
   return (
-    <Stack screenOptions={{ headerTintColor: th.primary, headerStyle: { backgroundColor: th.card }, headerTitleStyle: { color: th.text }, contentStyle: { backgroundColor: th.bg } }}>
+    <Stack
+      screenOptions={{
+        headerTintColor: th.primary,
+        headerShadowVisible: false,
+        headerStyle: { backgroundColor: th.bg },
+        headerTitleStyle: { color: th.text, ...font('700') },
+        headerBackButtonDisplayMode: 'minimal',
+        contentStyle: { backgroundColor: th.bg },
+        animation: 'slide_from_right',
+      }}
+    >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ title: t('auth.login') }} />
       <Stack.Screen name="register" options={{ title: t('auth.register') }} />
@@ -43,6 +55,9 @@ function Gate() {
 }
 
 export default function RootLayout() {
+  // Keep the native splash until Inter is ready; on a load error fall back to the system font.
+  const [fontsLoaded, fontError] = useFonts(FONT_ASSETS);
+  if (!fontsLoaded && !fontError) return null;
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>

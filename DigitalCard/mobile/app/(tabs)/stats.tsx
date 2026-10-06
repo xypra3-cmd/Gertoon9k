@@ -9,6 +9,7 @@ import { Card, Loading, Screen, Txt } from '@/components/ui';
 import { AnimatedNumber, Appear, GrowBar, PressScale } from '@/components/motion';
 import { useAuth } from '@/lib/auth';
 import { chartColors } from '@digitalcard/shared/design';
+import { font } from '@/lib/fonts';
 
 type Range = 'today' | '7d' | '30d' | 'all';
 const DAYS: Record<Range, number | null> = {
@@ -111,7 +112,7 @@ export default function Stats() {
           style={{
             textTransform: 'uppercase',
             letterSpacing: 0.5,
-            fontWeight: '600',
+            ...font('600'),
           }}
         >
           {label}
@@ -121,7 +122,7 @@ export default function Stats() {
             —
           </Txt>
         ) : (
-          <AnimatedNumber value={value} style={{ fontSize: 26, fontWeight: '700', color: th.text }} />
+          <AnimatedNumber value={value} style={{ fontSize: 26, ...font('700'), color: th.text }} />
         )}
       </Card>
     </Appear>
@@ -136,13 +137,18 @@ export default function Stats() {
     : [];
 
   return (
-    <Screen>
-      <Txt muted size={13}>
-        {t('m.onlyOwn')}
-      </Txt>
-      <View accessibilityRole="tablist" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+    <Screen title={t('tabs.stats')} subtitle={t('m.onlyOwn')}>
+      <View accessibilityRole="tablist" style={{ flexDirection: 'row', backgroundColor: th.cardMuted, borderRadius: 14, padding: 4 }}>
         {(['today', '7d', '30d', 'all'] as const).map((r) => (
-          <Chip key={r} label={t(`stats.range.${r}`)} on={range === r} onPress={() => setRange(r)} />
+          <View key={r} style={{ flex: 1 }}>
+            <PressScale accessibilityRole="tab" accessibilityState={{ selected: range === r }} onPress={() => setRange(r)}>
+              <View style={{ minHeight: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: range === r ? th.card : 'transparent' }}>
+                <Txt size={13} weight={range === r ? '700' : '500'} numberOfLines={1} style={{ color: range === r ? th.text : th.muted }}>
+                  {t(`stats.range.${r}`)}
+                </Txt>
+              </View>
+            </PressScale>
+          </View>
         ))}
       </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>

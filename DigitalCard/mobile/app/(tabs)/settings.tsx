@@ -69,7 +69,7 @@ export default function Settings() {
   );
 
   return (
-    <Screen>
+    <Screen title={t('tabs.settings')}>
       <Card>
         <Txt muted size={13}>
           {session?.user.email}

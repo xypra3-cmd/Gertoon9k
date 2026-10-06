@@ -11,6 +11,7 @@ import { useTheme } from '@/lib/theme';
 import { errorText } from '@/lib/errors';
 import { AnimatedNumber, Appear, haptic, Icon, PressScale } from './motion';
 import { Button, Card, Txt } from './ui';
+import { font } from '@/lib/fonts';
 
 interface MyEvent {
   name: string;
@@ -83,7 +84,7 @@ export function EventMode() {
               </Txt>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-              <AnimatedNumber value={current.contacts} style={{ color: '#FFFFFF', fontSize: 28, fontWeight: '700' }} />
+              <AnimatedNumber value={current.contacts} style={{ color: '#FFFFFF', fontSize: 28, ...font('700') }} />
               <Txt size={12} style={{ color: '#FFFFFFCC' }}>
                 {t('event.met')}
               </Txt>

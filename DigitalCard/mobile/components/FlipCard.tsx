@@ -2,9 +2,9 @@
 // Tap or swipe sideways to flip; the swipe direction decides which way it turns.
 // Spring physics on the UI thread (Reanimated), a light haptic at the half-turn,
 // and an instant swap when the OS "reduce motion" setting is on.
-import { useRef, useState, type ReactNode } from 'react';
-import { Pressable, View, type GestureResponderEvent, type LayoutChangeEvent } from 'react-native';
-import Animated, { interpolate, useAnimatedReaction, useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Pressable, type GestureResponderEvent, type LayoutChangeEvent } from 'react-native';
+import Animated, { interpolate, useAnimatedReaction, useAnimatedStyle, useReducedMotion, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { haptic } from './motion';
 
@@ -23,8 +23,23 @@ function faceStyle(a: number) {
   };
 }
 
-/** `front` may be a function of the back face's height, so a shorter front can stretch to match it. */
-export function FlipCard({ front, back, label, onFlip }: { front: ReactNode | ((backHeight: number) => ReactNode); back: ReactNode; label: string; onFlip?: (side: 'front' | 'back') => void }) {
+/**
+ * Each face may be a function of the other face's height, so the shorter one can stretch to match.
+ * Changing `flipKey` flips the card from outside (e.g. a «QR» button).
+ */
+export function FlipCard({
+  front,
+  back,
+  label,
+  onFlip,
+  flipKey = 0,
+}: {
+  front: ReactNode | ((backHeight: number) => ReactNode);
+  back: ReactNode | ((frontHeight: number) => ReactNode);
+  label: string;
+  onFlip?: (side: 'front' | 'back') => void;
+  flipKey?: number;
+}) {
   const reduced = useReducedMotion();
   const angle = useSharedValue(0); // degrees, accumulates (…, -180, 0, 180, 360, …)
   const [turns, setTurns] = useState(0);
@@ -51,6 +66,23 @@ export function FlipCard({ front, back, label, onFlip }: { front: ReactNode | ((
 
   const frontStyle = useAnimatedStyle(() => faceStyle(angle.value));
   const backStyle = useAnimatedStyle(() => faceStyle(angle.value + 180));
+
+  // The box follows the visible face's height (smoothly), so a short card leaves no gap below it.
+  const boxH = useSharedValue(0);
+  useEffect(() => {
+    const target = showingBack ? heights.back : heights.front;
+    if (!target) return;
+    boxH.set(boxH.get() === 0 || reduced ? target : withTiming(target, { duration: 420 }));
+  }, [showingBack, heights, reduced, boxH]);
+  const boxStyle = useAnimatedStyle(() => (boxH.value > 0 ? { height: boxH.value } : {}));
+
+  const lastKey = useRef(flipKey);
+  useEffect(() => {
+    if (flipKey === lastKey.current) return;
+    lastKey.current = flipKey;
+    flip(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only external flip requests
+  }, [flipKey]);
 
   const onLayout = (key: 'front' | 'back') => (e: LayoutChangeEvent) => {
     const h = Math.ceil(e.nativeEvent.layout.height);
@@ -86,10 +118,11 @@ export function FlipCard({ front, back, label, onFlip }: { front: ReactNode | ((
       onTouchEnd={onTouchEnd}
       onTouchCancel={() => (touch.current = null)}
     >
-      <View style={{ height: Math.max(heights.front, heights.back) || undefined }}>
+      <Animated.View style={boxStyle}>
         <Animated.View
           onLayout={onLayout('front')}
           style={[{ position: 'absolute', left: 0, right: 0, top: 0, backfaceVisibility: 'hidden' }, frontStyle]}
+          pointerEvents={showingBack ? 'none' : 'auto'}
           importantForAccessibility={showingBack ? 'no-hide-descendants' : 'auto'}
           accessibilityElementsHidden={showingBack}
         >
@@ -98,12 +131,13 @@ export function FlipCard({ front, back, label, onFlip }: { front: ReactNode | ((
         <Animated.View
           onLayout={onLayout('back')}
           style={[{ position: 'absolute', left: 0, right: 0, top: 0, backfaceVisibility: 'hidden' }, backStyle]}
+          pointerEvents={showingBack ? 'auto' : 'none'}
           importantForAccessibility={showingBack ? 'auto' : 'no-hide-descendants'}
           accessibilityElementsHidden={!showingBack}
         >
-          {back}
+          {typeof back === 'function' ? back(heights.front) : back}
         </Animated.View>
-      </View>
+      </Animated.View>
     </Pressable>
   );
 }

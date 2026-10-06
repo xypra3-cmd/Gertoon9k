@@ -8,7 +8,7 @@
     "short": {
       "card": "Card",
       "scan": "Scan",
-      "contacts": "Contacts",
+      "contacts": "People",
       "stats": "Stats",
       "settings": "Settings"
     }
@@ -77,13 +77,30 @@
     "status": "Status",
     "tagsHint": "comma separated: partner, expo",
     "add": "Add",
-    "flipHint": "Tap or swipe sideways to flip the card",
+    "flipHint": "Tap or swipe to show your QR",
     "qr": {
       "link": "Link QR",
       "vcard": "Offline QR",
       "vcardHint": "Works without internet: the camera saves the contact directly (not counted in stats)",
-      "vcardA11y": "Offline contact QR"
-    }
+      "vcardA11y": "Offline contact QR",
+      "linkHint": "Scanning opens your card"
+    },
+    "peopleCount": "{{n}} people",
+    "searchPeople": "Search name, company, tag",
+    "home": {
+      "morning": "Good morning",
+      "day": "Hello",
+      "evening": "Good evening",
+      "qr": "QR",
+      "card": "Card",
+      "nearby": "Tap phones",
+      "edit": "Edit",
+      "week": "Last 7 days",
+      "opens": "Opens",
+      "qrScans": "QR scans",
+      "newPeople": "New people"
+    },
+    "flipBack": "Tap again to see your card"
   },
   "ai": {
     "writeBio": "Write bio with AI",

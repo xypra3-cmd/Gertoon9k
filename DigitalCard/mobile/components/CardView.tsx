@@ -7,6 +7,7 @@ import { displayName, initials } from '@digitalcard/shared/format';
 import type { CardData } from '@digitalcard/shared/types';
 import type { IconName } from '@digitalcard/shared/icons';
 import { Icon } from './motion';
+import { font } from '@/lib/fonts';
 
 const LINK_BADGE: Record<string, { text: string; color: string }> = {
   facebook: { text: 'f', color: '#1877F2' },
@@ -40,7 +41,7 @@ function Avatar({ data, size, c, ring }: { data: CardData; size: number; c: Temp
   if (data.avatarUrl) return <Image source={{ uri: data.avatarUrl }} style={style} accessibilityIgnoresInvertColors />;
   return (
     <View style={[style, { backgroundColor: c.accent, alignItems: 'center', justifyContent: 'center' }]}>
-      <Text style={{ color: c.bg, fontSize: size * 0.36, fontWeight: '700' }}>{initials(data.firstName, data.lastName)}</Text>
+      <Text style={{ color: c.bg, fontSize: size * 0.36, ...font('700') }}>{initials(data.firstName, data.lastName)}</Text>
     </View>
   );
 }
@@ -62,7 +63,8 @@ function Row({ icon, text, href, c }: { icon: IconName; text: string; href?: str
   );
 }
 
-export function CardView({ data, actions, interactive = true }: { data: CardData; actions?: ReactNode; interactive?: boolean }) {
+/** `compact` keeps the essentials (name, title, contact rows) for in-app previews. */
+export function CardView({ data, actions, interactive = true, compact = false }: { data: CardData; actions?: ReactNode; interactive?: boolean; compact?: boolean }) {
   const tpl = getTemplate(data.templateId);
   const c = tpl.colors[data.colorScheme] ?? tpl.colors.a;
   const layout = LAYOUT[tpl.id] ?? 'centered';
@@ -72,12 +74,12 @@ export function CardView({ data, actions, interactive = true }: { data: CardData
 
   const nameBlock = (align: 'left' | 'center', size = 24) => (
     <View style={{ gap: 2, alignItems: align === 'center' ? 'center' : 'flex-start', flexShrink: 1 }}>
-      <Text style={{ color: c.fg, fontSize: size, fontWeight: '700', textAlign: align }} adjustsFontSizeToFit minimumFontScale={0.6} numberOfLines={2}>
+      <Text style={{ color: c.fg, fontSize: size, ...font('700'), textAlign: align }} adjustsFontSizeToFit minimumFontScale={0.6} numberOfLines={2}>
         {name}
       </Text>
-      {data.title ? <Text style={{ color: c.accent, fontSize: 15, fontWeight: '600', textAlign: align }}>{data.title}</Text> : null}
+      {data.title ? <Text style={{ color: c.accent, fontSize: 15, ...font('600'), textAlign: align }}>{data.title}</Text> : null}
       {data.company ? <Text style={{ color: c.muted, fontSize: 14, textAlign: align }}>{data.company}</Text> : null}
-      {data.slogan ? <Text style={{ color: c.muted, fontSize: 13, fontStyle: 'italic', textAlign: align, marginTop: 2 }}>{data.slogan}</Text> : null}
+      {data.slogan && !compact ? <Text style={{ color: c.muted, fontSize: 13, fontStyle: 'italic', textAlign: align, marginTop: 2 }}>{data.slogan}</Text> : null}
     </View>
   );
 
@@ -86,8 +88,8 @@ export function CardView({ data, actions, interactive = true }: { data: CardData
       {data.phone ? <Row icon="phone" text={data.phone} href={interactive && tel ? `tel:${tel}` : undefined} c={c} /> : null}
       {data.email ? <Row icon="mail" text={data.email} href={interactive ? `mailto:${data.email}` : undefined} c={c} /> : null}
       {data.website ? <Row icon="globe" text={data.website.replace(/^https:\/\//, '')} href={interactive ? data.website : undefined} c={c} /> : null}
-      {data.address ? <Row icon="map" text={data.address} c={c} /> : null}
-      {data.links.length > 0 ? (
+      {data.address && !compact ? <Row icon="map" text={data.address} c={c} /> : null}
+      {data.links.length > 0 && !compact ? (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 }}>
           {data.links.map((l, i) => {
             const b = LINK_BADGE[l.kind] ?? LINK_BADGE.custom!;
@@ -111,7 +113,7 @@ export function CardView({ data, actions, interactive = true }: { data: CardData
                 }}
               >
                 <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: b.color, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '700' }}>{b.text}</Text>
+                  <Text style={{ color: '#FFFFFF', fontSize: 10, ...font('700') }}>{b.text}</Text>
                 </View>
                 <Text style={{ color: c.fg, fontSize: 14 }}>{l.label || l.kind}</Text>
               </Pressable>
@@ -119,7 +121,7 @@ export function CardView({ data, actions, interactive = true }: { data: CardData
           })}
         </View>
       ) : null}
-      {data.bio ? <Text style={{ color: c.muted, fontSize: 14, lineHeight: 20, marginTop: 8 }}>{data.bio}</Text> : null}
+      {data.bio && !compact ? <Text style={{ color: c.muted, fontSize: 14, lineHeight: 20, marginTop: 8 }}>{data.bio}</Text> : null}
     </View>
   );
 

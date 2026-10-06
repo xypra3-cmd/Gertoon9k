@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Platform, Pressable, Share, View, useWindowDimensions } from 'react-native';
+import { Platform, Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useQuery } from '@tanstack/react-query';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as Brightness from 'expo-brightness';
 import * as Clipboard from 'expo-clipboard';
@@ -7,7 +8,11 @@ import QRCode from 'react-native-qrcode-svg';
 import { displayName } from '@digitalcard/shared/format';
 import { buildCompactVCard } from '@digitalcard/shared/vcard';
 import { useAuth } from '@/lib/auth';
-import { fromCardRow, ubToday, useContacts, useMyCards } from '@/lib/cards';
+import { fromCardRow, rangeStartIso, ubToday, useContacts, useMyCards } from '@/lib/cards';
+import { supabase } from '@/lib/supabase';
+import { font } from '@/lib/fonts';
+import { palette } from '@digitalcard/shared/design';
+import type { IconName } from '@digitalcard/shared/icons';
 import { publicCardUrl } from '@/lib/env';
 import { useI18n } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
@@ -16,12 +21,14 @@ import { GettingStarted } from '@/components/GettingStarted';
 import { CardView } from '@/components/CardView';
 import { FlipCard } from '@/components/FlipCard';
 import { EventMode } from '@/components/EventMode';
-import { Appear, haptic, Icon, PressScale } from '@/components/motion';
+import { AnimatedNumber, Appear, haptic, Icon, PressScale } from '@/components/motion';
+import { Avatar } from '@/components/Avatar';
 
-/** Raise screen brightness while the QR is visible; restore on leave (helps scanners in daylight). */
-function useQrBrightness() {
+/** Raise screen brightness only while the QR side is visible; restore otherwise (helps scanners in daylight). */
+function useQrBrightness(showingQr: boolean) {
   useFocusEffect(
     useCallback(() => {
+      if (!showingQr) return;
       let previous: number | null = null;
       let active = true;
       (async () => {
@@ -38,7 +45,7 @@ function useQrBrightness() {
         if (Platform.OS === 'android') void Brightness.restoreSystemBrightnessAsync().catch(() => undefined);
         else if (previous !== null) void Brightness.setBrightnessAsync(previous).catch(() => undefined);
       };
-    }, []),
+    }, [showingQr]),
   );
 }
 
@@ -79,26 +86,96 @@ function TodayFollowups() {
   );
 }
 
+/** Last-7-days glance for the selected card (same RPC as the Stats tab). */
+function useWeekGlance(cardId: string | undefined) {
+  return useQuery({
+    queryKey: ['home-glance', cardId],
+    enabled: !!cardId,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_card_stats', { p_card_ids: [cardId!], p_from: rangeStartIso(7) ?? undefined });
+      if (error) throw error;
+      const r = data?.[0];
+      return { opens: Number(r?.total_opens ?? 0), qr: Number(r?.qr_opens ?? 0), saves: Number(r?.contact_saves ?? 0) };
+    },
+  });
+}
+
+function QuickAction({ icon, label, onPress, tone, disabled }: { icon: IconName; label: string; onPress: () => void; tone: string; disabled?: boolean }) {
+  const th = useTheme();
+  return (
+    <View style={{ flex: 1 }}>
+      <PressScale accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ disabled }} disabled={disabled} onPress={onPress}>
+        <View
+          style={{
+            alignItems: 'center',
+            gap: 8,
+            paddingVertical: 14,
+            borderRadius: 20,
+            backgroundColor: th.card,
+            borderWidth: StyleSheet.hairlineWidth,
+            borderColor: th.border,
+            opacity: disabled ? 0.45 : 1,
+          }}
+        >
+          <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: `${tone}1F`, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name={icon} color={tone} size={22} />
+          </View>
+          <Txt size={12} weight="600" numberOfLines={1}>
+            {label}
+          </Txt>
+        </View>
+      </PressScale>
+    </View>
+  );
+}
+
+function Stat({ value, label, onPress }: { value: number; label: string; onPress: () => void }) {
+  const th = useTheme();
+  return (
+    <View style={{ flex: 1 }}>
+      <PressScale accessibilityRole="button" accessibilityLabel={`${label}: ${value}`} onPress={onPress}>
+        <View style={{ padding: 14, borderRadius: 18, backgroundColor: th.card, borderWidth: StyleSheet.hairlineWidth, borderColor: th.border, gap: 2 }}>
+          <AnimatedNumber value={value} style={{ color: th.text, fontSize: 24, ...font('800') }} />
+          <Txt muted size={12} weight="500" numberOfLines={2}>
+            {label}
+          </Txt>
+        </View>
+      </PressScale>
+    </View>
+  );
+}
+
 export default function MyCard() {
   const { t } = useI18n();
   const th = useTheme();
   const router = useRouter();
-  const { entitlements } = useAuth();
+  const { entitlements, profile } = useAuth();
   const cards = useMyCards();
+  const contacts = useContacts();
   const { width } = useWindowDimensions();
   const [index, setIndex] = useState(0);
   const [copied, setCopied] = useState(false);
   const [qrMode, setQrMode] = useState<'link' | 'vcard'>('link');
-  useQrBrightness();
+  const [showingQr, setShowingQr] = useState(false);
+  const [flipKey, setFlipKey] = useState(0);
+  // Clock values are read once when the screen mounts (render must stay pure).
+  const [openedAt] = useState(() => ({ hour: new Date().getHours(), weekAgo: new Date(Date.now() - 7 * 864e5).toISOString() }));
+  useQrBrightness(showingQr);
 
-  if (cards.isLoading) return <Loading />;
   const all = cards.data ?? [];
   const published = all.filter((c) => c.is_published);
+  const card = published[Math.min(index, Math.max(published.length - 1, 0))];
+  const glance = useWeekGlance(card?.id);
+  const newPeople = (contacts.data?.rows ?? []).filter((c) => c.created_at >= openedAt.weekAgo).length;
+  const firstName = card?.first_name || (profile?.full_name ?? '').trim().split(/\s+/)[0] || '';
+  const greeting = t(openedAt.hour < 12 ? 'm.home.morning' : openedAt.hour < 18 ? 'm.home.day' : 'm.home.evening');
 
-  if (published.length === 0) {
+  if (cards.isLoading) return <Loading />;
+
+  if (!card) {
     const draft = all[0];
     return (
-      <Screen>
+      <Screen title={t('tabs.card')}>
         <Appear>
           <Card style={{ alignItems: 'center', gap: 12, paddingVertical: 28 }}>
             <View style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: th.primarySoft, alignItems: 'center', justifyContent: 'center' }}>
@@ -120,53 +197,64 @@ export default function MyCard() {
     );
   }
 
-  const card = published[Math.min(index, published.length - 1)]!;
   const url = publicCardUrl(card.slug);
-  const qrSize = Math.min(width - 112, 280);
+  const qrSize = Math.min(width - 140, 240);
   const editable = entitlements?.editable_card_ids.includes(card.id) ?? false;
-  const name = displayName({ firstName: card.first_name, lastName: card.last_name, nameFormat: card.name_format as 'initial' | 'full' });
   const data = fromCardRow(card, card.card_links ?? []);
+  const share = () => void Share.share({ message: url, url });
 
   return (
-    <Screen>
+    <Screen
+      title={firstName || t('tabs.card')}
+      subtitle={greeting}
+      right={
+        <PressScale accessibilityRole="button" accessibilityLabel={t('tabs.settings')} onPress={() => router.push('/settings')}>
+          <Avatar name={displayName({ firstName: card.first_name, lastName: card.last_name, nameFormat: 'full' })} size={46} />
+        </PressScale>
+      }
+    >
       {published.length > 1 && (
-        <View accessibilityRole="tablist" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} accessibilityRole="tablist">
           {published.map((c, i) => (
-            <Pressable
-              key={c.id}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: i === index }}
-              accessibilityLabel={`${t('m.switchCard')}: ${c.slug}`}
-              onPress={() => {
-                haptic.tap();
-                setIndex(i);
-              }}
-              style={{
-                paddingHorizontal: 14,
-                minHeight: 40,
-                justifyContent: 'center',
-                borderRadius: 20,
-                backgroundColor: i === index ? th.primary : th.card,
-                borderWidth: 1,
-                borderColor: i === index ? th.primary : th.border,
-              }}
-            >
-              <Txt size={14} weight="600" style={{ color: i === index ? th.onPrimary : th.text }}>
-                /{c.slug}
-              </Txt>
-            </Pressable>
+            <PressScale key={c.id} accessibilityRole="tab" accessibilityState={{ selected: i === index }} accessibilityLabel={`${t('m.switchCard')}: ${c.slug}`} onPress={() => setIndex(i)}>
+              <View
+                style={{
+                  paddingHorizontal: 14,
+                  minHeight: 36,
+                  justifyContent: 'center',
+                  borderRadius: 18,
+                  backgroundColor: i === index ? th.text : th.card,
+                  borderWidth: StyleSheet.hairlineWidth,
+                  borderColor: th.border,
+                }}
+              >
+                <Txt size={13} weight="600" style={{ color: i === index ? th.bg : th.text }}>
+                  {c.title || `/${c.slug}`}
+                </Txt>
+              </View>
+            </PressScale>
           ))}
-        </View>
+        </ScrollView>
       )}
+
       <Appear key={card.id}>
         <FlipCard
           label={t('m.flipHint')}
-          front={(backHeight) => (
-            <Card style={{ alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: backHeight }}>
-              <Txt size={22} weight="700">
-                {name}
-              </Txt>
-              {card.title ? <Txt muted>{card.title}</Txt> : null}
+          flipKey={flipKey}
+          onFlip={(side) => setShowingQr(side === 'back')}
+          front={<CardView data={data} interactive={false} compact />}
+          back={(frontHeight) => (
+            <Card style={{ alignItems: 'center', justifyContent: 'center', gap: 12, minHeight: frontHeight, borderRadius: 24 }}>
+              <View style={{ alignItems: 'center' }}>
+                <Txt size={20} weight="800" numberOfLines={1}>
+                  {displayName(data)}
+                </Txt>
+                {card.title ? (
+                  <Txt muted size={14} weight="500" numberOfLines={1}>
+                    {card.title}
+                  </Txt>
+                ) : null}
+              </View>
               <View accessibilityRole="tablist" style={{ flexDirection: 'row', backgroundColor: th.cardMuted, borderRadius: 12, padding: 3 }}>
                 {(['link', 'vcard'] as const).map((m) => (
                   <Pressable
@@ -185,66 +273,67 @@ export default function MyCard() {
                   </Pressable>
                 ))}
               </View>
-              <View accessible accessibilityLabel={qrMode === 'link' ? `QR: ${url}` : t('m.qr.vcardA11y')} style={{ backgroundColor: '#FFFFFF', padding: 16, borderRadius: 20 }}>
+              <View accessible accessibilityLabel={qrMode === 'link' ? `QR: ${url}` : t('m.qr.vcardA11y')} style={{ backgroundColor: '#FFFFFF', padding: 14, borderRadius: 20 }}>
                 <QRCode value={qrMode === 'link' ? publicCardUrl(card.slug, 'qr') : buildCompactVCard({ ...data, publicUrl: url })} size={qrSize} ecl={qrMode === 'link' ? 'M' : 'L'} />
               </View>
-              {qrMode === 'link' ? (
-                <Txt muted size={13} selectable>
-                  {url}
-                </Txt>
-              ) : (
-                <Txt muted size={13} style={{ textAlign: 'center' }}>
-                  {t('m.qr.vcardHint')}
-                </Txt>
-              )}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Icon name="refresh" color={th.muted} size={14} />
-                <Txt muted size={12}>
-                  {t('m.flipHint')}
-                </Txt>
-              </View>
+              <Txt muted size={13} style={{ textAlign: 'center' }}>
+                {qrMode === 'link' ? t('m.qr.linkHint') : t('m.qr.vcardHint')}
+              </Txt>
             </Card>
           )}
-          back={<CardView data={data} interactive={false} />}
         />
       </Appear>
-      <PressScale accessibilityRole="button" accessibilityLabel={t('nearby.title')} onPress={() => router.push('/nearby')}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 18, backgroundColor: th.primarySoft }}>
-          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: th.primary, alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="nearby" color={th.onPrimary} size={20} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Txt weight="700">{t('nearby.title')}</Txt>
-            <Txt muted size={13}>
-              {t('nearby.homeHint')}
-            </Txt>
-          </View>
-          <Icon name="chevronRight" color={th.primary} size={18} />
-        </View>
-      </PressScale>
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        <View style={{ flex: 1 }}>
-          <Button title={t('common.share')} icon={<Icon name="share" color={th.onPrimary} size={18} />} onPress={() => void Share.share({ message: url, url })} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Button
-            title={copied ? t('common.copied') : t('common.copyLink')}
-            variant="secondary"
-            icon={<Icon name={copied ? 'check' : 'copy'} color={th.text} size={18} />}
-            onPress={async () => {
-              await Clipboard.setStringAsync(url);
-              haptic.success();
-              setCopied(true);
-              setTimeout(() => setCopied(false), 1500);
-            }}
-          />
-        </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: -4 }}>
+        <Icon name="refresh" color={th.muted} size={13} />
+        <Txt muted size={12}>
+          {showingQr ? t('m.flipBack') : t('m.flipHint')}
+        </Txt>
       </View>
-      {editable ? (
-        <Button title={t('m.editCard')} variant="secondary" icon={<Icon name="pen" color={th.text} size={18} />} onPress={() => router.push(`/edit/${card.id}`)} />
-      ) : (
-        <Notice text={t('m.noEditRights')} />
-      )}
+
+      <Appear index={1}>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <QuickAction icon="qr" label={showingQr ? t('m.home.card') : t('m.home.qr')} tone={th.primary} onPress={() => setFlipKey((k) => k + 1)} />
+          <QuickAction icon="share" label={t('common.share')} tone={palette.success[500]} onPress={share} />
+          <QuickAction icon="nearby" label={t('m.home.nearby')} tone={th.accent} onPress={() => router.push('/nearby')} />
+          <QuickAction icon="pen" label={t('m.home.edit')} tone={palette.warning[500]} disabled={!editable} onPress={() => router.push(`/edit/${card.id}`)} />
+        </View>
+      </Appear>
+
+      <Appear index={2}>
+        <PressScale
+          accessibilityRole="button"
+          accessibilityLabel={copied ? t('common.copied') : t('common.copyLink')}
+          onPress={async () => {
+            await Clipboard.setStringAsync(url);
+            haptic.success();
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+          }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, minHeight: 48, borderRadius: 16, backgroundColor: th.cardMuted }}>
+            <Icon name="link" color={th.muted} size={16} />
+            <Txt size={14} weight="500" numberOfLines={1} style={{ flex: 1 }}>
+              {url.replace(/^https?:\/\//, '')}
+            </Txt>
+            <Icon name={copied ? 'check' : 'copy'} color={copied ? th.success : th.primary} size={18} />
+          </View>
+        </PressScale>
+      </Appear>
+
+      <Appear index={3}>
+        <Txt weight="700" size={18} style={{ marginTop: 4 }}>
+          {t('m.home.week')}
+        </Txt>
+      </Appear>
+      <Appear index={3}>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <Stat value={glance.data?.opens ?? 0} label={t('m.home.opens')} onPress={() => router.push('/stats')} />
+          <Stat value={glance.data?.qr ?? 0} label={t('m.home.qrScans')} onPress={() => router.push('/stats')} />
+          <Stat value={newPeople} label={t('m.home.newPeople')} onPress={() => router.push('/contacts')} />
+        </View>
+      </Appear>
+
+      {!editable ? <Notice text={t('m.noEditRights')} /> : null}
       <EventMode />
       <TodayFollowups />
       <GettingStarted />

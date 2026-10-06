@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Linking, StyleSheet, View } from 'react-native';
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -40,7 +41,7 @@ export default function Scan() {
   if (!permission) return <Loading />;
   if (!permission.granted) {
     return (
-      <Screen>
+      <Screen title={t('tabs.scan')}>
         <Notice text={t('m.cameraDenied')} />
         {permission.canAskAgain ? <Button title={t('m.grant')} onPress={() => void requestPermission()} /> : <Button title={t('m.openSettings')} onPress={() => void Linking.openSettings()} />}
       </Screen>
@@ -50,7 +51,7 @@ export default function Scan() {
   if (external) {
     const isWeb = /^https?:\/\//i.test(external);
     return (
-      <Screen>
+      <Screen title={t('tabs.scan')}>
         <Card>
           <Txt>{t('m.externalQr')}</Txt>
           <Txt muted selectable>
@@ -85,7 +86,12 @@ export default function Scan() {
         />
         <Txt style={{ color: '#FFFFFF', marginTop: 16 }}>{t('m.scanHint')}</Txt>
       </View>
-      <View style={{ position: 'absolute', left: 16, right: 16, bottom: 24 }}>
+      <SafeAreaView edges={['top']} pointerEvents="none" style={{ position: 'absolute', left: 16, right: 16, top: 0 }}>
+        <Txt size={28} weight="800" style={{ color: '#FFFFFF', paddingTop: 8 }}>
+          {t('tabs.scan')}
+        </Txt>
+      </SafeAreaView>
+      <View style={{ position: 'absolute', left: 16, right: 16, bottom: 110 }}>
         <Button
           title={t('ai.scanCard')}
           variant="ai"
