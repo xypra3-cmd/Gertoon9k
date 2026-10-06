@@ -51,11 +51,13 @@
 | FLIP-01 | Medium | Нийтийн карт QR тал руу эргэнэ, нуугдсан тал `inert` | **PASS** | e2e/public-card.mobile |
 | SEC-07 | High | Аудитын засвар HTTP-ээр: storage жагсаалт хаалттай, бусдын багц/квот асуух боломжгүй, anon хүснэгт уншихгүй, сул нууц үг Auth татгалзана | **PASS** | api/high SEC-07, pgTAP 11 |
 | SEC-08 | High | UA сольж зочны rate limit-ийг тойрох боломжгүй (сүлжээний HMAC түлхүүр) | **PASS** | functions A-05 |
+| EVT-01 | High | Эвент горим: Pro эхлүүлнэ, гараар/мэдээлэл үлдээсэн харилцагч эвентээр тэмдэглэгдэнэ, багана клиентэд хаалттай, Free-д эхлүүлэхгүй, тэмдэглэгдэхгүй | **PASS** | pgTAP 12, e2e/growth |
+| QR-01 | Medium | Офлайн vCard QR: гол талбар үлдэж, хүнд талбар хасагдана, < 500 байт | **PASS** | shared unit |
 | Load | — | 200 VU, 5 мин: **p95 = 36 ms**, алдаа **0.005 %** (157 812 хүсэлт) | **PASS** | qa/load/public-card.js |
 | Load-app | — | 500 зэрэг нэвтэрсэн хэрэглэгч (≈5,000 бүртгэл), 2.8 мин, 86 569 хүсэлт: p95 ≤ **12 ms** бүх endpoint, алдаа **0 %** | **PASS** | qa/load/app-users.js, docs/SCALING.md |
 | Lighthouse | — | /c/:slug mobile: Performance 97, Accessibility 100, SEO 100 | **PASS** | web/README |
 
-Нийт автомат тест: pgTAP 144 · Edge Function 20 · API 39 · E2E 16 · unit 64 (shared 58, web 6) · STORE-01 (47 bundled модуль) — **бүгд PASS**. Аудит: `docs/SECURITY_AUDIT.md`.
+Нийт автомат тест: pgTAP 158 · Edge Function 20 · API 39 · E2E 17 · unit 65 (shared 59, web 6) · STORE-01 (47 bundled модуль) — **бүгд PASS**. Аудит: `docs/SECURITY_AUDIT.md`.
 
 ## 2. Гараар шалгах шаардлагатай (энэ орчинд боломжгүй)
 | ID | Шалтгаан | Төлөв |

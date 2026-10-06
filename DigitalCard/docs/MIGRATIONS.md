@@ -18,7 +18,7 @@ backend/supabase/migrations/
 - **Хуучин migration-ыг хэзээ ч засахгүй.** Production-д аль хэдийн ажилласан. Өөрчлөлт бүр = шинэ файл (жишээ нь 0010 нь 0001-ийн `contacts.source` дүрмийг шинэчилсэн).
 - Эрх, квот, төлбөрийн дүрэм бүгд DB-д тул шинэ дүрэм = шинэ migration + pgTAP тест (`backend/supabase/tests/database/NN_*.test.sql`).
 
-## 2. Манай 11 migration
+## 2. Манай 13 migration
 
 | # | Файл | Юу хийдэг | Яагаад тусдаа |
 |---|---|---|---|
@@ -33,6 +33,8 @@ backend/supabase/migrations/
 | 0009 | `growth` | Жилийн төлбөр (`price_annual_mnt`), урилга (+1 сар), slug түгжээ, Free картын footer, AI өдрийн квот, эхлэх жагсаалт | Ашиг/өсөлт |
 | 0010 | `nearby` | Утас ойртуулж солилцох: `nearby_pulses` (RPC-ээр л хандана), `nearby_bump`/`code_create`/`code_claim`/`poll`, `contacts.source` += 'nearby', 10 мин цэвэрлэгээ | Шинэ боломж |
 | 0011 | `scale` | 1k–5k хэрэглэгчийн индекс (contacts owner+created, owner+card, org_members org+status), имэйл дарааллын цэвэрлэгээ | Гүйцэтгэл |
+| 0012 | `hardening` | Аюулгүй байдлын аудитын засвар: хамгийн бага эрх, helper функц хаах, storage жагсаалт, rate_buckets | SECURITY_AUDIT.md |
+| 0013 | `event_mode` | Эвент горим: `profiles.event_*`, шинэ харилцагчийг эвентээр тэмдэглэх trigger (зөвхөн CRM багц), `start_event`/`stop_event`/`get_my_event` | Шинэ боломж |
 
 ## 3. Тушаалууд
 
@@ -48,7 +50,7 @@ cd backend && npx supabase migration new nearby_v2   # → migrations/<timestamp
 #   (манайх 4 оронтой дугаар ашигладаг: 0012_nearby_v2.sql гэж нэрлэ)
 
 # Тест
-cd backend && npx supabase test db   # pgTAP, 127 тест
+cd backend && npx supabase test db   # pgTAP, 158 тест
 
 # TypeScript төрлийг шинэчлэх (RPC, хүснэгт өөрчлөгдсөн бол)
 cd packages/shared && npm run gen:types

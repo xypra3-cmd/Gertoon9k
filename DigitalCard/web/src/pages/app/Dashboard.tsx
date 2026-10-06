@@ -11,6 +11,7 @@ import { useErrorText } from '@/lib/useErrorText';
 import { Banner, Spinner } from '@/components/ui';
 import { LockIcon, SparklesIcon } from '@/components/icons';
 import { EmailSignatureButton, GettingStarted, InviteCard } from '@/components/growth';
+import { EventMode } from '@/components/EventMode';
 import { useGrowth } from '@/lib/growth';
 
 function FollowupRow({ c, today }: { c: Contact; today: string }) {
@@ -28,7 +29,11 @@ function FollowupRow({ c, today }: { c: Contact; today: string }) {
         {c.company && <span className="text-slate-500"> · {c.company}</span>}
         <div className="text-sm text-slate-500">
           {[place, metDays !== null ? t('contacts.daysAgo', { n: metDays }) : null].filter(Boolean).join(', ')}
-          {overdue && <span className="ml-2 chip !bg-red-100 !text-red-700">{t('contacts.overdue')}</span>}
+          {overdue && (
+            <span className="ml-2 chip !bg-red-100 !text-red-700 dark:!bg-red-500/15 dark:!text-red-300">
+              {t('contacts.overdue')}
+            </span>
+          )}
         </div>
       </div>
       <div className="flex gap-2">
@@ -152,6 +157,7 @@ export default function Dashboard() {
         </section>
       )}
       {growth.data && <GettingStarted growth={growth.data} firstCardId={cards.data?.[0]?.id ?? null} />}
+      <EventMode crmEnabled={entitlements.crm_enabled} />
       {pendingInvites.map((o) => (
         <Banner
           key={o.org_id}

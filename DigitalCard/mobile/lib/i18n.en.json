@@ -77,7 +77,13 @@
     "status": "Status",
     "tagsHint": "comma separated: partner, expo",
     "add": "Add",
-    "flipHint": "Tap or swipe sideways to flip the card"
+    "flipHint": "Tap or swipe sideways to flip the card",
+    "qr": {
+      "link": "Link QR",
+      "vcard": "Offline QR",
+      "vcardHint": "Works without internet: the camera saves the contact directly (not counted in stats)",
+      "vcardA11y": "Offline contact QR"
+    }
   },
   "ai": {
     "writeBio": "Write bio with AI",
@@ -164,5 +170,17 @@
     "wrongPerson": "Wrong person — undo",
     "again": "Exchange again",
     "privacy": "No precise location or IP is stored. The area code is deleted within 10 minutes."
+  },
+  "event": {
+    "title": "Event mode",
+    "short": "Turn on at an expo: everyone you meet is grouped automatically",
+    "name": "Event name",
+    "placeholder": "e.g. Startup Mongolia 2026",
+    "hours": "{{n}} h",
+    "start": "Start",
+    "stop": "Finish",
+    "live": "Event in progress · until {{until}}",
+    "met": "people met",
+    "last": "Last event: {{name}} — {{n}} people"
   }
 }

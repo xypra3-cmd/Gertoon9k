@@ -333,7 +333,7 @@ export default function Org() {
                       {m.role !== 'owner' && (
                         <button
                           type="button"
-                          className="btn-ghost btn-sm text-red-600"
+                          className="btn-ghost btn-sm text-red-600 dark:text-red-400"
                           onClick={() => void removeMember(m.member_id)}
                         >
                           {t('org.remove')}

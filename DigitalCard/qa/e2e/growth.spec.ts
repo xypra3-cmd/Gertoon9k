@@ -38,3 +38,24 @@ test('AI assist: bio suggestion fills the bio field for review', async ({ page, 
   const { data: stored } = await admin.from('cards').select('bio').eq('id', card!.id).single();
   expect(stored!.bio).toBeNull();
 });
+
+test('Event mode: Pro starts an event, new contacts are tagged, Free sees it locked', async ({ page, proUser, user }) => {
+  await login(page, proUser.email);
+  await page.goto('/app');
+  await page.getByLabel('Эвентийн нэр').fill('QA Expo');
+  await page.getByRole('button', { name: 'Эхлүүлэх' }).click();
+  await expect(page.getByTestId('event-active')).toContainText('QA Expo');
+  await proUser.db.from('contacts').insert({ owner_id: proUser.id, name: 'Booth Visitor' });
+  const { data: c } = await proUser.db.from('contacts').select('met_where_text, tags').eq('name', 'Booth Visitor').single();
+  expect(c).toEqual({ met_where_text: 'QA Expo', tags: ['QA Expo'] });
+  await page.reload();
+  await expect(page.getByTestId('event-active')).toContainText('1');
+  await page.getByRole('button', { name: 'Дуусгах' }).click();
+  await expect(page.getByTestId('event-start')).toBeVisible();
+
+  await page.context().clearCookies();
+  await page.evaluate(() => localStorage.clear());
+  await login(page, user.email);
+  await page.goto('/app');
+  await expect(page.getByTestId('event-locked')).toBeVisible();
+});

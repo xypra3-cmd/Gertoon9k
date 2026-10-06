@@ -61,3 +61,21 @@ describe('vCard 3.0', () => {
     expect(folded.replace(/\r\n /g, '')).toBe(long);
   });
 });
+
+describe('buildCompactVCard (offline QR)', () => {
+  it('keeps contact essentials, drops heavy fields, stays QR-sized', async () => {
+    const { buildCompactVCard } = await import('../src/vcard');
+    const v = buildCompactVCard({
+      firstName: 'Сараа', lastName: 'Ганбаатар', nameFormat: 'full', title: 'Даатгалын зөвлөх', company: 'Мандал Даатгал',
+      phone: '+976 8800 1122', email: 'saraa@example.mn', website: 'https://saraa.example.mn', address: 'Улаанбаатар, ХУД',
+      bio: 'x'.repeat(400), avatarUrl: 'https://cdn/x.jpg', publicUrl: 'https://digitalcard.mn/c/saraa-g',
+      links: [{ kind: 'facebook', label: null, url: 'https://facebook.com/saraa' }],
+    } as never);
+    expect(v).toContain('TEL;TYPE=CELL,VOICE:+97688001122');
+    expect(v).toContain('https://digitalcard.mn/c/saraa-g');
+    expect(v).not.toContain('NOTE');
+    expect(v).not.toContain('PHOTO');
+    expect(v).not.toContain('facebook');
+    expect(new TextEncoder().encode(v).length).toBeLessThan(500);
+  });
+});

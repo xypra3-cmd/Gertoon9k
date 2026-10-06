@@ -5,6 +5,7 @@ import * as Brightness from 'expo-brightness';
 import * as Clipboard from 'expo-clipboard';
 import QRCode from 'react-native-qrcode-svg';
 import { displayName } from '@digitalcard/shared/format';
+import { buildCompactVCard } from '@digitalcard/shared/vcard';
 import { useAuth } from '@/lib/auth';
 import { fromCardRow, ubToday, useContacts, useMyCards } from '@/lib/cards';
 import { publicCardUrl } from '@/lib/env';
@@ -14,6 +15,7 @@ import { Button, Card, Loading, Notice, Screen, Txt } from '@/components/ui';
 import { GettingStarted } from '@/components/GettingStarted';
 import { CardView } from '@/components/CardView';
 import { FlipCard } from '@/components/FlipCard';
+import { EventMode } from '@/components/EventMode';
 import { Appear, haptic, Icon, PressScale } from '@/components/motion';
 
 /** Raise screen brightness while the QR is visible; restore on leave (helps scanners in daylight). */
@@ -86,6 +88,7 @@ export default function MyCard() {
   const { width } = useWindowDimensions();
   const [index, setIndex] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [qrMode, setQrMode] = useState<'link' | 'vcard'>('link');
   useQrBrightness();
 
   if (cards.isLoading) return <Loading />;
@@ -164,12 +167,36 @@ export default function MyCard() {
                 {name}
               </Txt>
               {card.title ? <Txt muted>{card.title}</Txt> : null}
-              <View accessible accessibilityLabel={`QR: ${url}`} style={{ backgroundColor: '#FFFFFF', padding: 16, borderRadius: 20 }}>
-                <QRCode value={publicCardUrl(card.slug, 'qr')} size={qrSize} ecl="M" />
+              <View accessibilityRole="tablist" style={{ flexDirection: 'row', backgroundColor: th.cardMuted, borderRadius: 12, padding: 3 }}>
+                {(['link', 'vcard'] as const).map((m) => (
+                  <Pressable
+                    key={m}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: qrMode === m }}
+                    onPress={() => {
+                      haptic.tap();
+                      setQrMode(m);
+                    }}
+                    style={{ paddingHorizontal: 14, minHeight: 34, justifyContent: 'center', borderRadius: 9, backgroundColor: qrMode === m ? th.card : 'transparent' }}
+                  >
+                    <Txt size={13} weight="600" style={{ color: qrMode === m ? th.text : th.muted }}>
+                      {t(`m.qr.${m}`)}
+                    </Txt>
+                  </Pressable>
+                ))}
               </View>
-              <Txt muted size={13} selectable>
-                {url}
-              </Txt>
+              <View accessible accessibilityLabel={qrMode === 'link' ? `QR: ${url}` : t('m.qr.vcardA11y')} style={{ backgroundColor: '#FFFFFF', padding: 16, borderRadius: 20 }}>
+                <QRCode value={qrMode === 'link' ? publicCardUrl(card.slug, 'qr') : buildCompactVCard({ ...data, publicUrl: url })} size={qrSize} ecl={qrMode === 'link' ? 'M' : 'L'} />
+              </View>
+              {qrMode === 'link' ? (
+                <Txt muted size={13} selectable>
+                  {url}
+                </Txt>
+              ) : (
+                <Txt muted size={13} style={{ textAlign: 'center' }}>
+                  {t('m.qr.vcardHint')}
+                </Txt>
+              )}
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Icon name="refresh" color={th.muted} size={14} />
                 <Txt muted size={12}>
@@ -218,6 +245,7 @@ export default function MyCard() {
       ) : (
         <Notice text={t('m.noEditRights')} />
       )}
+      <EventMode />
       <TodayFollowups />
       <GettingStarted />
     </Screen>

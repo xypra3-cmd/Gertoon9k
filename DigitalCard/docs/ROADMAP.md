@@ -32,7 +32,8 @@
 | **NFC наалт/карт бичих** | Утсаа наалтанд хүргэхэд карт нээгдэнэ (iPhone, Android апп суулгаагүй ч) — орлогын эх үүсвэр (25–45k₮) | `react-native-nfc-manager`, NDEF URI бичих; dev build хэрэгтэй (Expo Go-д ажиллахгүй) | 🔜 |
 | **Apple/Google Wallet карт** | Wallet-оос QR харуулна, lock screen-д | PassKit (.pkpass, Apple сертификат) + Google Wallet API; Edge Function гарын үсэгтэй | 🔜 |
 | **Bluetooth ойрын хайлт** (BLE) | Апп нээлттэй 2 утас 1–3 м-т бие биеэ «Ойролцоох хүмүүс» жагсаалтад харна — bump-гүй | BLE advertise (Android peripheral, iOS foreground) + түр токен (5 мин); `react-native-ble-plx` + native module; dev build | 🧭 |
-| **Эвент горим** | Зохион байгуулагч эвент үүсгэнэ → оролцогчид QR/bump-аар солилцоход «Хаана уулзсан» автоматаар бөглөгдөнө; lead тайлан | шинэ хүснэгт `events`, RLS, Team-ийн нэмэлт | 🔜 |
+| **Эвент горим** | Асаахад бүх шинэ харилцагч эвентээр тэмдэглэгдэнэ | 0013 trigger + RPC, вэб + апп | ✅ хийгдсэн · дараа нь: зохион байгуулагчийн lead тайлан |
+| **Офлайн QR** | Интернэтгүй газар контактаа vCard QR-аар өгөх | `buildCompactVCard` | ✅ хийгдсэн |
 | **AI уулзалтын тойм** | Өдрийн төгсгөлд «өнөөдөр 6 хүнтэй танилцлаа, 2-т follow-up» + ноорог | одоогийн `ai-assist` + cron | 🔜 |
 | **Дуу хоолойн тэмдэглэл** | Уулзсаны дараа 10 секунд ярихад тэмдэглэл + tag + follow-up | Утсан дээр speech-to-text → `ai-assist note` | 🧭 |
 | **Widget / Lock screen** | Нүүр дэлгэцээс 1 товшоод QR | iOS WidgetKit, Android App Widget (dev build) | 🧭 |

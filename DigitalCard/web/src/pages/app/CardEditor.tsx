@@ -436,7 +436,7 @@ export default function CardEditor() {
                 </button>
                 <button
                   type="button"
-                  className="btn-ghost btn-sm text-red-600"
+                  className="btn-ghost btn-sm text-red-600 dark:text-red-400"
                   aria-label={t('editor.remove')}
                   disabled={!linksEnabled}
                   onClick={() => setLinks((ls) => ls.filter((_, j) => j !== i))}
@@ -565,7 +565,7 @@ export default function CardEditor() {
             {t('editor.openPublic')}
           </a>
           {(!isOrgCard || isOrgAdmin || c.owner_id === session?.user.id) && (
-            <button type="button" className="btn-ghost btn-sm text-red-600" onClick={() => void remove()}>
+            <button type="button" className="btn-ghost btn-sm text-red-600 dark:text-red-400" onClick={() => void remove()}>
               {t('editor.deleteCard')}
             </button>
           )}

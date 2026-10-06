@@ -80,3 +80,13 @@ export function vcardFileName(slug: string): string {
 }
 
 export const VCARD_MIME = 'text/vcard;charset=utf-8';
+
+/**
+ * Small vCard for an offline QR code (scanned by the phone camera, no internet needed):
+ * name, title, company, phone, e-mail, card link. Bio, address, photo and social links are
+ * left out so the QR stays readable (≈ version 10–14 at error correction M).
+ */
+export function buildCompactVCard(card: VCardInput): string {
+  // The card link goes into the plain URL field (no item1.X-ABLabel group) to save bytes.
+  return buildVCard({ ...card, links: [], bio: null, address: null, avatarUrl: null, website: card.publicUrl ?? card.website, publicUrl: undefined });
+}

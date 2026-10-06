@@ -32,7 +32,11 @@ export function ThemeToggle({
   onChange: (p: 'light' | 'dark' | 'system') => void;
 }) {
   const { t } = useI18n();
-  const next = pref === 'dark' ? 'light' : 'dark';
+  // "system" follows the OS, so the button must flip what the user actually sees.
+  const showingDark =
+    pref === 'dark' ||
+    (pref === 'system' && typeof document !== 'undefined' && document.documentElement.classList.contains('dark'));
+  const next = showingDark ? 'light' : 'dark';
   return (
     <button
       type="button"
@@ -40,7 +44,7 @@ export function ThemeToggle({
       onClick={() => onChange(next)}
       aria-label={`${t('settings.theme')}: ${t(`settings.${next}`)}`}
     >
-      <Icon name={pref === 'dark' ? 'sun' : 'moon'} width={18} height={18} aria-hidden="true" />
+      <Icon name={showingDark ? 'sun' : 'moon'} width={18} height={18} aria-hidden="true" />
     </button>
   );
 }

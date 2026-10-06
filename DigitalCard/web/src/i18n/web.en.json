@@ -358,5 +358,21 @@
     "disabled": "2FA is off.",
     "challengeTitle": "Confirm sign-in",
     "challengeText": "Enter the 6-digit code from your authenticator app."
+  },
+  "event": {
+    "title": "Event mode",
+    "body": "Turn it on at an expo or conference: everyone you add meanwhile gets the event as the meeting place and a tag.",
+    "lockedBody": "Automatically group the people you meet at events — Pro and Team plans.",
+    "unlock": "Unlock with Pro",
+    "name": "Event name",
+    "placeholder": "e.g. Startup Mongolia 2026",
+    "duration": "Duration",
+    "hours": "{{n}} h",
+    "start": "Start",
+    "stop": "Finish",
+    "live": "Event in progress · until {{until}}",
+    "met": "people met",
+    "liveHint": "Guests who leave details, QR scans, tap-to-exchange and manual contacts are all tagged with this event.",
+    "last": "Last event: {{name}} — {{n}} people"
   }
 }

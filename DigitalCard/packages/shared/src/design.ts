@@ -36,7 +36,7 @@ export const colors = {
     border: '#1F2737',
     primary: palette.brand[400],
     primarySoft: '#14204A',
-    onPrimary: '#FFFFFF',
+    onPrimary: '#0B1220', // dark text on brand-400: 6.4:1 (white was 2.9:1, below WCAG AA)
     accent: palette.accent[500],
     success: palette.success[500],
     warning: palette.warning[500],

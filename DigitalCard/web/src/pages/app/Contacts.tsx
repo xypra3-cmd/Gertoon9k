@@ -559,7 +559,7 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
             </button>
             <button
               type="button"
-              className="btn-ghost text-red-600"
+              className="btn-ghost text-red-600 dark:text-red-400"
               onClick={async () => {
                 if (!window.confirm(t('contactsx.confirmDelete'))) return;
                 await del.mutateAsync(contact.id);

@@ -271,13 +271,26 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "created_at": string,"full_name": string | null,"id": string,"locale": string,"onboarded_at": string | null,"phone": string | null,"referral_code": string,"referral_rewarded_at": string | null,"referred_by": string | null,"role": string,"show_name_to_owners": boolean
+                    "created_at": string,"event_name": string | null,"event_started_at": string | null,"event_until": string | null,"full_name": string | null,"id": string,"locale": string,"onboarded_at": string | null,"phone": string | null,"referral_code": string,"referral_rewarded_at": string | null,"referred_by": string | null,"role": string,"show_name_to_owners": boolean
                   }
                   Insert: {
-                    "created_at"?: string,"full_name"?: string | null,"id": string,"locale"?: string,"onboarded_at"?: string | null,"phone"?: string | null,"referral_code"?: string,"referral_rewarded_at"?: string | null,"referred_by"?: string | null,"role"?: string,"show_name_to_owners"?: boolean
+                    "created_at"?: string,"event_name"?: string | null,"event_started_at"?: string | null,"event_until"?: string | null,"full_name"?: string | null,"id": string,"locale"?: string,"onboarded_at"?: string | null,"phone"?: string | null,"referral_code"?: string,"referral_rewarded_at"?: string | null,"referred_by"?: string | null,"role"?: string,"show_name_to_owners"?: boolean
                   }
                   Update: {
-                    "created_at"?: string,"full_name"?: string | null,"id"?: string,"locale"?: string,"onboarded_at"?: string | null,"phone"?: string | null,"referral_code"?: string,"referral_rewarded_at"?: string | null,"referred_by"?: string | null,"role"?: string,"show_name_to_owners"?: boolean
+                    "created_at"?: string,"event_name"?: string | null,"event_started_at"?: string | null,"event_until"?: string | null,"full_name"?: string | null,"id"?: string,"locale"?: string,"onboarded_at"?: string | null,"phone"?: string | null,"referral_code"?: string,"referral_rewarded_at"?: string | null,"referred_by"?: string | null,"role"?: string,"show_name_to_owners"?: boolean
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"rate_buckets": {
+                  Row: {
+                    "hits": number,"key": string,"window_start": string
+                  }
+                  Insert: {
+                    "hits"?: number,"key": string,"window_start": string
+                  }
+                  Update: {
+                    "hits"?: number,"key"?: string,"window_start"?: string
                   }
                   Relationships: [
                     
@@ -433,6 +446,9 @@ isOneToOne: false
 "get_my_entitlements":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"get_my_event":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "get_my_growth":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -506,11 +522,20 @@ isOneToOne: false
 "queue_followup_digests":
 { Args: { "p_day"?: string }; Returns: number
                            },
+"rate_hit":
+{ Args: { "p_key": string,"p_max": number,"p_window_seconds": number }; Returns: boolean
+                           },
 "refund_ai_credit":
 { Args: { "p_user": string }; Returns: undefined
                            },
 "reward_referral":
 { Args: { "p_payer": string }; Returns: boolean
+                           },
+"start_event":
+{ Args: { "p_hours"?: number,"p_name": string }; Returns: Json
+                           },
+"stop_event":
+{ Args: Record<PropertyKey, never>; Returns: undefined
                            },
 "submit_contact_exchange":
 { Args: { "p_company": string,"p_email": string,"p_message": string,"p_name": string,"p_phone": string,"p_slug": string,"p_title": string,"p_visitor_hash": string }; Returns: Json
