@@ -7,6 +7,7 @@ import { useCardStats, useInvalidate } from '@/lib/queries';
 import { createInvoice, type Invoice } from '@/lib/payments';
 import { prepareImage } from '@/lib/image';
 import { formatDate, rangeStart } from '@/lib/dates';
+import { Icon } from '@/components/icons';
 import { useI18n } from '@/i18n/I18nProvider';
 import { useErrorText } from '@/lib/useErrorText';
 import { Banner, Field, Spinner } from '@/components/ui';
@@ -32,26 +33,48 @@ function CreateOrg() {
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
   return (
-    <div className="card max-w-lg space-y-4">
-      <h1 className="text-2xl font-bold">{t('org.create')}</h1>
-      <Field label={t('org.name')} htmlFor="org-name">
-        <input id="org-name" className="input" value={name} onChange={(e) => setName(e.target.value)} />
-      </Field>
-      {error && <Banner tone="error">{error}</Banner>}
-      <button
-        type="button"
-        className="btn-primary"
-        disabled={!name.trim()}
-        onClick={async () => {
-          const { error: e } = await supabase
-            .from('organizations')
-            .insert({ name: name.trim(), owner_id: session!.user.id });
-          if (e) setError(errorText(e));
-          else refresh();
-        }}
-      >
-        {t('org.create')}
-      </button>
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <section className="card space-y-3 bg-gradient-to-br from-brand-600 to-violet-600 text-white">
+        <h2 className="text-xl font-bold">{t('org.introTitle')}</h2>
+        <p className="text-white/85">{t('org.introBody')}</p>
+        <ul className="space-y-2">
+          {(['b1', 'b2', 'b3', 'b4'] as const).map((k) => (
+            <li key={k} className="flex items-start gap-2">
+              <Icon name="check" width={18} height={18} className="mt-0.5 shrink-0" />
+              <span>{t(`org.benefit.${k}`)}</span>
+            </li>
+          ))}
+        </ul>
+        <ol className="grid gap-2 pt-2 sm:grid-cols-3">
+          {(['s1', 's2', 's3'] as const).map((k, i) => (
+            <li key={k} className="rounded-xl bg-white/10 p-3 text-sm">
+              <span className="mb-1 block text-xs font-bold text-white/70">{i + 1}</span>
+              {t(`org.step.${k}`)}
+            </li>
+          ))}
+        </ol>
+      </section>
+      <div className="card space-y-4 self-start">
+        <h1 className="text-2xl font-bold">{t('org.create')}</h1>
+        <Field label={t('org.name')} htmlFor="org-name">
+          <input id="org-name" className="input" value={name} onChange={(e) => setName(e.target.value)} />
+        </Field>
+        {error && <Banner tone="error">{error}</Banner>}
+        <button
+          type="button"
+          className="btn-primary"
+          disabled={!name.trim()}
+          onClick={async () => {
+            const { error: e } = await supabase
+              .from('organizations')
+              .insert({ name: name.trim(), owner_id: session!.user.id });
+            if (e) setError(errorText(e));
+            else refresh();
+          }}
+        >
+          {t('org.create')}
+        </button>
+      </div>
     </div>
   );
 }

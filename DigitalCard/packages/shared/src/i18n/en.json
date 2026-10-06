@@ -97,7 +97,8 @@
     "source": {
       "exchange": "Left details",
       "qr": "QR",
-      "manual": "Manual"
+      "manual": "Manual",
+      "nearby": "Tap to exchange"
     },
     "status": {
       "new": "New",

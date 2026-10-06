@@ -1,3 +1,4 @@
+import { Icon } from './icons';
 import { useI18n } from '@/i18n/I18nProvider';
 
 export function LanguageSwitch() {
@@ -39,7 +40,7 @@ export function ThemeToggle({
       onClick={() => onChange(next)}
       aria-label={`${t('settings.theme')}: ${t(`settings.${next}`)}`}
     >
-      <span aria-hidden="true">{pref === 'dark' ? '☀' : '☾'}</span>
+      <Icon name={pref === 'dark' ? 'sun' : 'moon'} width={18} height={18} aria-hidden="true" />
     </button>
   );
 }

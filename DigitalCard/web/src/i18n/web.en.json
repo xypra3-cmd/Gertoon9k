@@ -37,7 +37,13 @@
     "f5d": "Contacts from a card photo, note summaries, follow-up drafts and bios.",
     "f6t": "E-mail signature",
     "f6d": "Every e-mail shares your card — copy it in one click.",
-    "annualNote": "Pay yearly and save {{saving}}% — Pro is {{amount}} per year."
+    "annualNote": "Pay yearly and save {{saving}}% — Pro is {{amount}} per year.",
+    "f7t": "Tap phones to exchange",
+    "f7d": "Touch two phones and both cards land in both contact lists — no QR scanning needed.",
+    "f8t": "3D flip card",
+    "f8d": "Turns like a real business card: your card on one side, QR on the other.",
+    "f9t": "Private and secure",
+    "f9d": "No IP addresses stored, 2FA, every permission checked by the database. Passwords are hashed and data travels encrypted."
   },
   "authx": {
     "noAccount": "No account?",
@@ -130,7 +136,12 @@
     "empty": "No contacts.",
     "limit": "{{count}} / {{limit}} contacts",
     "confirmDelete": "Delete?",
-    "addTag": "Add tag"
+    "addTag": "Add tag",
+    "pickTitle": "Pick a contact",
+    "pickBody": "Choose someone on the left to see notes, follow-ups and AI help here.",
+    "statTotal": "Total",
+    "statDue": "Due today",
+    "statNew": "New"
   },
   "statsx": {
     "allCards": "All cards",
@@ -182,7 +193,20 @@
     },
     "statusInvited": "Invited",
     "statusActive": "Active",
-    "notAdmin": "This section is for organization admins."
+    "notAdmin": "This section is for organization admins.",
+    "introTitle": "One brand for your whole team",
+    "introBody": "Same design for every employee, with your logo and colours. When someone leaves, the card stays under your control.",
+    "benefit": {
+      "b1": "Brand colour, logo, locked template",
+      "b2": "You decide which fields employees can edit",
+      "b3": "Team statistics and contacts in one place",
+      "b4": "Pay per seat — add as many people as you need"
+    },
+    "step": {
+      "s1": "Create your organization",
+      "s2": "Buy seats and invite people by e-mail",
+      "s3": "Everyone gets their card in a minute"
+    }
   },
   "admin": {
     "title": "Platform admin",

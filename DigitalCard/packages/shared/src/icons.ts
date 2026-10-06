@@ -45,6 +45,8 @@ export const ICONS = {
   // Two phones with signal arcs between them (nearby exchange).
   nearby: [r(2, 6, 7, 13, 1.5), r(15, 5, 7, 13, 1.5), p('M11 10.5a2.5 2.5 0 0 1 2 0M10.2 7.8a5 5 0 0 1 3.6 0')],
   chevronRight: [p('m9 18 6-6-6-6')],
+  sun: [c(12, 12, 4), p('M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4')],
+  moon: [p('M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z')],
   hash: [p('M4 9h16M4 15h16M10 3 8 21M16 3l-2 18')],
 } satisfies Record<string, IconNode[]>;
 

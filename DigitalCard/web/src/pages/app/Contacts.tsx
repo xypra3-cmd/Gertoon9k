@@ -17,7 +17,8 @@ import { downloadText, toCsv } from '@/lib/download';
 import { useI18n } from '@/i18n/I18nProvider';
 import { useErrorText } from '@/lib/useErrorText';
 import { Banner, Field, Modal, Spinner } from '@/components/ui';
-import { CalendarIcon, CameraIcon, CopyIcon, LockIcon, SparklesIcon } from '@/components/icons';
+import { CalendarIcon, CameraIcon, CopyIcon, Icon, LockIcon, SparklesIcon } from '@/components/icons';
+import { chartColors } from '@digitalcard/shared/design';
 import { imageToBase64, runAi, type AiResults } from '@/lib/ai';
 
 type FuFilter = '' | 'today' | 'overdue' | 'upcoming' | 'none';
@@ -574,6 +575,23 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
   );
 }
 
+/** Initials bubble; colour is stable per name so people are easy to spot in a long list. */
+function ContactAvatar({ name }: { name: string }) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  const letters = (words.length > 1 ? `${words[0]![0]}${words[1]![0]}` : (words[0] ?? '?').slice(0, 2)).toUpperCase();
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return (
+    <span
+      aria-hidden="true"
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
+      style={{ backgroundColor: chartColors[h % chartColors.length] }}
+    >
+      {letters}
+    </span>
+  );
+}
+
 export default function Contacts() {
   const { id } = useParams();
   const nav = useNavigate();
@@ -662,7 +680,7 @@ export default function Contacts() {
         value={q}
         onChange={(e) => setQ(e.target.value)}
       />
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2">
         <select
           className="input"
           aria-label={t('contactsx.filterTag')}
@@ -694,7 +712,7 @@ export default function Contacts() {
           onChange={(e) => setSource(e.target.value)}
         >
           <option value="">{t('contactsx.filterSource')}</option>
-          {(['exchange', 'qr', 'manual'] as const).map((s) => (
+          {(['exchange', 'nearby', 'qr', 'manual'] as const).map((s) => (
             <option key={s} value={s}>
               {t(`contacts.source.${s}`)}
             </option>
@@ -723,7 +741,8 @@ export default function Contacts() {
                 to={`/app/contacts/${c.id}`}
                 className={`flex items-center justify-between gap-2 rounded-lg px-2 py-3 hover:bg-slate-100 dark:hover:bg-slate-800 ${c.id === id ? 'bg-brand-50 dark:bg-brand-700/20' : ''}`}
               >
-                <div className="min-w-0">
+                <ContactAvatar name={c.name} />
+                <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{c.name}</p>
                   <p className="truncate text-sm text-slate-500">{[c.company, c.title].filter(Boolean).join(' · ')}</p>
                 </div>
@@ -781,7 +800,28 @@ export default function Contacts() {
             <ContactForm contact={selected} onDone={() => nav('/app/contacts')} />
           </div>
         ) : (
-          <div className="card hidden items-center justify-center text-slate-400 lg:flex">{t('contacts.title')}</div>
+          <div className="card hidden flex-col items-center justify-center gap-4 text-center lg:flex">
+            <span className="rounded-2xl bg-brand-50 p-4 text-brand-600 dark:bg-brand-700/20 dark:text-brand-200">
+              <Icon name="users" width={32} height={32} />
+            </span>
+            <p className="text-lg font-semibold">{t('contactsx.pickTitle')}</p>
+            <p className="max-w-xs text-sm text-slate-500 dark:text-slate-400">{t('contactsx.pickBody')}</p>
+            <dl className="grid w-full max-w-sm grid-cols-3 gap-2">
+              {[
+                [t('contactsx.statTotal'), all.length],
+                [
+                  t('contactsx.statDue'),
+                  all.filter((c) => c.follow_up_at && c.follow_up_at <= today && c.status !== 'closed').length,
+                ],
+                [t('contactsx.statNew'), all.filter((c) => c.status === 'new').length],
+              ].map(([label, n]) => (
+                <div key={label} className="rounded-xl bg-slate-50 p-3 dark:bg-slate-800/60">
+                  <dd className="text-2xl font-bold tabular-nums">{n}</dd>
+                  <dt className="text-xs text-slate-500 dark:text-slate-400">{label}</dt>
+                </div>
+              ))}
+            </dl>
+          </div>
         )}
       </div>
       <Modal open={creating} onClose={() => setCreating(false)} title={t('contactsx.new')}>

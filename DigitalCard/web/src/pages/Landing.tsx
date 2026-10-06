@@ -49,8 +49,8 @@ export default function Landing() {
 
   const loc = useLocation();
   useEffect(() => captureReferral(loc.search), [loc.search]);
-  const icons: IconName[] = ['qr', 'send', 'users', 'calendar', 'sparkles', 'pen'];
-  const features = [1, 2, 3, 4, 5, 6].map((i) => ({
+  const icons: IconName[] = ['qr', 'send', 'users', 'calendar', 'sparkles', 'pen', 'nearby', 'refresh', 'lock'];
+  const features = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => ({
     title: t(`landing.f${i}t`),
     text: t(`landing.f${i}d`),
     icon: icons[i - 1]!,
