@@ -77,13 +77,16 @@
     "status": "Status",
     "tagsHint": "comma separated: partner, expo",
     "add": "Add",
-    "flipHint": "Tap or swipe to show your QR",
+    "flipHint": "Tap to show your QR",
     "qr": {
       "link": "Link QR",
       "vcard": "Offline QR",
       "vcardHint": "Works without internet: the camera saves the contact directly (not counted in stats)",
       "vcardA11y": "Offline contact QR",
-      "linkHint": "Scanning opens your card"
+      "linkHint": "Scanning opens your card",
+      "linkShort": "Link",
+      "vcardShort": "Offline",
+      "vcardShortHint": "Works offline"
     },
     "peopleCount": "{{n}} people",
     "searchPeople": "Search name, company, tag",
@@ -100,7 +103,8 @@
       "qrScans": "QR scans",
       "newPeople": "New people"
     },
-    "flipBack": "Tap again to see your card"
+    "flipBack": "Tap again to see your card",
+    "swipeHint": "Swipe for your other cards"
   },
   "ai": {
     "writeBio": "Write bio with AI",

@@ -25,6 +25,11 @@ DigitalCard/
 Эсвэл PowerShell-ээр: `scripts\setup-windows.ps1`, дараа нь `scripts\dev-up-windows.ps1 -Reset`, `cd web; npm run dev`, `cd mobile; npx expo start`.
 Mobile-ийг бодит утсанд: `mobile\.env.local`-д `10.0.2.2`-ийн оронд компьютерийн LAN IP. Build, store: [`docs/MOBILE_BUILD_WINDOWS.md`](docs/MOBILE_BUILD_WINDOWS.md).
 
+
+### Код синк (таны компьютер ⇄ GitHub ⇄ Claude)
+VS Code → **Terminal → Run Task → «Digital Card: Git синк (татах + илгээх)»** (эсвэл `powershell -ExecutionPolicy Bypass -File scripts\sync.ps1`).
+Таны өөрчлөлтийг commit хийж, Claude-ийн шинэ кодыг татаж, хоёуланг нь GitHub руу push хийнэ. Дараа нь юу хийхийг (npm install, `-Reset`, Expo reload) өөрөө хэлнэ. `.env` файлууд git-д ордоггүй.
+
 ## Хурдан эхлэх (Linux / macOS)
 ```bash
 cp backend/supabase/.env.example backend/supabase/.env   # local утгууд (backend/README.md), ANTHROPIC_* = mock

@@ -2,6 +2,14 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Digital Card: Git синк (татах + илгээх)",
+      "detail": "Таны өөрчлөлтийг commit хийж, GitHub-аас Claude-ийн кодыг татаж, хоёуланг нь push хийнэ",
+      "type": "shell",
+      "windows": { "command": "powershell -ExecutionPolicy Bypass -File scripts/sync.ps1" },
+      "command": "git add -A && (git diff --cached --quiet || git commit -m \"local: $(date '+%Y-%m-%d %H:%M')\") && git pull --rebase origin $(git rev-parse --abbrev-ref HEAD) && git push",
+      "problemMatcher": []
+    },
+    {
       "label": "Digital Card: 0. бэлтгэл (нэг удаа)",
       "type": "shell",
       "windows": { "command": "powershell -ExecutionPolicy Bypass -File scripts/setup-windows.ps1" },
