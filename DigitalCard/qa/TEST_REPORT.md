@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Хувилбар (git) | салбар `claude/awesome-ramanujan-6j82t4`, энэ тайлантай commit |
-| Огноо | 2026-10-05 |
+| Огноо | 2026-10-06 |
 | Орчин | ☑ Local (Linux container) ☐ Staging ☐ Production |
 | Supabase | CLI 2.119 local stack (Postgres, Auth, Storage, Edge Runtime) |
 | Web build | Vite production build, `vite preview` :5173 |
@@ -45,10 +45,15 @@
 | AI-01 | High | ai-assist: нэвтрэлт, даалгаврын шалгалт, structured output + fallbacks, refusal → кредит буцаана, Free 3/өдөр, CRM даалгавар Free-д 403 | **PASS** | functions (Claude API mock) |
 | AI-02 | Medium | Editor-ийн AI био талбарыг бөглөнө, хадгалахгүй | **PASS** | e2e/growth |
 | ONB-01 | High | Бүртгэл → 3 алхамт wizard → нийтлэгдсэн карт, эхлэх жагсаалт 2/6 | **PASS** | e2e/fun-01 |
+| NEAR-01 | High | Ойртуулж солилцох: 3 с цонх, ≈5 км бүс, нэг удаа match, хоёр тал өөрийн контактыг хадгална (давхардалгүй), бусдын pulse уншихгүй, хүснэгт клиентэд хаалттай | **PASS** | pgTAP 10 |
+| NEAR-02 | High | 6 оронтой код: өөрийн код, буруу код, нэг удаа, 10 оролдлого/10 мин, харилцагчийн хязгаар хэвээр, anon татгалзана | **PASS** | pgTAP 10 |
+| NEAR-03 | Medium | 2 утас (2 browser context) bump ба кодоор бодитоор солилцоно | **PASS** | mobile web build + Playwright (docs/screenshots app-13…15) |
+| FLIP-01 | Medium | Нийтийн карт QR тал руу эргэнэ, нуугдсан тал `inert` | **PASS** | e2e/public-card.mobile |
 | Load | — | 200 VU, 5 мин: **p95 = 36 ms**, алдаа **0.005 %** (157 812 хүсэлт) | **PASS** | qa/load/public-card.js |
+| Load-app | — | 500 зэрэг нэвтэрсэн хэрэглэгч (≈5,000 бүртгэл), 2.8 мин, 86 569 хүсэлт: p95 ≤ **12 ms** бүх endpoint, алдаа **0 %** | **PASS** | qa/load/app-users.js, docs/SCALING.md |
 | Lighthouse | — | /c/:slug mobile: Performance 97, Accessibility 100, SEO 100 | **PASS** | web/README |
 
-Нийт автомат тест: pgTAP 103 · Edge Function 19 · API 35 · E2E 15 · unit 57 (shared 51, web 6) · STORE-01 (40 bundled модуль) — **бүгд PASS**.
+Нийт автомат тест: pgTAP 127 · Edge Function 19 · API 35 · E2E 16 · unit 61 (shared 55, web 6) · STORE-01 (47 bundled модуль) — **бүгд PASS**.
 
 ## 2. Гараар шалгах шаардлагатай (энэ орчинд боломжгүй)
 | ID | Шалтгаан | Төлөв |
@@ -59,6 +64,7 @@
 | M-08 | Cloudflare Turnstile жинхэнэ widget | ⏳ Хийгээгүй |
 | AI бодит загвар | `ANTHROPIC_API_KEY`-тэй staging дээр 4 даалгаврыг монгол/англи хэлээр шалгах (local-д mock) | ⏳ |
 | Maestro flows | Emulator/simulator шаардлагатай | ⏳ Бэлэн, ажиллуулаагүй |
+| Bump жинхэнэ утсаар | Акселерометрын босго (≈1.8 g), 2 жинхэнэ утас, GPS | ⏳ |
 | EAS build (APK/AAB/iOS) | Expo бүртгэл, Apple Developer шаардлагатай | ⏳ Хийгээгүй |
 | k6 staging | Production-той ижил Supabase tier дээр давтах | ⏳ |
 

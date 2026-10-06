@@ -162,3 +162,18 @@ Supabase Auth → Bot protection (Turnstile)-ийг production-д асаавал
 
 ### D-49 Mobile web build
 Апп нь iOS/Android-д зориулагдсан; `lib/secureStorage.web.ts` нь зөвхөн дизайны preview/screenshot-д (sessionStorage).
+
+### D-50 Утас ойртуулж солилцох = bump + код (NFC/BLE биш)
+NFC P2P (Android Beam) хасагдсан, iPhone tag дуурайж чадахгүй; BLE нь native код ба iOS background хязгаартай. Тиймээс iPhone↔Android хоёуланд Expo-гоор ажилладаг **bump**: акселерометрын огцом түлхэлт эсвэл «Одоо!» товч + ойролцоо бүс (geohash 6 тэмдэгт, match нь эхний 5 ≈ 5 км) + серверт 3 секундын цонх. Байршилгүй хувилбар — 6 оронтой код (2 мин, 10 оролдлого/10 мин). Pulse-ууд 10 минутын дотор устна, IP/нарийн байршил хадгалахгүй. NFC наалт, Wallet, BLE — ROADMAP.
+
+### D-51 Nearby контактыг тал бүр өөрийн хүсэлтээр хадгална
+Matcher нөгөө хүний контактыг бичвэл `contacts_before_write` (owner ≠ auth.uid()) татгалзана. Тиймээс хүлээж буй тал `nearby_poll`-оор match-ийг мэдээд өөрийн контактыг өөрөө хадгална → харилцагчийн хязгаар, CRM дүрэм өөрчлөлтгүй үйлчилнэ. Давхардлыг (owner, card_id)-аар шалгана. Буруу match-ийг хэрэглэгч «буцаах»-аар устгана.
+
+### D-52 Картын эргэлт
+Mobile: Reanimated `rotateY` + spring, шударсан чиглэлээр эргэнэ, хагас эргэлтэд haptic, reduce motion → шууд солигдоно; урд тал (QR) арын өндөрт тэнцүүлэгдэнэ. Web: CSS 3D (`preserve-3d`, `backface-visibility`), хоёр тал нэг grid нүдэнд, нуугдсан тал `inert`; QR сан зөвхөн анх эргүүлэхэд lazy ачаалагдана (нийтийн картын bundle жижиг хэвээр).
+
+### D-53 Өргөтгөл (1k–5k)
+Хэмжилтээр сервер талын гацах цэг алга (500 зэрэг VU, p95 ≤ 12 ms). 0011-д зөвхөн нэмэлт индекс, цэвэрлэгээ. Production-д Supabase Pro + Small compute; дохио, дараагийн алхмууд — SCALING.md.
+
+### D-54 Брэнд нэр
+«Digital Card» ерөнхий тул солих санал: Temdeg (1), Kartaa (2). Tanil, Nerka, Tamga, Uulz эзэнтэй/андуурал үүсгэнэ (NAMING.md). Bundle id-г store-д илгээхээс өмнө шийднэ — эзэмшигчийн шийдвэр.
