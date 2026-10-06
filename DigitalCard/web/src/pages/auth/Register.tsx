@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useState } from 'react';
+import { isStrongPassword } from '@digitalcard/shared/validation';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,7 +18,7 @@ const Turnstile = lazy(() => import('@/components/Turnstile').then((m) => ({ def
 const schema = z.object({
   full_name: z.string().trim().min(1, 'errors.required').max(120),
   email: z.string().trim().email('errors.invalidEmail'),
-  password: z.string().min(8, 'authx.passwordMin'),
+  password: z.string().refine(isStrongPassword, 'authx.passwordMin'),
   accept: z.literal(true, { errorMap: () => ({ message: 'errors.consentRequired' }) }),
 });
 type V = z.infer<typeof schema>;

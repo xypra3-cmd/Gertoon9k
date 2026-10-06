@@ -5,6 +5,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { json, logEvent, preflight, readJson } from '../_shared/http.ts';
 import { DbError, getUser, rpc } from '../_shared/db.ts';
 import { TASKS, type Task } from './tasks.ts';
+import { allow } from '../_shared/ratelimit.ts';
 
 const MODEL = Deno.env.get('AI_MODEL') || 'claude-opus-5-5';
 const MAX_IMAGE_BASE64 = 5_500_000; // ≈ 4 MB image
@@ -29,6 +30,9 @@ Deno.serve(async (req) => {
 
   const user = await getUser(req);
   if (!user) return json(req, { error: 'not_authenticated' }, 401);
+
+  // Burst guard on top of the daily quota: 10 requests per minute per user.
+  if (!(await allow(`ai:${user.id}`, 60, 10))) return json(req, { error: 'rate_limited' }, 429);
 
   const body = await readJson<Body>(req);
   const task = body?.task as Task | undefined;

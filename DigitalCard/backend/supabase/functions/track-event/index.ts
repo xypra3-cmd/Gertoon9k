@@ -2,7 +2,8 @@
 // visitor_hash = sha256(ip + user_agent + daily salt). The IP is never stored or logged.
 import { json, preflight, readJson } from '../_shared/http.ts';
 import { getUser, rpc } from '../_shared/db.ts';
-import { visitorHash } from '../_shared/visitor.ts';
+import { networkHash, visitorHash } from '../_shared/visitor.ts';
+import { allow } from '../_shared/ratelimit.ts';
 
 const EVENTS = new Set(['view', 'qr_open', 'link_click', 'contact_save']);
 
@@ -15,6 +16,9 @@ Deno.serve(async (req) => {
   const slug = (body?.slug ?? '').toLowerCase();
   if (!/^[a-z0-9-]{6,40}$/.test(slug) || !EVENTS.has(body?.event ?? '')) return json(req, { error: 'invalid' }, 400);
   const linkKind = body?.event === 'link_click' ? String(body?.link_kind ?? 'custom').slice(0, 40) : null;
+
+  // Per-network cap per card (generous: mobile carriers put many people behind one IP).
+  if (!(await allow(`evt:${await networkHash(req)}:${slug}`, 3600, 600))) return json(req, { status: 'rate_limited' }, 202);
 
   // Signed-in viewer: the DB keeps the identity only if the viewer opted in.
   const viewer = await getUser(req);

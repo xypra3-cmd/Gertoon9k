@@ -147,3 +147,29 @@ export function validateImageFile(file: {
   if (file.size > IMAGE_UPLOAD.maxBytes) return 'errors.fileTooLarge';
   return 'ok';
 }
+
+// -----------------------------------------------------------------------------
+// Security helpers (docs/SECURITY_AUDIT.md)
+// -----------------------------------------------------------------------------
+
+/** Same rule as Supabase Auth (config.toml): ≥ 8 characters with at least one letter and one digit. */
+export function isStrongPassword(pw: string): boolean {
+  return pw.length >= 8 && pw.length <= 72 && /\p{L}/u.test(pw) && /[0-9]/.test(pw);
+}
+
+/**
+ * In-app redirect target from an untrusted `?next=` value. Only same-origin absolute paths;
+ * rejects `//host`, `/\host`, backslashes, control characters and scheme-like values.
+ */
+export function safeNextPath(raw: string | null | undefined, fallback = '/app'): string {
+  if (!raw || raw.length > 500) return fallback;
+  // eslint-disable-next-line no-control-regex
+  if (!/^\/(?![/\\])/.test(raw) || /[\\\u0000-\u001f]/.test(raw)) return fallback;
+  return raw;
+}
+
+/** Links handed to us by third parties (e.g. QPay bank deep links): never javascript:/data:/file:. */
+export function isSafeExternalLink(url: string): boolean {
+  const m = /^([a-z][a-z0-9+.-]*):/i.exec(url.trim());
+  return !!m?.[1] && !['javascript', 'data', 'vbscript', 'file', 'blob'].includes(m[1].toLowerCase());
+}

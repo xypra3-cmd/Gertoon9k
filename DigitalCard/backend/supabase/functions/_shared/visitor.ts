@@ -17,11 +17,16 @@ async function dailySalt(day: string): Promise<string> {
   return hex(await crypto.subtle.sign('HMAC', key, enc.encode(`visitor-salt:${day}`)));
 }
 
+/**
+ * Client IP for hashing only. Hosted Supabase sits behind Cloudflare, which overwrites
+ * cf-connecting-ip (not spoofable); x-forwarded-for's first hop is the client as seen by the
+ * gateway; x-real-ip is last because some local gateways set it to their own address.
+ */
 export function clientIp(req: Request): string {
   return (
     req.headers.get('cf-connecting-ip') ??
+    ((req.headers.get('x-forwarded-for') ?? '').split(',')[0]?.trim() || null) ??
     req.headers.get('x-real-ip') ??
-    (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() ??
     ''
   );
 }
@@ -31,4 +36,13 @@ export async function visitorHash(req: Request): Promise<string> {
   const ua = req.headers.get('user-agent') ?? '';
   const salt = await dailySalt(ubDay());
   return hex(await crypto.subtle.digest('SHA-256', enc.encode(`${ip}|${ua}|${salt}`)));
+}
+
+/**
+ * Network key for rate limits: HMAC(ip | daily salt) — without the User-Agent, so rotating the UA
+ * does not create "new visitors". Rotates daily; the IP itself is never stored or logged.
+ */
+export async function networkHash(req: Request): Promise<string> {
+  const salt = await dailySalt(ubDay());
+  return hex(await crypto.subtle.digest('SHA-256', enc.encode(`net|${clientIp(req)}|${salt}`))).slice(0, 32);
 }

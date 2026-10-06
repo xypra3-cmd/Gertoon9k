@@ -48,7 +48,7 @@
     "setPassword": "Change password",
     "checkEmail": "Account created. Please log in.",
     "demoTitle": "Demo accounts (demo mode only)",
-    "passwordMin": "Password must be at least 8 characters",
+    "passwordMin": "At least 8 characters with a letter and a digit",
     "invalidCredentials": "Wrong e-mail or password."
   },
   "dash": {

@@ -3,6 +3,7 @@
 import { env, json, logEvent, preflight, readJson } from '../_shared/http.ts';
 import { DbError, getUser, rpc } from '../_shared/db.ts';
 import { createInvoice } from '../_shared/qpay.ts';
+import { allow } from '../_shared/ratelimit.ts';
 
 interface Body {
   plan_id?: string;
@@ -26,6 +27,8 @@ Deno.serve(async (req) => {
 
   const user = await getUser(req);
   if (!user) return json(req, { error: 'not_authenticated' }, 401);
+
+  if (!(await allow(`invoice:${user.id}`, 600, 10))) return json(req, { error: 'rate_limited' }, 429);
 
   const body = await readJson<Body>(req);
   if (!body?.plan_id || !['pro', 'team'].includes(body.plan_id)) return json(req, { error: 'invalid_plan' }, 400);

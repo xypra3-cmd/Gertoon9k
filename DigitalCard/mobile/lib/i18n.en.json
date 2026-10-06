@@ -53,7 +53,7 @@
     "terms": "Terms of Service",
     "privacy": "Privacy Policy",
     "resetSent": "We sent a password reset link to your e-mail.",
-    "passwordMin": "At least 8 characters",
+    "passwordMin": "At least 8 characters with a letter and a digit",
     "checkEmail": "Account created. Confirm your e-mail and log in.",
     "notifDaily": "Check today's follow-ups",
     "preview": "Preview",

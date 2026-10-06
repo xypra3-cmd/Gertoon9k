@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { isStrongPassword } from '@digitalcard/shared/validation';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/lib/theme';
@@ -38,7 +39,7 @@ export default function Settings() {
   };
 
   const changePassword = async () => {
-    if (password.length < 8) return setMsg({ tone: 'error', text: t('authx.passwordMin') });
+    if (!isStrongPassword(password)) return setMsg({ tone: 'error', text: t('authx.passwordMin') });
     const { error } = await supabase.auth.updateUser({ password });
     setPassword('');
     setMsg(error ? { tone: 'error', text: errorText(error) } : { tone: 'success', text: t('editor.saved') });

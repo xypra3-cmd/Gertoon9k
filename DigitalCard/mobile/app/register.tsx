@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { isStrongPassword } from '@digitalcard/shared/validation';
 import { Linking, Pressable, View } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useI18n } from '@/lib/i18n';
@@ -18,7 +19,7 @@ export default function Register() {
   const [busy, setBusy] = useState(false);
 
   const submit = async () => {
-    if (password.length < 8) return setMsg({ tone: 'error', text: t('m.passwordMin') });
+    if (!isStrongPassword(password)) return setMsg({ tone: 'error', text: t('m.passwordMin') });
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({ email: email.trim(), password, options: { data: { full_name: name.trim(), locale } } });
     setBusy(false);

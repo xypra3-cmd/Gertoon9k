@@ -2,7 +2,7 @@
 -- (acceptance criterion 3 / SEC-03 / PUB-01)
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(7);
+select plan(8);
 
 insert into auth.users (id, email, aud, role) values
   ('33333333-0000-4000-8000-000000000001', 't-exp@test.mn', 'authenticated', 'authenticated');
@@ -29,14 +29,17 @@ select throws_ok(
   $$insert into public.cards (owner_id, slug, first_name) values (auth.uid(), 'exp-card-3', 'Three')$$,
   '42501', 'card_quota_exceeded', 'Expired user cannot create a new card');
 
-select is(public.has_active_plan(auth.uid()), false, 'has_active_plan() is false after expiry');
 select is(public.can_edit_card('33333333-0000-4000-8000-0000000000c1'), true, 'First card remains editable (Free fallback)');
+select throws_ok($$select public.has_active_plan(auth.uid())$$, '42501', null,
+  'Clients cannot query plan helpers for any user id (0012 A-02)');
+reset role;
+select is(public.has_active_plan('33333333-0000-4000-8000-000000000001'), false, 'has_active_plan() is false after expiry');
 
 set local role anon;
 select set_config('request.jwt.claims', '{"role":"anon"}', true);
 select is((select count(*)::int from public.public_cards where slug in ('exp-card-1', 'exp-card-2')), 2,
   'Both cards remain visible via public_cards');
-select is((select count(*)::int from public.cards), 0, 'anon cannot read the cards table directly');
+select throws_ok($$select count(*) from public.cards$$, '42501', null, 'anon has no privilege on the cards table at all');
 
 select * from finish();
 rollback;

@@ -195,6 +195,24 @@ test('EXC-02: more than 5 exchanges per visitor per hour are refused', async () 
   assert.deepEqual(statuses, ['ok', 'ok', 'ok', 'ok', 'ok', 'rate_limited']);
 });
 
+test('A-05: rotating the User-Agent does not bypass the per-network exchange limit', async () => {
+  const ip = `198.51.100.${Date.now() % 250}`;
+  const statuses = [];
+  for (let i = 0; i < 21; i++) {
+    const r = await call('contact-exchange', { body: exchangeBody({ consent: false }), headers: { 'x-forwarded-for': ip, 'user-agent': `bot-${i}` } });
+    statuses.push(r.body.status);
+  }
+  // consent_required responses do not count; with consent the limiter runs before Turnstile.
+  assert.ok(statuses.every((s) => s === 'consent_required'));
+  const limited = [];
+  for (let i = 0; i < 21; i++) {
+    const r = await call('contact-exchange', { body: exchangeBody({ turnstile_token: 'forged' }), headers: { 'x-forwarded-for': ip, 'user-agent': `bot-${i}` } });
+    limited.push(r.status);
+  }
+  assert.equal(limited.filter((s) => s === 429).length, 1, JSON.stringify(limited));
+  assert.equal(limited.at(-1), 429);
+});
+
 test('criterion 10: Free owner — the 11th contact is not stored, guest gets a clear status', async () => {
   // khulan-b belongs to expired@demo.mn (plan expired → Free limit 10)
   const owner = (await rest('cards?slug=eq.khulan-b&select=owner_id'))[0].owner_id;

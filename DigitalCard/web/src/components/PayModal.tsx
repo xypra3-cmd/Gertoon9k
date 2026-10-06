@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { isSafeExternalLink } from '@digitalcard/shared/validation';
 import { useQueryClient } from '@tanstack/react-query';
 import { formatMnt } from '@digitalcard/shared';
 import { supabase } from '@/lib/supabase';
@@ -60,16 +61,18 @@ export function PayModal({ invoice, onClose }: { invoice: Invoice | null; onClos
                 <>
                   <p className="text-sm font-medium">{t('billing.orBank')}</p>
                   <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                    {invoice.urls.map((u) => (
-                      <a
-                        key={u.name}
-                        href={u.link}
-                        className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 p-2 text-[11px] dark:border-slate-700"
-                      >
-                        <img src={u.logo} alt="" width={36} height={36} className="rounded-lg" loading="lazy" />
-                        <span className="line-clamp-2">{u.description || u.name}</span>
-                      </a>
-                    ))}
+                    {invoice.urls
+                      .filter((u) => isSafeExternalLink(u.link))
+                      .map((u) => (
+                        <a
+                          key={u.name}
+                          href={u.link}
+                          className="flex flex-col items-center gap-1 rounded-xl border border-slate-200 p-2 text-[11px] dark:border-slate-700"
+                        >
+                          <img src={u.logo} alt="" width={36} height={36} className="rounded-lg" loading="lazy" />
+                          <span className="line-clamp-2">{u.description || u.name}</span>
+                        </a>
+                      ))}
                   </div>
                 </>
               )}

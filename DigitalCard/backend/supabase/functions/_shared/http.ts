@@ -42,13 +42,22 @@ export function env(name: string): string {
   return v;
 }
 
+/** Constant-time string comparison (secrets must not leak through response timing). */
+export function safeEqual(a: string, b: string): boolean {
+  const x = new TextEncoder().encode(a);
+  const y = new TextEncoder().encode(b);
+  let diff = x.length ^ y.length;
+  for (let i = 0; i < Math.max(x.length, y.length); i++) diff |= (x[i] ?? 0) ^ (y[i] ?? 0);
+  return diff === 0;
+}
+
 /** Cron / internal endpoints: x-cron-secret header or the service role key as bearer. */
 export function isCronRequest(req: Request): boolean {
   const secret = Deno.env.get('CRON_SECRET');
-  if (secret && req.headers.get('x-cron-secret') === secret) return true;
+  if (secret && safeEqual(req.headers.get('x-cron-secret') ?? '', secret)) return true;
   const service = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   const auth = req.headers.get('authorization') ?? '';
-  return !!service && auth === `Bearer ${service}`;
+  return !!service && safeEqual(auth, `Bearer ${service}`);
 }
 
 /** Log without personal data. Never pass IPs, tokens or request bodies here. */

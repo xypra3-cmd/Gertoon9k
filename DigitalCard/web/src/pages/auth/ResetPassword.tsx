@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { isStrongPassword } from '@digitalcard/shared/validation';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { supabase } from '@/lib/supabase';
@@ -14,7 +15,7 @@ export default function ResetPassword() {
   const [error, setError] = useState<string | null>(null);
   const { register, handleSubmit, formState } = useForm<{ password: string }>();
   const onSubmit = async ({ password }: { password: string }) => {
-    if (password.length < 8) return setError(t('authx.passwordMin'));
+    if (!isStrongPassword(password)) return setError(t('authx.passwordMin'));
     const { error: err } = await supabase.auth.updateUser({ password });
     if (err) setError(errorText(err));
     else nav('/app', { replace: true });

@@ -184,6 +184,7 @@
     "ai_refused": "AI couldn't process this request. Try rephrasing it.",
     "image_too_large": "The image is too large (max 4 MB).",
     "referral_invalid": "Invalid invite code.",
-    "referral_window_closed": "Invite codes can be added within 7 days of sign-up, before any payment."
+    "referral_window_closed": "Invite codes can be added within 7 days of sign-up, before any payment.",
+    "weak_password": "Password is too weak: use at least 8 characters with a letter and a digit"
   }
 }

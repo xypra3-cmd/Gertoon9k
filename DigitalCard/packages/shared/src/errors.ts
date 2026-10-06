@@ -43,6 +43,7 @@ export function errorKey(err: unknown): string {
   const e = err as { code?: string; message?: string; error?: string; status?: string };
   const candidate = e.message ?? e.error ?? e.status ?? '';
   if ((KNOWN_ERROR_KEYS as readonly string[]).includes(candidate)) return `errors.${candidate}`;
+  if (e.code === 'weak_password') return 'errors.weak_password';
   if (e.code === '42501' || /row-level security/i.test(candidate)) return 'errors.forbidden';
   if (e.code === '23505') return 'errors.duplicate';
   return 'errors.generic';

@@ -48,8 +48,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     package: 'mn.digitalcard.app',
     adaptiveIcon: { foregroundImage: './assets/android-icon-foreground.png', backgroundImage: './assets/android-icon-background.png', monochromeImage: './assets/android-icon-monochrome.png', backgroundColor: '#2557E6' },
-    // Only what the app needs. Contacts are requested at "save" time only.
-    permissions: ['android.permission.CAMERA', 'android.permission.READ_CONTACTS', 'android.permission.WRITE_CONTACTS'],
+    // Only what the app needs. Contacts are requested at "save" time only; approximate location only
+    // when the user opens «Ойртуулж солилцох» (precise location stays blocked).
+    permissions: ['android.permission.CAMERA', 'android.permission.READ_CONTACTS', 'android.permission.WRITE_CONTACTS', 'android.permission.ACCESS_COARSE_LOCATION'],
+    // Contacts cache and session must not be copied into cloud/device-transfer backups.
+    allowBackup: false,
     blockedPermissions: [
       'android.permission.RECORD_AUDIO',
       'android.permission.READ_EXTERNAL_STORAGE',
@@ -59,7 +62,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'android.permission.SYSTEM_ALERT_WINDOW',
       'android.permission.WRITE_SETTINGS', // expo-brightness: we only change the app window brightness
       'android.permission.ACCESS_FINE_LOCATION',
-      'android.permission.ACCESS_COARSE_LOCATION',
+      'android.permission.ACCESS_BACKGROUND_LOCATION',
     ],
     intentFilters: [
       {

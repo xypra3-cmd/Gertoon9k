@@ -3,7 +3,8 @@
 import { json, logEvent, preflight, readJson } from '../_shared/http.ts';
 import { rpc } from '../_shared/db.ts';
 import { verifyTurnstile } from '../_shared/turnstile.ts';
-import { visitorHash } from '../_shared/visitor.ts';
+import { networkHash, visitorHash } from '../_shared/visitor.ts';
+import { allow } from '../_shared/ratelimit.ts';
 import { flushEmailQueue } from '../_shared/mailer.ts';
 
 interface Body {
@@ -29,6 +30,8 @@ Deno.serve(async (req) => {
   if (!b) return json(req, { status: 'invalid' }, 400);
 
   if (b.consent !== true) return json(req, { status: 'consent_required' }, 400);
+  // Before the (paid) Turnstile call: at most 20 submissions per network per hour.
+  if (!(await allow(`exc:${await networkHash(req)}`, 3600, 20))) return json(req, { status: 'rate_limited' }, 429);
   if (!(await verifyTurnstile(b.turnstile_token, req))) return json(req, { status: 'captcha_failed' }, 400);
 
   const slug = str(b.slug, 40).toLowerCase();

@@ -3,6 +3,7 @@
 import { json, logEvent, preflight, readJson } from '../_shared/http.ts';
 import { DbError, getUser, rpc } from '../_shared/db.ts';
 import { flushEmailQueue } from '../_shared/mailer.ts';
+import { allow } from '../_shared/ratelimit.ts';
 
 Deno.serve(async (req) => {
   const pre = preflight(req);
@@ -11,6 +12,9 @@ Deno.serve(async (req) => {
 
   const user = await getUser(req);
   if (!user) return json(req, { error: 'not_authenticated' }, 401);
+
+  // Invites send e-mail to arbitrary addresses: 30 per hour per admin.
+  if (!(await allow(`invite:${user.id}`, 3600, 30))) return json(req, { error: 'rate_limited' }, 429);
 
   const b = await readJson<{ org_id?: string; email?: string; role?: string }>(req);
   if (!b?.org_id || !b.email) return json(req, { error: 'invalid' }, 400);

@@ -1,7 +1,7 @@
 // High-priority tests (Prompt 04 §3) that run at the API level.
 import { describe, expect, it } from 'vitest';
 import { ANON_KEY, API_URL } from './env';
-import { admin, callFn, createCard, guestHeaders, newUser } from './helpers';
+import { admin, anon, callFn, createCard, guestHeaders, newUser } from './helpers';
 
 describe('SEC-05 upload limits (storage)', () => {
   const upload = async (token: string, path: string, body: Uint8Array, type: string) =>
@@ -60,5 +60,45 @@ describe('Account deletion (store requirement)', () => {
     expect((await u.db.rpc('delete_my_account')).error).toBeNull();
     expect((await admin.from('cards').select('id').eq('id', c.id)).data).toEqual([]);
     expect((await admin.from('contacts').select('id').eq('owner_id', u.id)).data).toEqual([]);
+  });
+});
+
+describe('SEC-07 security audit (0012_hardening) over HTTP', () => {
+  const rpc = async (fn: string, token: string, args: Record<string, unknown>) =>
+    (await fetch(`${API_URL}/rest/v1/rpc/${fn}`, { method: 'POST', headers: { apikey: ANON_KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(args) })).status;
+
+  it('anon cannot list user folders in public buckets, but public URLs still work', async () => {
+    const u = await newUser('lst');
+    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, ...new Array(64).fill(0)]);
+    await fetch(`${API_URL}/storage/v1/object/avatars/${u.id}/a.png`, { method: 'POST', headers: { apikey: ANON_KEY, Authorization: `Bearer ${u.token}`, 'Content-Type': 'image/png' }, body: png });
+    const { data } = await anon().storage.from('avatars').list(u.id);
+    expect(data ?? []).toHaveLength(0);
+    expect((await fetch(`${API_URL}/storage/v1/object/public/avatars/${u.id}/a.png`)).status).toBe(200);
+  });
+
+  it('a signed-in user cannot query another user\'s plan or quota', async () => {
+    const [a, b] = await Promise.all([newUser('pa'), newUser('pb')]);
+    for (const fn of ['has_active_plan', 'card_quota', 'contact_limit', 'crm_enabled']) {
+      expect(await rpc(fn, a.token, { uid: b.id })).toBeGreaterThanOrEqual(400);
+    }
+    expect(await rpc('get_my_entitlements', a.token, {})).toBe(200);
+  });
+
+  it('anon cannot read base tables through REST', async () => {
+    for (const t of ['cards', 'contacts', 'profiles', 'card_events']) {
+      const res = await fetch(`${API_URL}/rest/v1/${t}?select=*&limit=1`, { headers: { apikey: ANON_KEY, Authorization: `Bearer ${ANON_KEY}` } });
+      expect(res.status, t).toBeGreaterThanOrEqual(400);
+    }
+    const pub = await fetch(`${API_URL}/rest/v1/public_cards?select=slug&limit=1`, { headers: { apikey: ANON_KEY, Authorization: `Bearer ${ANON_KEY}` } });
+    expect(pub.status).toBe(200);
+  });
+
+  it('weak passwords are refused by Auth (not only by the UI)', async () => {
+    const res = await fetch(`${API_URL}/auth/v1/signup`, {
+      method: 'POST',
+      headers: { apikey: ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: `weak-${Date.now()}@test.mn`, password: 'abcdefgh' }),
+    });
+    expect(res.status).toBeGreaterThanOrEqual(400);
   });
 });

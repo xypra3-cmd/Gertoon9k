@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
+import { safeNextPath } from '@digitalcard/shared/validation';
 import { useI18n } from '@/i18n/I18nProvider';
 import { useErrorText } from '@/lib/useErrorText';
 import { Banner, Field } from '@/components/ui';
@@ -31,7 +32,7 @@ export default function Login() {
   const { session } = useAuth();
   const nav = useNavigate();
   const [params] = useSearchParams();
-  const next = params.get('next')?.startsWith('/') ? params.get('next')! : '/app';
+  const next = safeNextPath(params.get('next'));
   const [error, setError] = useState<string | null>(null);
   const { register, handleSubmit, setValue, formState } = useForm<{ email: string; password: string }>();
 

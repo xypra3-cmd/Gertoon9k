@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cardSchema, exchangeSchema, linkSchema, validateImageFile } from '../src/validation';
+import { cardSchema, exchangeSchema, isSafeExternalLink, isStrongPassword, linkSchema, safeNextPath, validateImageFile } from '../src/validation';
 
 describe('linkSchema (SEC-04)', () => {
   it.each(['https://facebook.com/x', 'mailto:a@b.mn', 'tel:+97699112233'])('accepts %s', (url) => {
@@ -59,5 +59,30 @@ describe('image upload rules (SEC-05)', () => {
     expect(validateImageFile({ size: 1000, type: 'image/svg+xml' })).toBe('errors.fileType');
     expect(validateImageFile({ size: 1000, type: 'application/x-msdownload' })).toBe('errors.fileType');
     expect(validateImageFile({ size: 1000, type: 'image/webp' })).toBe('ok');
+  });
+});
+
+
+describe('security helpers', () => {
+  it('isStrongPassword: 8+ chars with a letter and a digit', () => {
+    expect(isStrongPassword('Demo1234!')).toBe(true);
+    expect(isStrongPassword('нууцүг12')).toBe(true);
+    expect(isStrongPassword('12345678')).toBe(false);
+    expect(isStrongPassword('password')).toBe(false);
+    expect(isStrongPassword('a1')).toBe(false);
+  });
+  it('safeNextPath blocks open redirects', () => {
+    expect(safeNextPath('/app/contacts?x=1')).toBe('/app/contacts?x=1');
+    for (const bad of ['//evil.com', '/\\evil.com', '/\\/evil.com', 'https://evil.com', 'javascript:alert(1)', '/a\nb', '', null]) {
+      expect(safeNextPath(bad)).toBe('/app');
+    }
+  });
+  it('isSafeExternalLink allows bank deep links, blocks script schemes', () => {
+    expect(isSafeExternalLink('khanbank://q?qPay_QRcode=abc')).toBe(true);
+    expect(isSafeExternalLink('https://qpay.mn/x')).toBe(true);
+    expect(isSafeExternalLink('javascript:alert(1)')).toBe(false);
+    expect(isSafeExternalLink(' JavaScript:alert(1)')).toBe(false);
+    expect(isSafeExternalLink('data:text/html,x')).toBe(false);
+    expect(isSafeExternalLink('no-scheme')).toBe(false);
   });
 });
