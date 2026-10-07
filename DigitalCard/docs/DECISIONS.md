@@ -196,3 +196,17 @@ Mobile dark `onPrimary` цагаан → `#0B1220` (brand-400 дээр 2.9:1 →
 ### D-60 Wallet карт ба git синк
 Нүүрний карт нь нэрийн хуудасны жинхэнэ харьцаатай (ISO 7810, 1.586:1) градиент карт: бараан загвар өөрийн өнгөөрөө, цайвар загвар accent өнгийн градиент + цагаан бичигтэй. Ар тал том QR (Линк/Офлайн). Олон картыг хажуу тийш гүйлгэнэ (paging + цэг). Хурдан товч дугуй, өнгөт.
 `scripts/sync.ps1` + VS Code task: локал өөрчлөлтийг commit → `fetch` + `rebase` → push; шинэчлэгдсэн файлаас хамааран npm install / -Reset / Expo reload-ыг сануулна. Conflict гарвал зогсоож заавар өгнө (автоматаар дарж бичихгүй).
+
+### D-61 Вэбийн стек: React 19.3, Router 7, Vite 8, Tailwind 4, Zod 4, Recharts 3
+Vite 8 нь Rolldown (Rust) bundler-тэй — build ~1–5 с. Tailwind 4: тохиргоо `src/index.css`-ийн `@theme`-д (CSS-first), PostCSS хасагдсан (`@tailwindcss/vite`). Zod 4 (`{ error }` параметр), `@hookform/resolvers` 5. TypeScript 7 (Go дээрх native) гарсан ч `typescript-eslint` <6.1 л дэмждэг тул вэб TS 5.9, mobile TS 6.0 хэвээр — lint дэмжмэгц шилжинэ.
+React 19-д auth listener `signUp()` дуусахаас өмнө session тавьдаг болсон тул бүртгэлийн дараах чиглүүлэлт `/app` руу «уралдаж» байсан — Register-ийн `<Navigate>` одоо зорилтот хуудсыг (welcome/billing/org) шууд заана.
+
+### D-62 React Compiler (вэб + mobile)
+Babel-ийн тогтвортой `babel-plugin-react-compiler` 1.0: вэбд `@rolldown/plugin-babel` + `reactCompilerPreset()`, mobile-д `experiments.reactCompiler: true`. Компонент, hook-ууд build үед автоматаар memo хийгдэнэ. `eslint-plugin-react-hooks` 7-ийн compiler дүрмүүд (effect дотор setState хориглох, render үед ref унших хориглох г.м.) хоёр төсөлд асаалттай. Rust порт (`oxc-transform-react`) туршилтын шатанд тул ашиглаагүй.
+
+### D-63 View Transitions ба PWA
+Хуудас солигдоход React-ийн `<ViewTransition default="page">` → браузерын View Transitions API (header/навигаци хөдлөхгүй, зөвхөн агуулга cross-fade + бага зэрэг дээшилнэ; reduce-motion үед унтарна; дэмждэггүй браузер шууд солино).
+PWA: `manifest.webmanifest` (standalone, maskable icon, shortcut), `sw.js` гараар бичсэн (сан нэмээгүй). Нууцлал: зөвхөн өөрийн домэйны статик файл кэшлэнэ — Supabase API (харилцагч, карт, auth) хэзээ ч төхөөрөмж дээр worker-оор хадгалагдахгүй. Хуудас: network-first, офлайн үед кэшэлсэн shell. `/assets/*` (hash-тай) cache-first. `sw.js` `no-cache` header-тэй. Тест: PWA-01.
+
+### D-64 Mobile нэвтрэх дэлгэц v3
+Брэндийн градиент hero + хөвөгч 2 шилэн карт (Reanimated, reduce-motion үед зогсоно), доороос гарч ирэх дугуй булантай sheet. Талбар бүр дүрстэй, focus үед хүрээ тодорно; нууц үг харуулах/нуух; бүртгэлд нууц үгийн хүч (серверийн доод шаардлага = «Болно»). SVG gradient id `useId()`-аар — stack-д 2 дэлгэц зэрэг mount болоход web дээр id давхцаж gradient алга болдог байсан.

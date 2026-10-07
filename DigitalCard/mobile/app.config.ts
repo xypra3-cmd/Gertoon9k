@@ -85,7 +85,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ['expo-sensors', { motionPermission: 'Утсаа нөгөө утсанд тулгасныг мэдрэхэд ашиглана.' }],
     ['expo-build-properties', { android: { minSdkVersion: 24 } }],
   ],
-  experiments: { typedRoutes: false },
+  // React Compiler: automatic memoization at build time (Babel, stable 1.0).
+  experiments: { typedRoutes: false, reactCompiler: true },
   extra: {
     eas: { projectId: process.env.EAS_PROJECT_ID },
   },

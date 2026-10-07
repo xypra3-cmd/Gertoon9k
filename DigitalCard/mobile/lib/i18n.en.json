@@ -104,7 +104,22 @@
       "newPeople": "New people"
     },
     "flipBack": "Tap again to see your card",
-    "swipeHint": "Swipe for your other cards"
+    "swipeHint": "Swipe for your other cards",
+    "authHello": "Welcome back",
+    "noAccount": "No account yet?",
+    "haveAccount": "Already have an account?",
+    "registerTitle": "Create account",
+    "registerSub": "Get your digital business card in a minute.",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "Jane Doe",
+    "forgotSub": "Enter your email and we will send a reset link.",
+    "sendLink": "Send link",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "pwWeak": "Weak: 8+ characters, letters and digits",
+    "pwOk": "Good",
+    "pwStrong": "Strong",
+    "back": "Back"
   },
   "ai": {
     "writeBio": "Write bio with AI",

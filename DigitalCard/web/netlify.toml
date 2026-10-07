@@ -31,6 +31,17 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Service worker: always revalidate so a new deploy reaches installed apps quickly.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+
 [[headers]]
   for = "/.well-known/*"
   [headers.values]

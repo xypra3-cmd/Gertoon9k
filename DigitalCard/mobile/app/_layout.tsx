@@ -42,9 +42,9 @@ function Gate() {
       }}
     >
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="login" options={{ title: t('auth.login') }} />
-      <Stack.Screen name="register" options={{ title: t('auth.register') }} />
-      <Stack.Screen name="forgot" options={{ title: t('auth.forgot') }} />
+      <Stack.Screen name="login" options={{ headerShown: false }} />
+      <Stack.Screen name="register" options={{ headerShown: false }} />
+      <Stack.Screen name="forgot" options={{ headerShown: false }} />
       <Stack.Screen name="contact/[id]" options={{ title: t('contacts.title') }} />
       <Stack.Screen name="c/[slug]" options={{ title: 'Digital Card' }} />
       <Stack.Screen name="edit/[id]" options={{ title: t('m.editCard') }} />

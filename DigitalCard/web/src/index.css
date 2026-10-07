@@ -3,9 +3,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans:
-    'Inter Variable', Inter, system-ui, -apple-system, Segoe UI, Roboto,
-    sans-serif;
+  --font-sans: 'Inter Variable', Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 
   --color-brand-50: #eef3ff;
   --color-brand-100: #dce6fe;
@@ -31,10 +29,8 @@
   --animate-shimmer: shimmer 1.6s linear infinite;
   --animate-pop: pop 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
 
-  --shadow-soft:
-    0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 16px -4px rgba(16, 24, 40, 0.08);
-  --shadow-lift:
-    0 2px 4px rgba(16, 24, 40, 0.05), 0 16px 32px -12px rgba(16, 24, 40, 0.18);
+  --shadow-soft: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 16px -4px rgba(16, 24, 40, 0.08);
+  --shadow-lift: 0 2px 4px rgba(16, 24, 40, 0.05), 0 16px 32px -12px rgba(16, 24, 40, 0.18);
 
   @keyframes fade-up {
     from {
@@ -205,11 +201,12 @@ dialog[open]::backdrop {
   }
 }
 
-/* Route changes: cross-fade + slight rise (View Transitions API, progressive enhancement) */
-::view-transition-old(root) {
+/* Route changes: React <ViewTransition default="page"> → browser View Transitions API.
+   Only the page body animates; header and nav stay put. Browsers without it just swap. */
+::view-transition-old(.page) {
   animation: 160ms ease-out both vt-out;
 }
-::view-transition-new(root) {
+::view-transition-new(.page) {
   animation: 300ms cubic-bezier(0.22, 1, 0.36, 1) both vt-in;
 }
 @keyframes vt-out {
@@ -228,8 +225,9 @@ dialog[open]::backdrop {
   *,
   *::before,
   *::after,
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;

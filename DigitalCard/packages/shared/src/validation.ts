@@ -118,17 +118,17 @@ export const exchangeSchema = z
     company: z.string().trim().max(80).optional().default(''),
     title: z.string().trim().max(80).optional().default(''),
     message: z.string().trim().max(300, 'errors.tooLong').optional().default(''),
-    consent: z.literal(true, { errorMap: () => ({ message: 'errors.consentRequired' }) }),
+    consent: z.literal(true, { error: 'errors.consentRequired' }),
   })
   .superRefine((v, ctx) => {
     if (!v.phone && !v.email) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['phone'], message: 'errors.phoneOrEmail' });
+      ctx.addIssue({ code: 'custom', path: ['phone'], message: 'errors.phoneOrEmail' });
     }
     if (v.phone && !phoneSchema.safeParse(v.phone).success) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['phone'], message: 'errors.invalidPhone' });
+      ctx.addIssue({ code: 'custom', path: ['phone'], message: 'errors.invalidPhone' });
     }
     if (v.email && !emailSchema.safeParse(v.email).success) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['email'], message: 'errors.invalidEmail' });
+      ctx.addIssue({ code: 'custom', path: ['email'], message: 'errors.invalidEmail' });
     }
   });
 export type ExchangeInput = z.infer<typeof exchangeSchema>;

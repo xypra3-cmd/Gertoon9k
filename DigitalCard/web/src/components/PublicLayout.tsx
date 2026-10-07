@@ -1,3 +1,4 @@
+import { ViewTransition } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nProvider';
 import { useTheme } from '@/lib/theme';
@@ -60,7 +61,9 @@ export default function PublicLayout() {
         </div>
       </header>
       <main className="flex-1">
-        <Outlet />
+        <ViewTransition default="page">
+          <Outlet />
+        </ViewTransition>
       </main>
       <Footer />
     </div>

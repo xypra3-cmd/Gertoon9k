@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, ViewTransition } from 'react';
 import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/lib/auth';
 import { useI18n } from '@/i18n/I18nProvider';
@@ -82,9 +82,11 @@ export default function AppLayout() {
           </div>
         )}
       </header>
-      <main key={loc.pathname} className="mx-auto max-w-6xl animate-fade-up px-4 py-6">
+      <main className="mx-auto max-w-6xl px-4 py-6">
         <MfaGate>
-          <Outlet />
+          <ViewTransition default="page">
+            <Outlet />
+          </ViewTransition>
         </MfaGate>
       </main>
     </div>

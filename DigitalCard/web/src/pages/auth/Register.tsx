@@ -19,7 +19,7 @@ const schema = z.object({
   full_name: z.string().trim().min(1, 'errors.required').max(120),
   email: z.string().trim().email('errors.invalidEmail'),
   password: z.string().refine(isStrongPassword, 'authx.passwordMin'),
-  accept: z.literal(true, { errorMap: () => ({ message: 'errors.consentRequired' }) }),
+  accept: z.literal(true, { error: 'errors.consentRequired' }),
 });
 type V = z.infer<typeof schema>;
 
