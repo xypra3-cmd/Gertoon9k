@@ -10,3 +10,5 @@
 # Local secrets (never commit)
 .env
 functions/*/node_modules/
+# Self-signed Wallet test chain (scripts/dev-wallet-certs.sh)
+.wallet-dev/

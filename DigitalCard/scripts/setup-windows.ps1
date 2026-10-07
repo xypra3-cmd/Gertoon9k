@@ -46,7 +46,7 @@ if (-not (Test-Path 'web\.env.local'))    { Copy-Item 'web\.env.example' 'web\.e
 if (-not (Test-Path 'mobile\.env.local')) { Copy-Item 'mobile\.env.example' 'mobile\.env.local' }
 foreach ($f in $envFile, 'web\.env.local', 'mobile\.env.local') { StripBom $f }   # өмнөх хувилбарын BOM-ыг арилгана
 
-foreach ($p in @('packages\shared', 'web', 'mobile', 'qa', 'backend\supabase\functions\ai-assist')) {
+foreach ($p in @('packages\shared', 'web', 'mobile', 'qa', 'backend\supabase\functions\ai-assist', 'backend\supabase\functions\wallet-pass')) {
   Write-Host "→ npm install ($p)"
   npm install --no-audit --no-fund --prefix $p | Out-Null
 }

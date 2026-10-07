@@ -9,6 +9,8 @@ import { errorText } from '@/lib/errors';
 import { useTheme } from '@/lib/theme';
 import { Button, Card, Notice, Screen, Txt } from '@/components/ui';
 import { setDailyReminder } from '@/lib/reminders';
+import { addPasskey, passkeyAvailable, passkeyCancelled } from '@/lib/passkey';
+import { Icon } from '@/components/motion';
 
 export default function Settings() {
   const { t, locale, setLocale } = useI18n();
@@ -88,6 +90,29 @@ export default function Settings() {
         {row(t('m.showName'), showName, (v) => void toggleShowName(v))}
         {row(t('m.reminders'), reminders, (v) => void toggleReminders(v))}
       </Card>
+      {passkeyAvailable() ? (
+        <Card>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Icon name="fingerprint" size={20} color={th.primary} />
+            <Txt weight="700">{t('m.passkeyTitle')}</Txt>
+          </View>
+          <Txt muted size={14}>
+            {t('m.passkeyText')}
+          </Txt>
+          <Button
+            title={t('m.passkeyAdd')}
+            variant="secondary"
+            onPress={() =>
+              void addPasskey().then(
+                () => setMsg({ tone: 'success', text: t('m.passkeyAdded') }),
+                (e: unknown) => {
+                  if (!passkeyCancelled(e)) setMsg({ tone: 'error', text: errorText(t, e) });
+                },
+              )
+            }
+          />
+        </Card>
+      ) : null}
       {msg ? <Notice tone={msg.tone} text={msg.text} /> : null}
       <Button title={t('auth.logout')} variant="secondary" onPress={() => void supabase.auth.signOut()} />
       <Card>

@@ -7,6 +7,7 @@ import { safeNextPath } from '@digitalcard/shared/validation';
 import { useI18n } from '@/i18n/I18nProvider';
 import { useErrorText } from '@/lib/useErrorText';
 import { Banner, Field } from '@/components/ui';
+import { PasskeySignIn } from '@/components/Passkeys';
 
 export function AuthCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -52,7 +53,7 @@ export default function Login() {
           <input
             id="email"
             type="email"
-            autoComplete="email"
+            autoComplete="username webauthn"
             required
             className="input"
             {...register('email', { required: true })}
@@ -73,6 +74,9 @@ export default function Login() {
           {t('auth.login')}
         </button>
       </form>
+      <div className="mt-4">
+        <PasskeySignIn onSignedIn={() => nav(next, { replace: true })} />
+      </div>
       <div className="mt-4 flex justify-between text-sm">
         <Link to="/forgot" className="text-brand-600 hover:underline">
           {t('auth.forgot')}

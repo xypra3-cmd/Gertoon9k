@@ -15,7 +15,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     bundleIdentifier: 'mn.digitalcard.app',
     supportsTablet: true,
-    associatedDomains: [`applinks:${DOMAIN}`],
+    // webcredentials: passkeys shared with the website (same rp_id)
+    associatedDomains: [`applinks:${DOMAIN}`, `webcredentials:${DOMAIN}`],
+    // App Group: the home/lock-screen widget (targets/widget) reads the card from shared storage
+    entitlements: { 'com.apple.security.application-groups': ['group.mn.digitalcard.app'] },
+    appleTeamId: process.env.APPLE_TEAM_ID || undefined,
     config: { usesNonExemptEncryption: false },
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
@@ -24,6 +28,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       NSCameraUsageDescription: 'Нэрийн хуудасны QR код уншихад камер ашиглана.',
       NSContactsUsageDescription: 'Уншсан нэрийн хуудсыг таны утасны contact-д хадгалахад ашиглана.',
       NSPhotoLibraryUsageDescription: 'Нэрийн хуудасны зураг сонгоход ашиглана.',
+      NSSupportsLiveActivities: true,
     },
     // Privacy manifest (App Store requirement): data collected + required-reason APIs.
     privacyManifests: {
@@ -83,6 +88,32 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ['expo-notifications', { color: '#2557E6' }],
     ['expo-location', { locationWhenInUsePermission: 'Утас ойртуулж карт солилцоход ойролцоо бүсийг (≈1 км) тодорхойлно. Нарийн байршил хадгалагдахгүй.', locationAlwaysAndWhenInUsePermission: false, locationAlwaysPermission: false, isIosBackgroundLocationEnabled: false, isAndroidBackgroundLocationEnabled: false }],
     ['expo-sensors', { motionPermission: 'Утсаа нөгөө утсанд тулгасныг мэдрэхэд ашиглана.' }],
+    // NFC: write the card link to a sticker/card, read tags (iOS: TAG reader session entitlement)
+    ['react-native-nfc-manager', { nfcPermission: 'Нэрийн хуудсаа NFC наалт/картанд бичих, NFC-ээр карт уншихад ашиглана.' }],
+    // iOS widget extension from targets/widget (WidgetKit + Event-mode Live Activity, Swift)
+    '@bacons/apple-targets',
+    // Android home-screen widget rendered from widgets/CardQrWidget.tsx
+    [
+      'react-native-android-widget',
+      {
+        widgets: [
+          {
+            name: 'CardQr',
+            label: 'Миний QR',
+            description: 'Нэрийн хуудасны QR нүүр дэлгэц дээр',
+            minWidth: '110dp',
+            minHeight: '110dp',
+            targetCellWidth: 2,
+            targetCellHeight: 2,
+            maxResizeWidth: '320dp',
+            maxResizeHeight: '200dp',
+            resizeMode: 'horizontal|vertical',
+            previewImage: './assets/widget-preview.png',
+            updatePeriodMillis: 0,
+          },
+        ],
+      },
+    ],
     ['expo-build-properties', { android: { minSdkVersion: 24 } }],
   ],
   // React Compiler: automatic memoization at build time (Babel, stable 1.0).

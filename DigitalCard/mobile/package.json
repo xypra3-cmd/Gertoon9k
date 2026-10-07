@@ -1,10 +1,12 @@
 {
   "name": "@digitalcard/mobile",
   "version": "1.0.0",
-  "main": "expo-router/entry",
+  "main": "index.ts",
   "dependencies": {
+    "@bacons/apple-targets": "^5.0.0",
     "@expo-google-fonts/inter": "^0.4.2",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-ml-kit/text-recognition": "^2.0.0",
     "@supabase/supabase-js": "^2.117.2",
     "@tanstack/react-query": "^5.104.1",
     "expo": "~57.0.27",
@@ -32,6 +34,9 @@
     "react": "19.2.3",
     "react-dom": "^19.2.3",
     "react-native": "0.86.3",
+    "react-native-android-widget": "^0.22.1",
+    "react-native-nfc-manager": "^3.17.5",
+    "react-native-passkey": "^3.6.2",
     "react-native-qrcode-svg": "^6.3.26",
     "react-native-reanimated": "^4.5.1",
     "react-native-safe-area-context": "~5.7.0",
@@ -46,7 +51,8 @@
     "@types/react": "~19.2.2",
     "eslint": "^9.39.5",
     "eslint-config-expo": "~57.0.2",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "typescript7": "npm:typescript@^7.0.2"
   },
   "scripts": {
     "start": "expo start",
@@ -54,7 +60,7 @@
     "ios": "expo run:ios",
     "dev:android": "eas build -p android --profile development-device",
     "dev:ios": "eas build -p ios --profile development-device",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "node node_modules/typescript7/bin/tsc --noEmit",
     "lint": "eslint app lib components",
     "prebuild:android": "expo prebuild --platform android --clean",
     "prebuild:ios": "expo prebuild --platform ios --clean",

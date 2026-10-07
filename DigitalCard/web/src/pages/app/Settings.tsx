@@ -8,6 +8,7 @@ import { useErrorText } from '@/lib/useErrorText';
 import { Banner, Field, Spinner } from '@/components/ui';
 import { LanguageSwitch } from '@/components/LanguageSwitch';
 import { TwoFactorSettings } from '@/components/TwoFactor';
+import { PasskeySettings } from '@/components/Passkeys';
 
 export default function Settings() {
   const { t } = useI18n();
@@ -114,6 +115,7 @@ export default function Settings() {
           {t('common.save')}
         </button>
       </section>
+      <PasskeySettings />
       <TwoFactorSettings />
       <section className="card space-y-3 border-red-200 dark:border-red-900">
         <h2 className="font-semibold text-red-700 dark:text-red-400">{t('auth.deleteAccount')}</h2>

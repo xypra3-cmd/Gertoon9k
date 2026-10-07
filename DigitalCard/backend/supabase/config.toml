@@ -317,6 +317,16 @@ max_frequency = "5s"
 # enroll_enabled = true
 # verify_enabled = true
 
+# Passkeys (WebAuthn, passwordless sign-in). rp_id must equal the site's domain in production
+# (digitalcard.mn) — the apps use the same id via webcredentials / Digital Asset Links.
+[auth.passkey]
+enabled = true
+
+[auth.webauthn]
+rp_id = "localhost"
+rp_display_name = "Digital Card"
+rp_origins = ["http://localhost:5173"]
+
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `x`, `slack`, `spotify`, `workos`, `zoom`.
@@ -395,6 +405,16 @@ PUBLIC_FUNCTIONS_URL = "env(PUBLIC_FUNCTIONS_URL)"
 CRON_SECRET = "env(CRON_SECRET)"
 ANTHROPIC_API_KEY = "env(ANTHROPIC_API_KEY)"
 ANTHROPIC_BASE_URL = "env(ANTHROPIC_BASE_URL)"
+PUBLIC_WEB_URL = "env(PUBLIC_WEB_URL)"
+APPLE_PASS_TYPE_ID = "env(APPLE_PASS_TYPE_ID)"
+APPLE_TEAM_ID = "env(APPLE_TEAM_ID)"
+APPLE_PASS_CERT_B64 = "env(APPLE_PASS_CERT_B64)"
+APPLE_PASS_KEY_B64 = "env(APPLE_PASS_KEY_B64)"
+APPLE_PASS_KEY_PASSWORD = "env(APPLE_PASS_KEY_PASSWORD)"
+APPLE_WWDR_CERT_B64 = "env(APPLE_WWDR_CERT_B64)"
+GOOGLE_WALLET_ISSUER_ID = "env(GOOGLE_WALLET_ISSUER_ID)"
+GOOGLE_WALLET_SA_EMAIL = "env(GOOGLE_WALLET_SA_EMAIL)"
+GOOGLE_WALLET_SA_KEY_B64 = "env(GOOGLE_WALLET_SA_KEY_B64)"
 
 [analytics]
 enabled = false
@@ -429,6 +449,8 @@ enabled = true
 # (qpay-create-invoice, org-invite); public & cron endpoints check their own auth.
 # ---------------------------------------------------------------------------
 [functions.ai-assist]
+verify_jwt = false
+[functions.wallet-pass]
 verify_jwt = false
 [functions.qpay-create-invoice]
 verify_jwt = false

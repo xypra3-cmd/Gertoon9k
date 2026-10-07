@@ -13,6 +13,9 @@ foreach ($f in 'supabase\.env', '..\web\.env.local', '..\mobile\.env.local') {
 }
 if (-not (Test-Path 'supabase\.env')) { Write-Host 'backend\supabase\.env байхгүй → эхлээд scripts\setup-windows.ps1' -ForegroundColor Red; exit 1 }
 
+# Edge Function-ийн сангууд (Claude SDK, Wallet pass гарын үсэг)
+foreach ($fn in 'ai-assist', 'wallet-pass') { if (-not (Test-Path "supabase\functions\$fn\node_modules")) { npm ci --no-audit --no-fund --prefix "supabase\functions\$fn" | Out-Null } }
+
 # Mock сервер (QPay v2, Turnstile, Claude API) — :54399
 $mockUp = $false
 try { Invoke-WebRequest -UseBasicParsing http://127.0.0.1:54399/__mock/state -TimeoutSec 2 | Out-Null; $mockUp = $true } catch {}

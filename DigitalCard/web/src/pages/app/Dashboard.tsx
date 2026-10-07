@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { WalletButton } from '@/components/WalletButton';
 import { Link, useNavigate } from 'react-router-dom';
 import { displayName, generateSlug, type Contact } from '@digitalcard/shared';
 import { useAuth } from '@/lib/auth';
@@ -310,6 +311,7 @@ export default function Dashboard() {
                     {t('nav.stats')}
                   </Link>
                   {c.is_published && <EmailSignatureButton card={c} />}
+                  {c.is_published && <WalletButton cardId={c.id} slug={c.slug} />}
                 </div>
               </li>
             ))}

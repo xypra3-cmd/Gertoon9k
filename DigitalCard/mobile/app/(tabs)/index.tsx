@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
+import { CardPowers } from '@/components/CardPowers';
 import { Platform, Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -17,7 +18,7 @@ import { useI18n } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
 import { Button, Card, Loading, Notice, Screen, Txt } from '@/components/ui';
 import { GettingStarted } from '@/components/GettingStarted';
-import { WalletBack, WalletFront } from '@/components/WalletCard';
+import { WalletBack, WalletFront, walletColors } from '@/components/WalletCard';
 import { FlipCard } from '@/components/FlipCard';
 import { EventMode } from '@/components/EventMode';
 import { AnimatedNumber, Appear, haptic, Icon, PressScale } from '@/components/motion';
@@ -307,6 +308,20 @@ export default function MyCard() {
             <Icon name={copied ? 'check' : 'copy'} color={copied ? th.success : th.primary} size={18} />
           </View>
         </PressScale>
+      </Appear>
+
+      <Appear index={3}>
+        <CardPowers
+          cardId={card.id}
+          slug={card.slug}
+          url={url}
+          widget={{
+            name: displayName({ firstName: card.first_name, lastName: card.last_name, nameFormat: 'full' }),
+            title: card.title ?? '',
+            url,
+            color: walletColors(fromCardRow(card, card.card_links ?? [])).from,
+          }}
+        />
       </Appear>
 
       <Appear index={3}>

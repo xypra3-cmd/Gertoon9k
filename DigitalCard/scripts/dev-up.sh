@@ -15,7 +15,9 @@ docker info >/dev/null 2>&1 || { echo "Docker is not running"; exit 1; }
 cd "$ROOT/backend"
 [ -f supabase/.env ] || { echo "Create backend/supabase/.env from supabase/.env.example first"; exit 1; }
 # ai-assist imports the Claude SDK from a local node_modules (nodeModulesDir: manual)
-[ -d supabase/functions/ai-assist/node_modules ] || npm run functions:deps >/dev/null
+{ [ -d supabase/functions/ai-assist/node_modules ] && [ -d supabase/functions/wallet-pass/node_modules ]; } || npm run functions:deps >/dev/null
+# Self-signed Wallet test chain (only fills empty values; real certificates are never overwritten)
+"$ROOT/scripts/dev-wallet-certs.sh" >/dev/null || true
 EXCLUDE="studio,logflare,vector,imgproxy,supavisor,realtime,postgres-meta"
 # A cold start can time out while Postgres boots, or skip the edge runtime: retry until healthy.
 for attempt in 1 2 3; do

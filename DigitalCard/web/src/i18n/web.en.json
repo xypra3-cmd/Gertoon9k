@@ -374,5 +374,25 @@
     "met": "people met",
     "liveHint": "Guests who leave details, QR scans, tap-to-exchange and manual contacts are all tagged with this event.",
     "last": "Last event: {{name}} — {{n}} people"
+  },
+  "passkey": {
+    "or": "or",
+    "signIn": "Sign in with a passkey",
+    "title": "Passkeys (passwordless sign-in)",
+    "text": "Sign in with Face ID, fingerprint, Windows Hello or your phone. No password, fully phishing-resistant.",
+    "add": "Add a passkey",
+    "added": "Passkey added. Next time sign in without a password.",
+    "remove": "Remove",
+    "removeConfirm": "Remove this passkey?",
+    "count": "{{n}} devices",
+    "unnamed": "Passkey",
+    "created": "Added {{date}}",
+    "used": "Last used {{date}}",
+    "unsupported": "This browser does not support passkeys."
+  },
+  "wallet": {
+    "add": "Wallet",
+    "notConfigured": "Wallet is not set up yet.",
+    "failed": "Could not create the Wallet pass. Try again."
   }
 }

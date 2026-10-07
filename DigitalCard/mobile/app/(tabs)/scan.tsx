@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Linking, StyleSheet, View } from 'react-native';
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
@@ -8,6 +8,7 @@ import { useI18n } from '@/lib/i18n';
 import { Button, Card, Loading, Notice, Screen, Txt } from '@/components/ui';
 import { Icon } from '@/components/motion';
 import { useTheme } from '@/lib/theme';
+import { nfcAvailable, nfcCancelled, readCardTag } from '@/lib/nfc';
 
 export default function Scan() {
   const { t } = useI18n();
@@ -17,6 +18,26 @@ export default function Scan() {
   const [external, setExternal] = useState<string | null>(null);
   const [active, setActive] = useState(true);
   const handled = useRef(false);
+  const [nfc, setNfc] = useState(false);
+  const [nfcMsg, setNfcMsg] = useState<string | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void nfcAvailable().then((ok) => alive && setNfc(ok));
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const readNfc = async () => {
+    setNfcMsg(null);
+    try {
+      const slug = await readCardTag(t('m.nfcHold'));
+      if (slug) router.push({ pathname: '/c/[slug]', params: { slug, src: 'qr' } });
+      else setNfcMsg(t('m.nfcNotCard'));
+    } catch (e) {
+      if (!nfcCancelled(e)) setNfcMsg(t('m.nfcFailed'));
+    }
+  };
 
   // Re-arm the scanner every time the tab gains focus.
   useFocusEffect(
@@ -91,7 +112,9 @@ export default function Scan() {
           {t('tabs.scan')}
         </Txt>
       </SafeAreaView>
-      <View style={{ position: 'absolute', left: 16, right: 16, bottom: 110 }}>
+      <View style={{ position: 'absolute', left: 16, right: 16, bottom: 110, gap: 10 }}>
+        {nfcMsg ? <Notice tone="error" text={nfcMsg} /> : null}
+        {nfc ? <Button title={t('m.nfcRead')} variant="secondary" icon={<Icon name="nfc" color={th.primary} size={18} />} onPress={() => void readNfc()} /> : null}
         <Button
           title={t('ai.scanCard')}
           variant="ai"

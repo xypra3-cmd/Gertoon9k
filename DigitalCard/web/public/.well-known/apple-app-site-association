@@ -2,9 +2,21 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["REPLACE_TEAMID.mn.digitalcard.app"],
-        "components": [{ "/": "/c/*", "comment": "Public business cards open in the app when installed" }]
+        "appIDs": [
+          "REPLACE_TEAMID.mn.digitalcard.app"
+        ],
+        "components": [
+          {
+            "/": "/c/*",
+            "comment": "Public business cards open in the app when installed"
+          }
+        ]
       }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "REPLACE_TEAMID.mn.digitalcard.app"
     ]
   }
 }

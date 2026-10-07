@@ -210,3 +210,21 @@ PWA: `manifest.webmanifest` (standalone, maskable icon, shortcut), `sw.js` га�
 
 ### D-64 Mobile нэвтрэх дэлгэц v3
 Брэндийн градиент hero + хөвөгч 2 шилэн карт (Reanimated, reduce-motion үед зогсоно), доороос гарч ирэх дугуй булантай sheet. Талбар бүр дүрстэй, focus үед хүрээ тодорно; нууц үг харуулах/нуух; бүртгэлд нууц үгийн хүч (серверийн доод шаардлага = «Болно»). SVG gradient id `useId()`-аар — stack-д 2 дэлгэц зэрэг mount болоход web дээр id давхцаж gradient алга болдог байсан.
+
+### D-65 Passkeys
+Supabase Auth-ийн өөрийн passkey (WebAuthn) API: вэбд `signInWithPasskey` (+ Conditional UI autofill, `autocomplete="username webauthn"`), `registerPasskey`, `passkey.list/delete`. Mobile: `react-native-passkey` + `passkey.startAuthentication/verifyAuthentication` (нэг rp_id → вэб, апп хоёр нэг passkey хуваалцана: iOS `webcredentials:`, Android `get_login_creds`). Нууц түлхүүр төхөөрөмжөөс гардаггүй — бид зөвхөн нийтийн түлхүүр хадгална (Supabase). Passkey нэмэх нь нууц үг/2FA-г хасахгүй.
+
+### D-66 Wallet pass
+Edge Function `wallet-pass`: зөвхөн өөрийн, нийтлэгдсэн карт (owner_id = JWT user; RLS-ийн оронд service query-д owner шүүлт), 10/мин хязгаар. Apple: pass.json + зураг + manifest (SHA-1) + PKCS#7 detached гарын үсэг (node-forge, SHA-256), ZIP-ийг хамааралгүй өөрсдөө бичсэн. Google: Generic pass бүхий «savetowallet» JWT (RS256, WebCrypto). Түлхүүрүүд зөвхөн Edge Function secret (base64 PEM). Тохиргоогүй үед 501 `wallet_not_configured`. QR нь `?src=qr` — статистикт скан гэж тоологдоно.
+
+### D-67 Widget ба Live Activity
+iOS: `@bacons/apple-targets` (targets/widget, SwiftUI, CoreImage QR), App Group `group.mn.digitalcard.app`-аар JSON карт. `expo-live-activity` нь apple-targets-тэй нэг Xcode project-д зөрчилдсөн (prebuild алдаа) тул Live Activity-г өөрсдөө: widget extension дотор `ActivityConfiguration` + локал Expo module `modules/event-activity` (ActivityKit). Android: `react-native-android-widget` — widget модыг JS-ээс SVG QR-тэй үүсгэнэ; widget component-ууд React-ийн гадна дуудагддаг тул `'use no memo'` (React Compiler-ийн hook оруулахгүй).
+
+### D-68 NFC
+`react-native-nfc-manager`: картын https линкийг NDEF URI record болгон наалт/картад бичнэ. Уншигч талд апп хэрэггүй (iPhone background tag reading, Android). Апп доторх уншилт `parseCardLink`-ээр зөвхөн манай картыг нээнэ. Сан import хийхэд native module шаарддаг тул Expo Go-д унахгүйн тулд динамик import.
+
+### D-69 Төхөөрөмж дээрх OCR
+ML Kit text recognition (Android + iOS) → `@digitalcard/shared/cardText` (`parseCardText`): имэйл, утас (+976 хэвшүүлэлт), вэб, албан тушаал/байгууллага/хаягийн түлхүүр үг, «Овог Нэр» (кирилл) / «First Last» (латин). Эхлээд офлайнаар талбаруудыг бөглөж, онлайн үед Claude сайжруулна; AI алдаа/квот дууссан үед локал үр дүн хэвээр. Зураг төхөөрөмжөөс гарахгүйгээр уншигдана.
+
+### D-70 TypeScript 7
+`typescript7` (npm alias → typescript@7.0.2, Go native) typecheck/build-д; `typescript` 5.9/6.0 нь typescript-eslint-д үлдэнэ (TS 7-г дэмжмэгц нэг болгоно). TS 7-д `baseUrl` хасагдсан тул tsconfig-оос авсан (paths нь tsconfig-ийн хавтаснаас тооцогдоно).

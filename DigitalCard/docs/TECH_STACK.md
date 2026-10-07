@@ -60,26 +60,46 @@
 | Тест | Тоо |
 |---|---|
 | pgTAP (DB дүрэм) | 158 |
-| Edge Functions | 20 |
+| Edge Functions | 23 (Wallet 3 шинэ) |
 | API | 39 |
-| E2E (Playwright 1.63, 20 загварын visual baseline орсон) | 18 (PWA-01 шинэ) |
-| Shared unit | 59 |
+| E2E (Playwright 1.63, 20 загварын visual baseline орсон) | 20 (PWA-01, SEC-PK passkey, WALLET-UI) |
+| Shared unit | 64 (OCR parser 5 шинэ) |
 | Web unit | 6 |
 | STORE-01 (апп дотор үнэ/төлбөр байхгүй) | PASS |
 
-## 6. Шударга байдал: одоогоор **ороогүй** «next level» технологиуд
+## 6. «Next level» боломжууд — хийгдсэн
 
-Эдгээр нь 2026 онд тэргүүлэгч аппуудад байгаа ч энэ төсөлд хараахан хийгдээгүй:
+| Технологи | Хаана | Юу хийдэг | Шалгалт |
+|---|---|---|---|
+| **Passkeys (WebAuthn)** | Вэб: нэвтрэх + Тохиргоо; Mobile: нэвтрэх + Тохиргоо (`react-native-passkey`) | Face ID / хурууны хээ / Windows Hello-гоор нууц үггүй нэвтрэх. Браузерын autofill (Conditional UI). Supabase Auth-ийн native passkey API | E2E **SEC-PK** (Chrome virtual authenticator: нэмэх → гарах → passkey-ээр нэвтрэх → устгах) |
+| **Apple Wallet (.pkpass)** | Edge Function `wallet-pass`, вэб хянах самбар, iPhone нүүр дэлгэц | Картыг Wallet-д хадгална, түгжээтэй дэлгэцээс QR. PKCS#7 гарын үсэг (node-forge), ZIP-ийг өөрсдөө бичсэн | **WALLET-01**: manifest-ийн SHA-1 таарах, `openssl cms -verify` гарын үсэг баталгаажих |
+| **Google Wallet** | Edge Function, вэб, Android | «Save to Google Wallet» JWT (RS256, WebCrypto) | **WALLET-02**: JWT-ийн гарын үсэг нийтийн түлхүүрээр батлагдах; **WALLET-UI** E2E |
+| **iOS widget** (WidgetKit, SwiftUI) | `mobile/targets/widget` (`@bacons/apple-targets`) | Нүүр дэлгэц (жижиг/дунд) + түгжээтэй дэлгэц дээр QR. App Group-оор апп-тай өгөгдөл хуваалцана | `expo prebuild`: extension target `mn.digitalcard.app.widget`, App Group entitlement |
+| **iOS Live Activity + Dynamic Island** | `targets/widget/EventLiveActivity.swift` + локал Expo module `modules/event-activity` (ActivityKit) | Эвент горимын үеэр: эвентийн нэр, танилцсан хүний тоо, үлдсэн хугацаа | prebuild + autolinking |
+| **Android widget** | `mobile/widgets/` (`react-native-android-widget`) | Нүүр дэлгэц дээр QR + нэр, хэмжээг өөрчилж болно | prebuild: AppWidget receiver + provider XML; QR SVG render шалгасан |
+| **NFC** | Mobile нүүр дэлгэц («NFC-д бичих»), Скан («NFC уншуулах») | Картын линкийг NFC наалт/картад бичнэ — хүн утсаа хүргэхэд апп-гүйгээр карт нээгдэнэ | prebuild: NFC permission, iOS entitlement |
+| **Төхөөрөмж дээрх AI скан** | `@react-native-ml-kit/text-recognition` + `@digitalcard/shared/cardText` | Нэрийн хуудасны зургийг интернэтгүй уншиж талбаруудыг шууд бөглөнө; онлайн үед Claude сайжруулна | Unit тест 5 (монгол/латин карт, «Б.Болд», +976) |
+| **TypeScript 7 (Go native)** | web, mobile, shared `npm run typecheck` | Вэбийн typecheck **6.7 с → 1.0 с** (6.4×). ESLint-д TS 5.9/6.0 хэвээр (typescript-eslint TS 7-г дэмжээгүй) | Алдаа барьж буйг шалгасан |
 
-| Технологи | Яагаад чухал | Хүндрэл / шаардлага |
-|---|---|---|
-| **Passkeys (WebAuthn)** | Нууц үггүй нэвтрэлт, phishing-аас хамгаална | Supabase Auth-ийн WebAuthn дэмжлэг + native module |
-| **Apple Wallet / Google Wallet pass** | Картыг Wallet-д хадгалж, түгжээтэй дэлгэцээс QR харуулна | Apple Developer сертификат (.pkpass гарын үсэг), Google Wallet API түлхүүр |
-| **NFC tap** | Утсаа хүргэхэд карт солилцоно | NFC tag эсвэл Android HCE; iOS-д зөвхөн tag унших |
-| **Home screen widget, iOS Live Activity, App Intents (Siri/Shortcuts)** | Апп нээлгүй QR харуулах | Swift/Kotlin native target (expo-apple-targets г.м.) |
-| **Төхөөрөмж дээрх AI** (Apple Foundation Models, Gemini Nano) | Нэрийн хуудас скан офлайн, нууцлал | Төхөөрөмжөөс хамаарна; одоогоор сервер талын Claude |
-| **iOS 26 Liquid Glass native tab bar** | Системийн шинэ харагдац | Expo Router native tabs (туршилтын) |
-| **Rust React Compiler** (`oxc-transform-react`) | Build илүү хурдан | Туршилтын шатанд |
-| **TypeScript 7 (Go native)** | Typecheck ~10× хурдан | `typescript-eslint` дэмжээгүй |
+### Идэвхжүүлэх (дэлгүүрт гаргахын өмнө — бүртгэл/сертификат шаардлагатай)
 
-Дараагийн алхмын санал (үр нөлөөгөөр): Wallet pass → Passkeys → Widget/Live Activity → NFC.
+| Юу | Хаана тохируулах |
+|---|---|
+| Apple Wallet | developer.apple.com → Pass Type ID + сертификат → `APPLE_PASS_TYPE_ID`, `APPLE_TEAM_ID`, `APPLE_PASS_CERT_B64`, `APPLE_PASS_KEY_B64`, `APPLE_WWDR_CERT_B64` (Edge Function secret, base64 PEM) |
+| Google Wallet | Google Pay & Wallet Console → Issuer ID + service account түлхүүр → `GOOGLE_WALLET_ISSUER_ID`, `GOOGLE_WALLET_SA_EMAIL`, `GOOGLE_WALLET_SA_KEY_B64` |
+| Passkeys (production) | `config.toml`/Dashboard: `rp_id = "digitalcard.mn"`, `rp_origins = ["https://digitalcard.mn"]`; `.well-known/apple-app-site-association` (`webcredentials`) ба `assetlinks.json`-д Team ID / SHA-256 бичих |
+| iOS widget / Live Activity | `APPLE_TEAM_ID` env (`ios.appleTeamId`), App Group `group.mn.digitalcard.app`-ийг Apple Developer дээр үүсгэх |
+| NFC, OCR, widget, passkey (mobile) | Expo Go дээр ажиллахгүй — development build (`eas build --profile development`) хэрэгтэй. Expo Go-д эдгээр товч автоматаар нуугдана |
+
+Тохиргоо хоосон үед: Wallet → «тохируулагдаагүй» мессеж (501), бусад нь товчоо нуудаг — апп хэзээ ч унахгүй.
+Локал хөгжүүлэлтэд `scripts/dev-wallet-certs.sh` өөрөө гарын үсэг зурсан туршилтын сертификат үүсгэнэ (жинхэнэ iPhone хүлээж авахгүй).
+
+## 7. Шударга байдал: үлдсэн хязгаарлалт
+
+| Зүйл | Тайлбар |
+|---|---|
+| iOS / Android native build энд хийгдээгүй | Энэ орчинд Xcode, Android SDK байхгүй. Swift код, config plugin-ууд `expo prebuild`-ээр шалгагдсан; бодит compile-ийг EAS Build дээр хийнэ |
+| ML Kit on-device OCR кирилл танихгүй | Утас, имэйл, вэб, латин нэрийг офлайн уншина; кирилл нэрийг онлайн үед Claude засна |
+| NFC: утас өөрөө «карт» болох (Android HCE) | Хийгээгүй — NFC наалт/карт ашиглана (iPhone-д HCE зөвшөөрөгдөхгүй) |
+| Live Activity-г серверээс push-ээр шинэчлэх | Апп нээлттэй/дэвсгэрт байх үед шинэчлэгдэнэ; APNs push-to-update хийгээгүй |
+| Rust React Compiler (`oxc-transform-react`) | Туршилтын шатанд тул Babel хувилбар |

@@ -3,6 +3,7 @@ import { Alert, Linking, Share, View } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { File, Paths } from 'expo-file-system';
+import { readCardOnDevice } from '@/lib/ocr';
 import * as Sharing from 'expo-sharing';
 import { buildVCard, vcardFileName } from '@digitalcard/shared/vcard';
 import { CONTACT_STATUSES, contactSchema } from '@digitalcard/shared/validation';
@@ -82,6 +83,20 @@ function ContactForm({ id, existing, startScan }: { id: string; existing: Contac
     const photo = await photographCard();
     if (!photo) return;
     setAi('scan');
+    // 1) On the phone, offline: fields appear at once (ML Kit + shared parser).
+    const local = await readCardOnDevice(photo.uri).catch(() => null);
+    if (local) {
+      setV((o) => ({
+        ...o,
+        name: o.name || [local.last_name, local.first_name].filter(Boolean).join(' '),
+        title: o.title || local.title,
+        company: o.company || local.company,
+        phone: o.phone || local.phone,
+        email: o.email || local.email,
+      }));
+      setMsg({ tone: 'success', text: t('m.scanLocal') });
+    }
+    // 2) Server AI refines (Cyrillic names, titles). Offline or out of quota: keep the local result.
     try {
       const r = await runAi('scan', { image_base64: photo.data, media_type: photo.mediaType }, locale);
       setV((o) => ({
@@ -96,7 +111,8 @@ function ContactForm({ id, existing, startScan }: { id: string; existing: Contac
       setMsg({ tone: 'success', text: t('ai.scanReady') });
       refresh();
     } catch (e) {
-      aiFail(e);
+      if (local) haptic.success();
+      else aiFail(e);
     } finally {
       setAi('');
     }

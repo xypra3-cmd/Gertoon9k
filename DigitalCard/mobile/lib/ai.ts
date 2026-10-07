@@ -39,6 +39,7 @@ export async function runAi<K extends AiTask>(task: K, input: Record<string, unk
 /** Takes a photo of a paper business card and returns it as base64 JPEG (null when cancelled). */
 export async function photographCard(): Promise<{
   data: string;
+  uri: string;
   mediaType: 'image/jpeg';
 } | null> {
   const perm = await ImagePicker.requestCameraPermissionsAsync();
@@ -51,5 +52,5 @@ export async function photographCard(): Promise<{
   });
   const asset = res.canceled ? null : res.assets[0];
   if (!asset?.base64) return null;
-  return { data: asset.base64, mediaType: 'image/jpeg' };
+  return { data: asset.base64, uri: asset.uri, mediaType: 'image/jpeg' };
 }

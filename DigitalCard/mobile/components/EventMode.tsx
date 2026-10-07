@@ -1,6 +1,6 @@
 // «Эвент горим» on the phone: start/stop an event; the database stamps every new contact (0013).
 // Hidden for plans without CRM (no upsell inside the app — store rules).
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TextInput, View } from 'react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { palette } from '@digitalcard/shared/design';
@@ -12,6 +12,7 @@ import { errorText } from '@/lib/errors';
 import { AnimatedNumber, Appear, haptic, Icon, PressScale } from './motion';
 import { Button, Card, Txt } from './ui';
 import { font } from '@/lib/fonts';
+import { syncEventActivity } from '@/lib/liveActivity';
 
 interface MyEvent {
   name: string;
@@ -65,8 +66,16 @@ export function EventMode() {
     onSuccess: () => void refresh(),
   });
 
-  if (!enabled) return null;
   const current = ev.data;
+  // Lock screen / Dynamic Island while the event runs (iOS); ends together with the event.
+  const live = current ? `${current.active}|${current.name}|${current.until}|${current.contacts}` : 'none';
+  useEffect(() => {
+    if (!enabled || ev.isPending) return;
+    void syncEventActivity(current ?? null, t('event.met'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `live` captures every field that matters
+  }, [enabled, live]);
+
+  if (!enabled) return null;
 
   if (current?.active) {
     const d = new Date(current.until);
