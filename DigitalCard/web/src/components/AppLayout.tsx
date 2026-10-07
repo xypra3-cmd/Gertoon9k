@@ -52,7 +52,7 @@ export default function AppLayout() {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/90">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4">
           <Brand />
           <div className="hidden md:block">{nav}</div>

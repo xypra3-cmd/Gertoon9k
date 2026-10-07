@@ -135,7 +135,7 @@ export default function Billing() {
               className={`card card-hover relative flex flex-col ${p.id === 'pro' ? 'ring-2 ring-brand-600' : ''} ${p.id === current ? 'bg-brand-50/40 dark:bg-brand-900/10' : ''}`}
             >
               {p.id === 'pro' && (
-                <span className="absolute -top-3 left-4 rounded-full bg-gradient-to-r from-brand-600 to-accent-600 px-3 py-1 text-xs font-bold text-white shadow">
+                <span className="absolute -top-3 left-4 rounded-full bg-linear-to-r from-brand-600 to-accent-600 px-3 py-1 text-xs font-bold text-white shadow-sm">
                   {t('billingx.popular')}
                 </span>
               )}

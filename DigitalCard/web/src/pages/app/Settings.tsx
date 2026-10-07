@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { isStrongPassword } from '@digitalcard/shared/validation';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
@@ -14,18 +14,16 @@ export default function Settings() {
   const errorText = useErrorText();
   const { session, profile, refresh, signOut } = useAuth();
   const { pref, setTheme } = useTheme();
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [showName, setShowName] = useState(false);
+  // Edits are local until saved; untouched fields show the profile values (no effect copying state).
+  const [edits, setEdits] = useState<{ name?: string; phone?: string; showName?: boolean }>({});
+  const name = edits.name ?? profile?.full_name ?? '';
+  const phone = edits.phone ?? profile?.phone ?? '';
+  const showName = edits.showName ?? profile?.show_name_to_owners ?? false;
+  const setName = (v: string) => setEdits((e) => ({ ...e, name: v }));
+  const setPhone = (v: string) => setEdits((e) => ({ ...e, phone: v }));
+  const setShowName = (v: boolean) => setEdits((e) => ({ ...e, showName: v }));
   const [password, setPassword] = useState('');
   const [msg, setMsg] = useState<{ tone: 'success' | 'error'; text: string } | null>(null);
-
-  useEffect(() => {
-    if (!profile) return;
-    setName(profile.full_name ?? '');
-    setPhone(profile.phone ?? '');
-    setShowName(profile.show_name_to_owners);
-  }, [profile]);
 
   if (!profile) return <Spinner />;
 

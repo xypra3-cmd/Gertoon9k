@@ -91,7 +91,7 @@ export function Funnel({ s }: { s: CardStatsRow }) {
           </div>
           <div className="mt-1 h-3 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
             <div
-              className="h-3 rounded-full bg-gradient-to-r from-brand-500 to-accent-500"
+              className="h-3 rounded-full bg-linear-to-r from-brand-500 to-accent-500"
               style={{
                 width: grown ? `${Math.max(2, (st.value / max) * 100)}%` : '0%',
                 transition: `width ${motion.duration.chart}ms cubic-bezier(0.22,1,0.36,1) ${i * 120}ms`,
@@ -192,7 +192,7 @@ export default function Stats() {
         <h1 className="text-2xl font-bold">{t('nav.stats')}</h1>
         <div className="flex flex-wrap items-center gap-2">
           <select
-            className="input !w-auto"
+            className="input w-auto!"
             aria-label={t('dash.myCards')}
             value={selected}
             onChange={(e) => setParams(e.target.value === 'all' ? {} : { card: e.target.value })}

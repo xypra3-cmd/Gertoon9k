@@ -174,7 +174,7 @@ function Row({
       <span className="shrink-0" style={{ color: colors.accent }}>
         {icon}
       </span>
-      <span className="min-w-0 break-words">{children}</span>
+      <span className="min-w-0 wrap-break-word">{children}</span>
     </>
   );
   const cls = 'flex items-center gap-3 py-1.5 text-[15px]';

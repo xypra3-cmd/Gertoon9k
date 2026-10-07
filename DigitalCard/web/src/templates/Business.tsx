@@ -13,7 +13,7 @@ export default function Business({ data, colors, actions, onLinkClick }: Templat
         )}
       </div>
       <div className="mx-6 mt-4 grid grid-cols-[4px_1fr] gap-4">
-        <div className="rounded" style={{ background: colors.accent }} />
+        <div className="rounded-sm" style={{ background: colors.accent }} />
         <div className="space-y-4 pb-6">
           {actions}
           <ContactRows data={data} colors={colors} />

@@ -189,7 +189,7 @@ export default function PublicCardPage() {
           <button
             type="button"
             onClick={() => setTurns((n) => n + 1)}
-            className="inline-flex min-h-[40px] items-center gap-2 rounded-full bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:text-slate-100 dark:ring-slate-800"
+            className="inline-flex min-h-[40px] items-center gap-2 rounded-full bg-white px-4 text-sm font-semibold text-slate-800 shadow-xs ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-slate-900 dark:text-slate-100 dark:ring-slate-800"
             aria-pressed={flipped}
             data-testid="flip-button"
           >
@@ -240,7 +240,7 @@ export default function PublicCardPage() {
           <div className="mx-auto mt-6 max-w-[440px] animate-fade-up [animation-delay:400ms]">
             <Link
               to="/?utm_source=card&utm_medium=footer"
-              className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+              className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-xs transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
               data-testid="made-with"
             >
               <span className="text-slate-600 dark:text-slate-300">{t('card.madeWith')}</span>

@@ -1,6 +1,176 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans:
+    'Inter Variable', Inter, system-ui, -apple-system, Segoe UI, Roboto,
+    sans-serif;
+
+  --color-brand-50: #eef3ff;
+  --color-brand-100: #dce6fe;
+  --color-brand-200: #bccffd;
+  --color-brand-400: #6f93f9;
+  --color-brand-500: #3b6ff6;
+  --color-brand-600: #2557e6;
+  --color-brand-700: #1d45b8;
+  --color-brand-900: #152e73;
+
+  --color-accent-500: #8b5cf6;
+  --color-accent-600: #7c3aed;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --transition-duration-fast: 160ms;
+  --transition-duration-base: 240ms;
+  --transition-duration-slow: 420ms;
+
+  --animate-fade-up: fade-up 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-scale-in: scale-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-pop: pop 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  --shadow-soft:
+    0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 16px -4px rgba(16, 24, 40, 0.08);
+  --shadow-lift:
+    0 2px 4px rgba(16, 24, 40, 0.05), 0 16px 32px -12px rgba(16, 24, 40, 0.18);
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-1deg);
+    }
+    50% {
+      transform: translateY(-10px) rotate(1deg);
+    }
+  }
+  @keyframes pop {
+    0% {
+      transform: scale(0.6);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(1.08);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility btn {
+  @apply inline-flex min-h-[44px] select-none items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition duration-fast ease-out active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
+}
+
+@utility btn-primary {
+  @apply btn bg-brand-600 text-white shadow-xs shadow-brand-600/20 hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/25;
+}
+
+@utility btn-secondary {
+  @apply btn border border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800;
+}
+
+@utility btn-ghost {
+  @apply btn text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800;
+}
+
+@utility btn-danger {
+  @apply btn bg-red-600 text-white hover:bg-red-700;
+}
+
+@utility btn-ai {
+  @apply btn border border-accent-500/30 bg-linear-to-r from-brand-50 to-violet-50 text-accent-600 hover:from-brand-100 hover:to-violet-100 dark:from-brand-900/40 dark:to-violet-900/30 dark:text-violet-300;
+}
+
+@utility btn-sm {
+  @apply min-h-[36px] px-3 py-1.5 text-xs;
+}
+
+@utility input {
+  @apply block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-900 transition duration-fast ease-out placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 disabled:bg-slate-100 disabled:text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:bg-slate-800;
+}
+
+@utility label {
+  @apply mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300;
+}
+
+@utility card {
+  @apply rounded-2xl border border-slate-200/80 bg-white p-4 shadow-soft dark:border-slate-800 dark:bg-[#0F1522] sm:p-6;
+}
+
+@utility card-hover {
+  @apply transition duration-base ease-out hover:-translate-y-0.5 hover:shadow-lift;
+}
+
+@utility chip {
+  @apply inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300;
+}
+
+@utility field-error {
+  @apply mt-1 text-sm text-red-600 dark:text-red-400;
+}
+
+@utility skeleton {
+  @apply animate-shimmer rounded-lg bg-size-[200%_100%];
+  background-image: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.12) 25%,
+    rgba(148, 163, 184, 0.28) 50%,
+    rgba(148, 163, 184, 0.12) 75%
+  );
+}
+
+@utility gradient-text {
+  @apply bg-linear-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent;
+}
 
 @layer base {
   html {
@@ -12,61 +182,7 @@
     @apply bg-[#F7F8FA] font-sans text-slate-900 antialiased dark:bg-[#070B14] dark:text-slate-100;
   }
   :focus-visible {
-    @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-900;
-  }
-}
-
-@layer components {
-  .btn {
-    @apply inline-flex min-h-[44px] select-none items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition duration-fast ease-out active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100;
-  }
-  .btn-primary {
-    @apply btn bg-brand-600 text-white shadow-sm shadow-brand-600/20 hover:bg-brand-700 hover:shadow-md hover:shadow-brand-600/25;
-  }
-  .btn-secondary {
-    @apply btn border border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800;
-  }
-  .btn-ghost {
-    @apply btn text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800;
-  }
-  .btn-danger {
-    @apply btn bg-red-600 text-white hover:bg-red-700;
-  }
-  .btn-ai {
-    @apply btn border border-accent-500/30 bg-gradient-to-r from-brand-50 to-violet-50 text-accent-600 hover:from-brand-100 hover:to-violet-100 dark:from-brand-900/40 dark:to-violet-900/30 dark:text-violet-300;
-  }
-  .btn-sm {
-    @apply min-h-[36px] px-3 py-1.5 text-xs;
-  }
-  .input {
-    @apply block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-base text-slate-900 transition duration-fast ease-out placeholder:text-slate-400 hover:border-slate-300 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 disabled:bg-slate-100 disabled:text-slate-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:disabled:bg-slate-800;
-  }
-  .label {
-    @apply mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300;
-  }
-  .card {
-    @apply rounded-2xl border border-slate-200/80 bg-white p-4 shadow-soft dark:border-slate-800 dark:bg-[#0F1522] sm:p-6;
-  }
-  .card-hover {
-    @apply transition duration-base ease-out hover:-translate-y-0.5 hover:shadow-lift;
-  }
-  .chip {
-    @apply inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300;
-  }
-  .field-error {
-    @apply mt-1 text-sm text-red-600 dark:text-red-400;
-  }
-  .skeleton {
-    @apply animate-shimmer rounded-lg bg-[length:200%_100%];
-    background-image: linear-gradient(
-      90deg,
-      rgba(148, 163, 184, 0.12) 25%,
-      rgba(148, 163, 184, 0.28) 50%,
-      rgba(148, 163, 184, 0.12) 75%
-    );
-  }
-  .gradient-text {
-    @apply bg-gradient-to-r from-brand-600 to-accent-600 bg-clip-text text-transparent;
+    @apply outline-hidden ring-2 ring-brand-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-900;
   }
 }
 

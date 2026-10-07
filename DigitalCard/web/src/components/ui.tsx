@@ -107,7 +107,7 @@ export function Field({
 
 export function Stat({ label, value, sub }: { label: string; value: ReactNode; sub?: ReactNode }) {
   return (
-    <div className="card card-hover !p-4">
+    <div className="card card-hover p-4!">
       <div className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</div>
       <div className="mt-1 text-2xl font-bold tabular-nums">
         {typeof value === 'number' ? <AnimatedNumber value={value} /> : value}

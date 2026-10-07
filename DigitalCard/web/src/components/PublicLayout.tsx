@@ -41,7 +41,7 @@ export default function PublicLayout() {
   const signedIn = !!storedAccessToken();
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-950/80">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4">
           <Brand />
           <div className="flex items-center gap-2">

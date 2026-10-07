@@ -15,15 +15,16 @@ export function PayModal({ invoice, onClose }: { invoice: Invoice | null; onClos
   const { t, locale } = useI18n();
   const { refresh } = useAuth();
   const qc = useQueryClient();
-  const [status, setStatus] = useState<string>('pending');
+  // Status belongs to one invoice: a new invoice starts as «pending» without resetting state in an effect.
+  const [result, setResult] = useState<{ id: string; status: string } | null>(null);
+  const status = invoice && result?.id === invoice.payment_id ? result.status : 'pending';
 
   useEffect(() => {
     if (!invoice) return;
-    setStatus('pending');
     const timer = setInterval(async () => {
       const { data } = await supabase.from('payments').select('status').eq('id', invoice.payment_id).single();
       if (data && data.status !== 'pending') {
-        setStatus(data.status);
+        setResult({ id: invoice.payment_id, status: data.status });
         clearInterval(timer);
         if (data.status === 'paid') burstConfetti();
         refresh();

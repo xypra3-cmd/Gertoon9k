@@ -108,7 +108,7 @@ export function InviteCard({ growth }: { growth: Growth }) {
   };
   return (
     <section
-      className="card relative overflow-hidden bg-gradient-to-br from-brand-600 to-accent-600 text-white dark:from-brand-700 dark:to-accent-600"
+      className="card relative overflow-hidden bg-linear-to-br from-brand-600 to-accent-600 text-white dark:from-brand-700 dark:to-accent-600"
       aria-labelledby="inv"
       data-testid="invite-card"
     >
@@ -203,7 +203,7 @@ export function Celebrate({ title, body }: { title: string; body: string }) {
   useEffect(() => burstConfetti(), []);
   return (
     <div className="flex flex-col items-center gap-2 text-center">
-      <span className="grid h-14 w-14 animate-pop place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-accent-500 text-white shadow-lift">
+      <span className="grid h-14 w-14 animate-pop place-items-center rounded-2xl bg-linear-to-br from-brand-500 to-accent-500 text-white shadow-lift">
         <TrophyIcon width={28} height={28} />
       </span>
       <h2 className="text-xl font-bold">{title}</h2>

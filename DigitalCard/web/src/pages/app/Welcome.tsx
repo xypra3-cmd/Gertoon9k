@@ -18,7 +18,14 @@ import { Celebrate } from '@/components/growth';
 
 type Step = 0 | 1 | 2;
 
+/** Waits for the profile so the name fields start pre-filled (no race with the profile query). */
 export default function Welcome() {
+  const { profile } = useAuth();
+  if (!profile) return <Spinner />;
+  return <WelcomeWizard key={profile.id} />;
+}
+
+function WelcomeWizard() {
   const { t, locale } = useI18n();
   const errorText = useErrorText();
   const { session, profile, refresh } = useAuth();
@@ -188,7 +195,7 @@ export default function Welcome() {
               {label}
             </span>
             {i < steps.length - 1 && (
-              <span className="h-0.5 flex-1 overflow-hidden rounded bg-slate-200 dark:bg-slate-800">
+              <span className="h-0.5 flex-1 overflow-hidden rounded-sm bg-slate-200 dark:bg-slate-800">
                 <span
                   className="block h-full bg-emerald-500 transition-[width] duration-slow ease-out"
                   style={{ width: i < step ? '100%' : '0%' }}
@@ -372,7 +379,7 @@ export default function Welcome() {
 
         <div className="lg:sticky lg:top-20 lg:self-start">
           <div
-            className="rounded-3xl bg-gradient-to-br from-slate-100 to-slate-200/60 p-4 dark:from-slate-900 dark:to-slate-800/60"
+            className="rounded-3xl bg-linear-to-br from-slate-100 to-slate-200/60 p-4 dark:from-slate-900 dark:to-slate-800/60"
             aria-label={t('editor.preview')}
           >
             <div key={`${template}-${scheme}`} className="animate-scale-in">

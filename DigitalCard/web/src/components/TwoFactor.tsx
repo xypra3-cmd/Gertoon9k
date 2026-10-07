@@ -81,7 +81,13 @@ export function TwoFactorSettings() {
     setVerified(data?.totp.find((f) => f.status === 'verified')?.id ?? null);
   };
   useEffect(() => {
-    void load();
+    let alive = true;
+    void supabase.auth.mfa.listFactors().then(({ data }) => {
+      if (alive) setVerified(data?.totp.find((f) => f.status === 'verified')?.id ?? null);
+    });
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const start = async () => {
@@ -113,7 +119,7 @@ export function TwoFactorSettings() {
         <h2 id="sec2fa" className="flex items-center gap-2 font-semibold">
           <LockIcon width={18} height={18} /> {t('security.title')}
         </h2>
-        <span className={`chip ${verified ? '!bg-emerald-100 !text-emerald-800' : ''}`}>
+        <span className={`chip ${verified ? 'bg-emerald-100! text-emerald-800!' : ''}`}>
           {verified ? t('security.on') : t('security.off')}
         </span>
       </div>

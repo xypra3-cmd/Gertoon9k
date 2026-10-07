@@ -28,6 +28,7 @@ export default function Register() {
   const errorText = useErrorText();
   const { session } = useAuth();
   const nav = useNavigate();
+  const [justRegistered, setJustRegistered] = useState(false);
   const [params] = useSearchParams();
   const plan = params.get('plan');
   captureReferral(`?${params.toString()}`);
@@ -36,11 +37,15 @@ export default function Register() {
   const onToken = useCallback((tok: string | null) => setCaptcha(tok), []);
   const { register, handleSubmit, formState } = useForm<V>({ resolver: zodResolver(schema) });
 
-  if (session) return <Navigate to="/app" replace />;
+  // Signing up fires the auth listener before signUp() resolves, so the redirect for an existing
+  // session must already point at the first-run destination (no race between the two navigations).
+  const target = plan === 'pro' ? '/app/billing' : plan === 'team' ? '/app/org' : '/app/welcome';
+  if (session) return <Navigate to={justRegistered ? target : '/app'} replace />;
 
   const onSubmit = async (v: V) => {
     setError(null);
     if (env.authCaptcha && !captcha) return setError(t('errors.captcha_failed'));
+    setJustRegistered(true);
     const { data, error: err } = await supabase.auth.signUp({
       email: v.email,
       password: v.password,
@@ -50,9 +55,12 @@ export default function Register() {
         captchaToken: captcha ?? undefined,
       },
     });
-    if (err) return setError(errorText(err));
+    if (err) {
+      setJustRegistered(false);
+      return setError(errorText(err));
+    }
     if (!data.session) return setError(t('authx.checkEmail'));
-    nav(plan === 'pro' ? '/app/billing' : plan === 'team' ? '/app/org' : '/app/welcome', { replace: true });
+    nav(target, { replace: true });
   };
 
   const e = (k: keyof V) => (formState.errors[k]?.message ? t(String(formState.errors[k]?.message)) : undefined);

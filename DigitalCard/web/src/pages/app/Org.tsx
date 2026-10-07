@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { displayName, formatMnt, TEMPLATES, type Organization } from '@digitalcard/shared';
 import { supabase } from '@/lib/supabase';
@@ -34,7 +34,7 @@ function CreateOrg() {
   const [error, setError] = useState<string | null>(null);
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-      <section className="card space-y-3 bg-gradient-to-br from-brand-600 to-violet-600 text-white">
+      <section className="card space-y-3 bg-linear-to-br from-brand-600 to-violet-600 text-white">
         <h2 className="text-xl font-bold">{t('org.introTitle')}</h2>
         <p className="text-white/85">{t('org.introBody')}</p>
         <ul className="space-y-2">
@@ -88,10 +88,10 @@ export default function Org() {
   const orgId = adminOrg?.org_id;
   const [msg, setMsg] = useState<{ tone: 'success' | 'error'; text: string } | null>(null);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [seats, setSeats] = useState(5);
+  const [seatsEdit, setSeats] = useState<number | null>(null);
   const [period, setPeriod] = useState<'month' | 'year'>('month');
   const [invoice, setInvoice] = useState<Invoice | null>(null);
-  const [form, setForm] = useState<Pick<
+  const [formEdit, setForm] = useState<Pick<
     Organization,
     'name' | 'brand_color' | 'locked_template_id' | 'allow_employee_edit_fields' | 'logo_path'
   > | null>(null);
@@ -144,20 +144,19 @@ export default function Org() {
     rangeStart('30d'),
   );
 
-  useEffect(() => {
-    if (org.data)
-      setForm({
-        name: org.data.name,
-        brand_color: org.data.brand_color,
-        locked_template_id: org.data.locked_template_id,
-        allow_employee_edit_fields: org.data.allow_employee_edit_fields,
-        logo_path: org.data.logo_path,
-      });
-  }, [org.data]);
-
-  useEffect(() => {
-    if (sub.data?.seats) setSeats(Math.max(sub.data.seats, members.data?.length ?? 0));
-  }, [sub.data, members.data]);
+  // Local edits win; until the user edits, show what the server has (no effect copying state).
+  const form =
+    formEdit ??
+    (org.data
+      ? {
+          name: org.data.name,
+          brand_color: org.data.brand_color,
+          locked_template_id: org.data.locked_template_id,
+          allow_employee_edit_fields: org.data.allow_employee_edit_fields,
+          logo_path: org.data.logo_path,
+        }
+      : null);
+  const seats = seatsEdit ?? (sub.data?.seats ? Math.max(sub.data.seats, members.data?.length ?? 0) : 5);
 
   const team = plans.data?.find((p) => p.id === 'team');
   const statsByCard = useMemo(() => new Map((stats.data ?? []).map((s) => [s.card_id, s])), [stats.data]);
@@ -213,7 +212,7 @@ export default function Org() {
     const path = `${session!.user.id}/org-${orgId}-${Date.now()}.webp`;
     const { error } = await supabase.storage.from('logos').upload(path, p.blob, { contentType: p.blob.type });
     if (error) return setMsg({ tone: 'error', text: errorText(error) });
-    setForm((f) => (f ? { ...f, logo_path: path } : f));
+    if (form) setForm({ ...form, logo_path: path });
   };
 
   const buySeats = async () => {
@@ -247,7 +246,7 @@ export default function Org() {
               type="number"
               min={team?.min_seats ?? 5}
               max={500}
-              className="input !w-28"
+              className="input w-28!"
               value={seats}
               onChange={(e) => setSeats(Math.max(team?.min_seats ?? 5, Number(e.target.value) || 0))}
             />
@@ -255,7 +254,7 @@ export default function Org() {
           <Field label={t('billingx.period')} htmlFor="period-n">
             <select
               id="period-n"
-              className="input !w-auto"
+              className="input w-auto!"
               value={period}
               onChange={(e) => setPeriod(e.target.value as 'month' | 'year')}
             >

@@ -30,7 +30,7 @@ function FollowupRow({ c, today }: { c: Contact; today: string }) {
         <div className="text-sm text-slate-500">
           {[place, metDays !== null ? t('contacts.daysAgo', { n: metDays }) : null].filter(Boolean).join(', ')}
           {overdue && (
-            <span className="ml-2 chip !bg-red-100 !text-red-700 dark:!bg-red-500/15 dark:!text-red-300">
+            <span className="ml-2 chip bg-red-100! text-red-700! dark:bg-red-500/15! dark:text-red-300!">
               {t('contacts.overdue')}
             </span>
           )}
@@ -143,7 +143,7 @@ export default function Dashboard() {
         <section className="card animate-fade-up relative overflow-hidden" data-testid="welcome-hero">
           <div
             aria-hidden="true"
-            className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-gradient-to-br from-brand-400/30 to-accent-500/30 blur-3xl"
+            className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-linear-to-br from-brand-400/30 to-accent-500/30 blur-3xl"
           />
           <div className="relative flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -288,7 +288,7 @@ export default function Dashboard() {
                     </p>
                     <p className="truncate text-sm text-slate-500">{c.title}</p>
                   </div>
-                  <span className={`chip ${c.is_published ? '!bg-emerald-100 !text-emerald-800' : ''}`}>
+                  <span className={`chip ${c.is_published ? 'bg-emerald-100! text-emerald-800!' : ''}`}>
                     {c.is_published ? t('card.published') : t('card.draft')}
                   </span>
                 </div>

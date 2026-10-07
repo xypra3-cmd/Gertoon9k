@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   buildIcs,
@@ -62,7 +62,10 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
     status: 'new' as ContactStatus,
     follow_up_at: null,
   };
-  const [v, setV] = useState<Record<string, unknown>>(empty);
+  // Initialised once per contact; the parent remounts this form with key={contact.id}.
+  const [v, setV] = useState<Record<string, unknown>>(() =>
+    contact ? { ...contact } : { ...empty, met_at: crm ? today : null },
+  );
   const [tagInput, setTagInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
@@ -141,13 +144,6 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
       setAi('');
     }
   };
-
-  useEffect(() => {
-    setV(contact ? { ...contact } : { ...empty, met_at: crm ? today : null });
-    setError(null);
-    setOk(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contact?.id]);
 
   const s = (k: string) => (v[k] as string | null) ?? '';
   const set = (k: string, val: unknown) => setV((o) => ({ ...o, [k]: val }));
@@ -360,7 +356,7 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
             {contact && (
               <span className="inline-flex items-center gap-1">
                 <select
-                  className="input !min-h-[36px] !w-auto !py-1 text-xs"
+                  className="input min-h-[36px]! w-auto! py-1! text-xs"
                   aria-label={t('ai.channel')}
                   value={channel}
                   onChange={(e) => setChannel(e.target.value as 'email' | 'sms')}
@@ -473,7 +469,7 @@ function ContactForm({ contact, onDone }: { contact: Contact | null; onDone: (id
             ))}
             <input
               id="c-tag"
-              className="input !w-40"
+              className="input w-40!"
               placeholder={t('contactsx.addTag')}
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
@@ -797,7 +793,7 @@ export default function Contacts() {
             <Link to="/app/contacts" className="btn-ghost btn-sm mb-2 lg:hidden">
               ← {t('common.back')}
             </Link>
-            <ContactForm contact={selected} onDone={() => nav('/app/contacts')} />
+            <ContactForm key={selected.id} contact={selected} onDone={() => nav('/app/contacts')} />
           </div>
         ) : (
           <div className="card hidden flex-col items-center justify-center gap-4 text-center lg:flex">

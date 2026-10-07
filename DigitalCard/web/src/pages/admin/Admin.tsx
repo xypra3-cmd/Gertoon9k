@@ -169,7 +169,7 @@ export default function Admin() {
       {table.isLoading ? (
         <Spinner />
       ) : (
-        <div className="card overflow-x-auto !p-0">
+        <div className="card overflow-x-auto p-0!">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 text-slate-500 dark:bg-slate-800">
               <tr>

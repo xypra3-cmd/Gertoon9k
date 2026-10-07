@@ -64,10 +64,10 @@ export default function Landing() {
       <section className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 md:grid-cols-2 md:py-20">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -top-24 right-0 -z-10 h-[420px] w-[420px] rounded-full bg-gradient-to-br from-brand-400/25 via-accent-500/20 to-transparent blur-3xl"
+          className="pointer-events-none absolute -top-24 right-0 -z-10 h-[420px] w-[420px] rounded-full bg-linear-to-br from-brand-400/25 via-accent-500/20 to-transparent blur-3xl"
         />
         <div className="animate-fade-up">
-          <span className="chip !bg-brand-50 !text-brand-700 dark:!bg-brand-900/40 dark:!text-brand-200">
+          <span className="chip bg-brand-50! text-brand-700! dark:bg-brand-900/40! dark:text-brand-200!">
             ✦ {t('landing.badge')}
           </span>
           <h1 className="mt-4 text-4xl font-extrabold tracking-tight sm:text-5xl">
@@ -102,7 +102,7 @@ export default function Landing() {
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f, i) => (
             <Reveal key={f.title} index={i} className="card card-hover">
-              <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-brand-50 to-violet-50 text-brand-700 dark:from-brand-900/40 dark:to-violet-900/30 dark:text-brand-200">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-linear-to-br from-brand-50 to-violet-50 text-brand-700 dark:from-brand-900/40 dark:to-violet-900/30 dark:text-brand-200">
                 <Icon name={f.icon} />
               </span>
               <h3 className="mt-3 font-semibold">{f.title}</h3>

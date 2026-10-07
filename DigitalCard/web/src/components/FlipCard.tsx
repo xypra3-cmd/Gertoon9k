@@ -17,10 +17,10 @@ export function FlipCard({
 }) {
   const start = useRef<{ x: number; y: number } | null>(null);
   const showingBack = Math.abs(turns) % 2 === 1;
-  const face = 'col-start-1 row-start-1 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]';
+  const face = 'col-start-1 row-start-1 backface-hidden [-webkit-backface-visibility:hidden]';
   return (
     <div
-      className="[perspective:1600px]"
+      className="perspective-[1600px]"
       onPointerDown={(e) => {
         if (e.pointerType !== 'mouse') start.current = { x: e.clientX, y: e.clientY };
       }}
@@ -36,17 +36,13 @@ export function FlipCard({
       <div
         data-testid="flip-card"
         data-side={showingBack ? 'back' : 'front'}
-        className="grid transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] [transform-style:preserve-3d] motion-reduce:transition-none"
+        className="grid transition-transform duration-700 ease-out transform-3d motion-reduce:transition-none"
         style={{ transform: `rotateY(${turns * 180}deg)` }}
       >
-        <div className={face} aria-hidden={showingBack} ref={(el) => el?.toggleAttribute('inert', showingBack)}>
+        <div className={face} aria-hidden={showingBack} inert={showingBack}>
           {front}
         </div>
-        <div
-          className={`${face} [transform:rotateY(180deg)]`}
-          aria-hidden={!showingBack}
-          ref={(el) => el?.toggleAttribute('inert', !showingBack)}
-        >
+        <div className={`${face} transform-[rotateY(180deg)]`} aria-hidden={!showingBack} inert={!showingBack}>
           {back}
         </div>
       </div>

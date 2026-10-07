@@ -33,7 +33,6 @@ export function AnimatedNumber({
   useEffect(() => {
     if (reduced) {
       from.current = value;
-      setShown(value);
       return;
     }
     const start = performance.now();
@@ -51,7 +50,7 @@ export function AnimatedNumber({
   }, [value, duration, reduced]);
   return (
     <span className="tabular-nums" aria-label={format(value)}>
-      <span aria-hidden="true">{format(shown)}</span>
+      <span aria-hidden="true">{format(reduced ? value : shown)}</span>
     </span>
   );
 }
@@ -90,7 +89,11 @@ export function Reveal({
   }, []);
   const style: CSSProperties = { animationDelay: `${Math.min(index, 12) * motion.stagger}ms` };
   return (
-    <Tag ref={ref as never} style={style} className={`${visible ? 'animate-fade-up' : 'opacity-0 print:opacity-100'} ${className}`}>
+    <Tag
+      ref={ref as never}
+      style={style}
+      className={`${visible ? 'animate-fade-up' : 'opacity-0 print:opacity-100'} ${className}`}
+    >
       {children}
     </Tag>
   );

@@ -87,7 +87,7 @@ export function EventMode({ crmEnabled }: { crmEnabled: boolean }) {
     const until = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     return (
       <section
-        className="card animate-fade-up relative overflow-hidden bg-gradient-to-r from-violet-600 to-brand-600 text-white"
+        className="card animate-fade-up relative overflow-hidden bg-linear-to-r from-violet-600 to-brand-600 text-white"
         data-testid="event-active"
         aria-live="polite"
       >
@@ -144,7 +144,7 @@ export function EventMode({ crmEnabled }: { crmEnabled: boolean }) {
         }}
       >
         <input
-          className="input min-w-[12rem] flex-1"
+          className="input min-w-48 flex-1"
           placeholder={t('event.placeholder')}
           aria-label={t('event.name')}
           maxLength={80}
