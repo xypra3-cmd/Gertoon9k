@@ -2,24 +2,67 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Digital Card: ▶ БҮГДИЙГ АСААХ (start-all)",
+      "detail": "Шалгах → сан → Wallet сертификат → Supabase + mock → web + Expo, хөтөч нээнэ",
+      "type": "shell",
+      "windows": {
+        "command": "powershell -ExecutionPolicy Bypass -File scripts/start-all.ps1"
+      },
+      "command": "scripts/dev-up.sh",
+      "problemMatcher": []
+    },
+    {
+      "label": "Digital Card: ▶ GitHub-аас татаад асаах (start-all -Pull)",
+      "type": "shell",
+      "windows": {
+        "command": "powershell -ExecutionPolicy Bypass -File scripts/start-all.ps1 -Pull"
+      },
+      "command": "git pull && scripts/dev-up.sh",
+      "problemMatcher": []
+    },
+    {
+      "label": "Digital Card: ■ бүгдийг зогсоох (stop-all)",
+      "type": "shell",
+      "windows": {
+        "command": "powershell -ExecutionPolicy Bypass -File scripts/stop-all.ps1"
+      },
+      "command": "cd backend && supabase stop",
+      "problemMatcher": []
+    },
+    {
+      "label": "Digital Card: ✓ бүх тест (test-all)",
+      "type": "shell",
+      "windows": {
+        "command": "powershell -ExecutionPolicy Bypass -File scripts/test-all.ps1"
+      },
+      "command": "npm --prefix backend test && npm --prefix qa run test:api && npm --prefix qa run test:e2e && npm --prefix qa run test:store",
+      "problemMatcher": []
+    },
+    {
       "label": "Digital Card: Git синк (татах + илгээх)",
       "detail": "Таны өөрчлөлтийг commit хийж, GitHub-аас Claude-ийн кодыг татаж, хоёуланг нь push хийнэ",
       "type": "shell",
-      "windows": { "command": "powershell -ExecutionPolicy Bypass -File scripts/sync.ps1" },
+      "windows": {
+        "command": "powershell -ExecutionPolicy Bypass -File scripts/sync.ps1"
+      },
       "command": "git add -A && (git diff --cached --quiet || git commit -m \"local: $(date '+%Y-%m-%d %H:%M')\") && git pull --rebase origin $(git rev-parse --abbrev-ref HEAD) && git push",
       "problemMatcher": []
     },
     {
       "label": "Digital Card: 0. бэлтгэл (нэг удаа)",
       "type": "shell",
-      "windows": { "command": "powershell -ExecutionPolicy Bypass -File scripts/setup-windows.ps1" },
+      "windows": {
+        "command": "powershell -ExecutionPolicy Bypass -File scripts/setup-windows.ps1"
+      },
       "command": "echo 'Windows-оос гадна: README.md → Хурдан эхлэх'",
       "problemMatcher": []
     },
     {
       "label": "Digital Card: 1. backend (Supabase + mock)",
       "type": "shell",
-      "windows": { "command": "powershell -ExecutionPolicy Bypass -File scripts/dev-up-windows.ps1" },
+      "windows": {
+        "command": "powershell -ExecutionPolicy Bypass -File scripts/dev-up-windows.ps1"
+      },
       "command": "scripts/dev-up.sh",
       "problemMatcher": []
     },
@@ -27,7 +70,9 @@
       "label": "Digital Card: 2. web",
       "type": "shell",
       "command": "npm run dev",
-      "options": { "cwd": "${workspaceFolder}/web" },
+      "options": {
+        "cwd": "${workspaceFolder}/web"
+      },
       "isBackground": true,
       "problemMatcher": []
     },
@@ -35,25 +80,27 @@
       "label": "Digital Card: 3. mobile (Expo)",
       "type": "shell",
       "command": "npx expo start",
-      "options": { "cwd": "${workspaceFolder}/mobile" },
+      "options": {
+        "cwd": "${workspaceFolder}/mobile"
+      },
       "isBackground": true,
       "problemMatcher": []
     },
     {
       "label": "Digital Card: бүгдийг асаах",
       "dependsOrder": "sequence",
-      "dependsOn": ["Digital Card: 1. backend (Supabase + mock)", "Digital Card: web + mobile"],
+      "dependsOn": [
+        "Digital Card: 1. backend (Supabase + mock)",
+        "Digital Card: web + mobile"
+      ],
       "problemMatcher": []
     },
     {
       "label": "Digital Card: web + mobile",
-      "dependsOn": ["Digital Card: 2. web", "Digital Card: 3. mobile (Expo)"],
-      "problemMatcher": []
-    },
-    {
-      "label": "Digital Card: бүх тест",
-      "type": "shell",
-      "command": "npm --prefix backend test && npm --prefix qa run test:api && npm --prefix qa run test:e2e && npm --prefix qa run test:store",
+      "dependsOn": [
+        "Digital Card: 2. web",
+        "Digital Card: 3. mobile (Expo)"
+      ],
       "problemMatcher": []
     }
   ]

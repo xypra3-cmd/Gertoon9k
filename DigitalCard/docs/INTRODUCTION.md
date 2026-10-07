@@ -75,4 +75,4 @@ Supabase (Postgres 17, Auth + passkey, Storage, Edge Functions) · React 19 + Re
 
 `docs/screenshots/` — web-01 (нүүр хуудас), web-15…17 (onboarding), web-02 (самбар), web-08 (статистик), web-09 (жилийн төлбөр), web-07/20 (AI), app-02…10 (mobile), app-11…12 (эргэлт), app-13…15 (ойртуулж солилцох), `mobile-auth-v3.png` (нэвтрэх), `next-level-v4.png` (passkey, Wallet, widget).
 
-Нэмэлт: `MARKET_RESEARCH_2026.md` (Монгол ба дэлхийн зах зээл), `AUDIT_2026-10.md`, `SCALING.md` (1k–5k), `MIGRATIONS.md`, `COSTS.md`, `NAMING.md`, `ROADMAP.md`.
+Нэмэлт: `../START_HERE.md` (эхлэх газар, бүх зам), `BUSINESS_PLAN.md` (маркетинг, орлого/зардал/ашиг), `COMPARATIVE_STUDY_2026.md` (албан ёсны холбоостой харьцуулалт), `FOLDER_STRUCTURE.md`, `MARKET_RESEARCH_2026.md` (Монгол ба дэлхийн зах зээл), `AUDIT_2026-10.md`, `SCALING.md` (1k–5k), `MIGRATIONS.md`, `COSTS.md`, `NAMING.md`, `ROADMAP.md`.

@@ -4,6 +4,8 @@
 
 Шинэ үеийн боломжууд: **passkey** (нууц үггүй нэвтрэлт), **Apple/Google Wallet**, нүүр/түгжээтэй дэлгэцийн **widget**, iOS **Live Activity**, **NFC** наалтад бичих/унших, **офлайн AI скан**, утас ойртуулж солилцох, офлайн vCard QR. Технологи: [docs/TECH_STACK.md](docs/TECH_STACK.md).
 
+> **Шинээр орж ирсэн бол:** [`START_HERE.md`](START_HERE.md) — танилцуулга, бүх зам, нэг командаар асаах. Хавтас бүрийн тайлбар: [`docs/FOLDER_STRUCTURE.md`](docs/FOLDER_STRUCTURE.md).
+
 ```
 DigitalCard/
 ├── backend/          # Prompt 00 — Supabase: migrations, RLS, Edge Functions, seed, pgTAP     ✅
@@ -11,9 +13,9 @@ DigitalCard/
 ├── web/              # Prompt 01 — React + Vite (нийтийн карт, editor, CRM, QPay, админ)      ✅
 ├── mobile/           # Prompt 02/03 — Expo SDK 57 (Android + iOS), апп дотор төлбөргүй        ✅
 ├── qa/               # Prompt 04 — API, Playwright, Maestro, k6, STORE-01, тайлан            ✅
-├── scripts/dev-up.sh # local stack-ийг нэг командаар асаана
+├── scripts/          # start-all.ps1 ▶ · stop-all.ps1 ■ · test-all.ps1 ✓ · sync.ps1 · dev-up.sh (Linux)
 └── docs/             # INTRODUCTION, USER_GUIDE, TECH_STACK, MARKET_RESEARCH_2026, AUDIT_2026-10, SECURITY_AUDIT, INCIDENT_RESPONSE,
-                      # MARKETING_PLAN, RESEARCH, PROJECT_OVERVIEW, LOGIC, DECISIONS, ROADMAP, SCALING, MIGRATIONS, COSTS, store/, screenshots/
+                      # BUSINESS_PLAN, finance/, COMPARATIVE_STUDY_2026, FOLDER_STRUCTURE, MARKETING_PLAN, RESEARCH, PROJECT_OVERVIEW, LOGIC, DECISIONS, ROADMAP, SCALING, MIGRATIONS, COSTS, store/, screenshots/
 ```
 
 ## Windows + VS Code дээр ажиллуулах
@@ -21,9 +23,9 @@ DigitalCard/
 Шаардлага: Node.js 22 LTS, Docker Desktop (асаалттай), [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) (`scoop install supabase`), Git, VS Code. Android-д: Android Studio (emulator).
 
 1. VS Code → **File → Open Folder** → `DigitalCard` (санал болгосон extension-уудыг суулгана).
-2. **Terminal → Run Task → `Digital Card: 0. бэлтгэл (нэг удаа)`** — `.env` файлууд (local mock), бүх `npm install`.
-3. **Run Task → `Digital Card: бүгдийг асаах`** — Supabase + mock + seed → web (http://localhost:5173) + Expo (`a` дарвал Android emulator).
-4. Нэвтрэх: `pro@demo.mn` / `Demo1234!`. Ирсэн имэйлүүд: http://127.0.0.1:54324.
+2. **Terminal → Run Task → `Digital Card: ▶ БҮГДИЙГ АСААХ (start-all)`** — эсвэл PowerShell: `powershell -ExecutionPolicy Bypass -File scripts\start-all.ps1`. Анх удаа `.env` + `npm install`-ыг өөрөө хийж, Supabase + mock + migration → web (http://localhost:5173) + Expo-г асаана. `-Pull` (GitHub-аас татах), `-Reset`, `-Test`, `-Android`.
+3. Нэвтрэх: `pro@demo.mn` / `Demo1234!`. Ирсэн имэйлүүд: http://127.0.0.1:54324.
+4. Тест: `scripts\test-all.ps1` (`-Quick` = Docker-гүй). Зогсоох: `scripts\stop-all.ps1`.
 
 Эсвэл PowerShell-ээр: `scripts\setup-windows.ps1`, дараа нь `scripts\dev-up-windows.ps1 -Reset`, `cd web; npm run dev`, `cd mobile; npx expo start`.
 Mobile-ийг бодит утсанд: `mobile\.env.local`-д `10.0.2.2`-ийн оронд компьютерийн LAN IP. Build, store: [`docs/MOBILE_BUILD_WINDOWS.md`](docs/MOBILE_BUILD_WINDOWS.md).
