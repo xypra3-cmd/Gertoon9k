@@ -4,6 +4,7 @@
 import { json, logEvent, preflight } from '../_shared/http.ts';
 import { rpc, select } from '../_shared/db.ts';
 import { checkInvoice } from '../_shared/qpay.ts';
+import { issueEbarimt } from '../_shared/ebarimt.ts';
 
 Deno.serve(async (req) => {
   const pre = preflight(req);
@@ -32,6 +33,8 @@ Deno.serve(async (req) => {
       p_raw: check.raw,
     });
     logEvent('qpay-callback', 'checked', { payment_id: payment.id, result });
+    // VAT receipt right away; a failure here is retried by qpay-reconcile.
+    if (result === 'paid') await issueEbarimt(payment.id);
     return json(req, { status: result }, 200);
   } catch (e) {
     logEvent('qpay-callback', 'check_failed', { payment_id: payment.id, error: String((e as Error).message) });

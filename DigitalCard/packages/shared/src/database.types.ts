@@ -233,13 +233,13 @@ isOneToOne: false
                   ]
                 },"payments": {
                   Row: {
-                    "amount_mnt": number,"created_at": string,"failure_reason": string | null,"id": string,"paid_amount_mnt": number | null,"paid_at": string | null,"period": string,"plan_id": string,"qpay_invoice_id": string | null,"qpay_payment_id": string | null,"raw_callback": Json | null,"seats": number,"sender_invoice_no": string,"status": string,"subscription_id": string
+                    "amount_mnt": number,"created_at": string,"ebarimt_at": string | null,"ebarimt_attempts": number,"ebarimt_id": string | null,"ebarimt_qr": string | null,"ebarimt_receiver": string | null,"ebarimt_status": string,"failure_reason": string | null,"id": string,"paid_amount_mnt": number | null,"paid_at": string | null,"period": string,"plan_id": string,"qpay_invoice_id": string | null,"qpay_payment_id": string | null,"raw_callback": Json | null,"seats": number,"sender_invoice_no": string,"status": string,"subscription_id": string
                   }
                   Insert: {
-                    "amount_mnt": number,"created_at"?: string,"failure_reason"?: string | null,"id"?: string,"paid_amount_mnt"?: number | null,"paid_at"?: string | null,"period"?: string,"plan_id": string,"qpay_invoice_id"?: string | null,"qpay_payment_id"?: string | null,"raw_callback"?: Json | null,"seats"?: number,"sender_invoice_no": string,"status"?: string,"subscription_id": string
+                    "amount_mnt": number,"created_at"?: string,"ebarimt_at"?: string | null,"ebarimt_attempts"?: number,"ebarimt_id"?: string | null,"ebarimt_qr"?: string | null,"ebarimt_receiver"?: string | null,"ebarimt_status"?: string,"failure_reason"?: string | null,"id"?: string,"paid_amount_mnt"?: number | null,"paid_at"?: string | null,"period"?: string,"plan_id": string,"qpay_invoice_id"?: string | null,"qpay_payment_id"?: string | null,"raw_callback"?: Json | null,"seats"?: number,"sender_invoice_no": string,"status"?: string,"subscription_id": string
                   }
                   Update: {
-                    "amount_mnt"?: number,"created_at"?: string,"failure_reason"?: string | null,"id"?: string,"paid_amount_mnt"?: number | null,"paid_at"?: string | null,"period"?: string,"plan_id"?: string,"qpay_invoice_id"?: string | null,"qpay_payment_id"?: string | null,"raw_callback"?: Json | null,"seats"?: number,"sender_invoice_no"?: string,"status"?: string,"subscription_id"?: string
+                    "amount_mnt"?: number,"created_at"?: string,"ebarimt_at"?: string | null,"ebarimt_attempts"?: number,"ebarimt_id"?: string | null,"ebarimt_qr"?: string | null,"ebarimt_receiver"?: string | null,"ebarimt_status"?: string,"failure_reason"?: string | null,"id"?: string,"paid_amount_mnt"?: number | null,"paid_at"?: string | null,"period"?: string,"plan_id"?: string,"qpay_invoice_id"?: string | null,"qpay_payment_id"?: string | null,"raw_callback"?: Json | null,"seats"?: number,"sender_invoice_no"?: string,"status"?: string,"subscription_id"?: string
                   }
                   Relationships: [
                     {
@@ -401,6 +401,9 @@ isOneToOne: false
 "can_view_card":
 { Args: { "card": string }; Returns: boolean
                            },
+"card_branding":
+{ Args: { "p_card_id": string }; Returns: boolean
+                           },
 "card_quota":
 { Args: { "uid": string }; Returns: number
                            },
@@ -524,6 +527,9 @@ isOneToOne: false
                            },
 "rate_hit":
 { Args: { "p_key": string,"p_max": number,"p_window_seconds": number }; Returns: boolean
+                           },
+"record_ebarimt":
+{ Args: { "p_ebarimt_id": string,"p_ok": boolean,"p_payment_id": string,"p_qr": string }; Returns: string
                            },
 "refund_ai_credit":
 { Args: { "p_user": string }; Returns: undefined

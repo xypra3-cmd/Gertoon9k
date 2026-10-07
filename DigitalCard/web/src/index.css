@@ -16,6 +16,8 @@
 
   --color-accent-500: #8b5cf6;
   --color-accent-600: #7c3aed;
+  /* Tailwind 4's slate-500 (#62748e) is 4.48:1 on our page background — one step darker passes WCAG AA */
+  --color-slate-500: #5a6b82;
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -233,4 +235,16 @@ dialog[open]::backdrop {
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* WCAG AA in dark mode: muted, link and danger TEXT use the lighter step (backgrounds keep theirs).
+   Unlayered on purpose so it wins over the light utility; explicit dark: variants use the same values. */
+.dark .text-slate-500 {
+  color: var(--color-slate-400);
+}
+.dark .text-brand-600 {
+  color: var(--color-brand-400);
+}
+.dark .text-red-600 {
+  color: var(--color-red-400);
 }

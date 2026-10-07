@@ -35,8 +35,9 @@ select is((select count(*)::int from pg_proc p join pg_namespace n on n.oid = p.
             where n.nspname = 'public' and p.prorettype = 'trigger'::regtype
               and (has_function_privilege('anon', p.oid, 'EXECUTE') or has_function_privilege('authenticated', p.oid, 'EXECUTE'))),
   0, 'Trigger functions are not callable through the API');
-select ok(has_function_privilege('anon', 'public.card_shows_branding(uuid, uuid)', 'EXECUTE'),
-  'public_cards still works for anon (branding flag)');
+select ok(has_function_privilege('anon', 'public.card_branding(uuid)', 'EXECUTE')
+          and not has_function_privilege('anon', 'public.card_shows_branding(uuid, uuid)', 'EXECUTE'),
+  'public_cards uses the card-scoped branding flag; the owner-scoped probe is closed (0014)');
 
 -- Guards still work for clients after the revokes (definer triggers use the helpers).
 insert into auth.users (id, email, aud, role) values

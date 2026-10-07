@@ -49,7 +49,8 @@ export function AnimatedNumber({
     return () => cancelAnimationFrame(raf);
   }, [value, duration, reduced]);
   return (
-    <span className="tabular-nums" aria-label={format(value)}>
+    <span className="tabular-nums">
+      <span className="sr-only">{format(value)}</span>
       <span aria-hidden="true">{format(reduced ? value : shown)}</span>
     </span>
   );

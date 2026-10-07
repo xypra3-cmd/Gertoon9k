@@ -18,7 +18,7 @@ import { useI18n } from '@/i18n/I18nProvider';
 import { useErrorText } from '@/lib/useErrorText';
 import { Banner, Field, Modal, Spinner } from '@/components/ui';
 import { CalendarIcon, CameraIcon, CopyIcon, Icon, LockIcon, SparklesIcon } from '@/components/icons';
-import { chartColors } from '@digitalcard/shared/design';
+import { avatarColors } from '@digitalcard/shared/design';
 import { imageToBase64, runAi, type AiResults } from '@/lib/ai';
 
 type FuFilter = '' | 'today' | 'overdue' | 'upcoming' | 'none';
@@ -581,7 +581,7 @@ function ContactAvatar({ name }: { name: string }) {
     <span
       aria-hidden="true"
       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
-      style={{ backgroundColor: chartColors[h % chartColors.length] }}
+      style={{ backgroundColor: avatarColors[h % avatarColors.length] }}
     >
       {letters}
     </span>

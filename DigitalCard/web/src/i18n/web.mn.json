@@ -394,5 +394,10 @@
     "add": "Wallet",
     "notConfigured": "Wallet хараахан тохируулагдаагүй байна.",
     "failed": "Wallet pass үүсгэж чадсангүй. Дахин оролдоно уу."
+  },
+  "ebarimt": {
+    "title": "НӨАТ баримт",
+    "preparing": "Бэлтгэж байна",
+    "show": "e-barimt харах"
   }
 }

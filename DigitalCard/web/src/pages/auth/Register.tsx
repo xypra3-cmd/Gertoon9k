@@ -110,7 +110,7 @@ export default function Register() {
       </form>
       <p className="mt-4 text-sm">
         {t('authx.haveAccount')}{' '}
-        <Link to="/login" className="text-brand-600 hover:underline">
+        <Link to="/login" className="text-brand-600 underline underline-offset-2">
           {t('auth.login')}
         </Link>
       </p>

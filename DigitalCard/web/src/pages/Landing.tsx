@@ -88,7 +88,8 @@ export default function Landing() {
             )}
           </div>
         </div>
-        <div aria-hidden="true" className="pointer-events-none animate-scale-in [animation-delay:150ms]">
+        {/* inert: decorative sample — hidden from screen readers and not focusable */}
+        <div inert className="pointer-events-none animate-scale-in [animation-delay:150ms]">
           <div className="motion-safe:animate-[float_6s_ease-in-out_infinite]">
             <CardRenderer data={SAMPLE} />
           </div>

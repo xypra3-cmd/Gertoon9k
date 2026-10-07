@@ -1,7 +1,9 @@
-// Cron (every 5 min): re-check pending payments younger than 24h; expire older ones.
+// Cron (every 5 min): re-check pending payments younger than 24h; expire older ones;
+// issue e-barimt receipts that are still missing.
 import { isCronRequest, json, logEvent } from '../_shared/http.ts';
 import { rpc, select } from '../_shared/db.ts';
 import { checkInvoice } from '../_shared/qpay.ts';
+import { issueMissingEbarimts } from '../_shared/ebarimt.ts';
 
 Deno.serve(async (req) => {
   if (!isCronRequest(req)) return json(req, { error: 'forbidden' }, 403);
@@ -30,6 +32,7 @@ Deno.serve(async (req) => {
     }
   }
   const expired = await rpc<number>('expire_stale_payments');
-  logEvent('qpay-reconcile', 'done', { checked: pending.length, expired, ...results });
-  return json(req, { checked: pending.length, expired, results });
+  const receipts = await issueMissingEbarimts();
+  logEvent('qpay-reconcile', 'done', { checked: pending.length, expired, receipts, ...results });
+  return json(req, { checked: pending.length, expired, receipts, results });
 });

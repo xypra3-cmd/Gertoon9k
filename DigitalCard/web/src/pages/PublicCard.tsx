@@ -265,11 +265,12 @@ export default function PublicCardPage() {
               {t('card.saveToPhone')}
             </button>
           </div>
-        ) : (
+        ) : exchangeOpen ? (
+          // Loaded on demand: the form (zod + react-hook-form, ~35 KB gz) stays off the card's first paint.
           <Suspense fallback={<Spinner />}>
             <ExchangeForm slug={data.slug} onDone={(owner) => setSentTo(owner)} />
           </Suspense>
-        )}
+        ) : null}
       </Modal>
     </main>
   );

@@ -62,6 +62,10 @@ test('FUN-01 full user journey', async ({ page, browser }) => {
   await callFn('qpay-callback', { query: `?inv=${pay.sender_invoice_no}` });
   await expect(page.getByTestId('pay-confirmed')).toBeVisible();
   await page.getByTestId('pay-confirmed').getByRole('button').click();
+  // The paid invoice carries an electronic VAT receipt (e-barimt) with its QR
+  await page.goto('/app/billing');
+  await page.getByTestId('ebarimt-toggle').first().click();
+  await expect(page.getByTestId('ebarimt-qr').first()).toBeVisible();
 
   // Note + follow-up (simulate "tomorrow" by setting follow-up = today)
   const contact = (await admin.from('contacts').select('id').eq('owner_id', user.id).single()).data!;

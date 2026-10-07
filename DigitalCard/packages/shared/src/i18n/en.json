@@ -29,7 +29,7 @@
     "forgot": "Reset password",
     "email": "Email",
     "password": "Password",
-    "acceptTerms": "I accept the Terms of Service and Privacy Policy",
+    "acceptTerms": "I accept the Terms of Service and Privacy Policy and consent to my data being stored on servers abroad (Supabase, Singapore)",
     "deleteAccount": "Delete account"
   },
   "nav": {
@@ -87,7 +87,7 @@
     "company": "Company",
     "jobTitle": "Job title",
     "message": "Message",
-    "consent": "I agree to share my details with the card owner",
+    "consent": "I agree to share my details with the card owner and to their storage on Digital Card servers",
     "submit": "Send",
     "sent": "Your details were sent to {{name}}",
     "saveOwnerCard": "Save {{name}}'s card to your phone?"

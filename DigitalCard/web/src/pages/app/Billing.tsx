@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -13,6 +13,8 @@ import {
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { createInvoice, type Invoice } from '@/lib/payments';
+
+const EbarimtQr = lazy(() => import('@/components/QrCode').then((m) => ({ default: m.QrCode })));
 import { formatDate } from '@/lib/dates';
 import { useI18n } from '@/i18n/I18nProvider';
 import { useErrorText } from '@/lib/useErrorText';
@@ -200,7 +202,8 @@ export default function Billing() {
                 <th className="py-2 pr-4">{t('billing.date')}</th>
                 <th className="py-2 pr-4">{t('dash.plan')}</th>
                 <th className="py-2 pr-4">{t('billing.amount')}</th>
-                <th className="py-2">{t('billing.status')}</th>
+                <th className="py-2 pr-4">{t('billing.status')}</th>
+                <th className="py-2">{t('ebarimt.title')}</th>
               </tr>
             </thead>
             <tbody>
@@ -213,7 +216,10 @@ export default function Billing() {
                     {p.period === 'year' ? ` · ${t('billingx.year')}` : ''}
                   </td>
                   <td className="py-2 pr-4 tabular-nums">{formatMnt(p.amount_mnt, locale)}</td>
-                  <td className="py-2">{t(`billing.status${p.status[0]!.toUpperCase()}${p.status.slice(1)}`)}</td>
+                  <td className="py-2 pr-4">{t(`billing.status${p.status[0]!.toUpperCase()}${p.status.slice(1)}`)}</td>
+                  <td className="py-2">
+                    <EbarimtCell status={p.ebarimt_status} qr={p.ebarimt_qr} id={p.ebarimt_id} />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -221,6 +227,35 @@ export default function Billing() {
         </div>
       </section>
       <PayModal invoice={invoice} onClose={() => setInvoice(null)} />
+    </div>
+  );
+}
+
+/** e-barimt (VAT receipt) for a paid invoice: QR to scan with the e-barimt app (lottery / tax refund). */
+function EbarimtCell({ status, qr, id }: { status: string; qr: string | null; id: string | null }) {
+  const { t } = useI18n();
+  const [open, setOpen] = useState(false);
+  if (status === 'none') return <span className="text-slate-500">—</span>;
+  if (status !== 'issued' || !qr) return <span className="text-slate-500">{t('ebarimt.preparing')}</span>;
+  return (
+    <div>
+      <button
+        type="button"
+        className="btn-ghost btn-sm"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        data-testid="ebarimt-toggle"
+      >
+        {t('ebarimt.show')}
+      </button>
+      {open && (
+        <div className="mt-2 inline-block rounded-xl bg-white p-2" data-testid="ebarimt-qr">
+          <Suspense fallback={<div className="h-[140px] w-[140px]" />}>
+            <EbarimtQr value={qr} size={140} title={t('ebarimt.title')} />
+          </Suspense>
+          {id && <p className="mt-1 max-w-[140px] truncate text-xs text-slate-600">{id}</p>}
+        </div>
+      )}
     </div>
   );
 }

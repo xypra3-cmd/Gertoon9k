@@ -47,6 +47,9 @@ export const colors = {
 export type ColorTokens = { [K in keyof (typeof colors)['light']]: string };
 
 /** Chart series colors (same order on web and mobile). */
+/** Initials bubbles with white text: every colour ≥ 4.5:1 against #FFFFFF (WCAG AA). */
+export const avatarColors = ['#2557E6', '#7C3AED', '#047857', '#B45309', '#BE123C', '#0E7490'] as const;
+
 export const chartColors = [palette.brand[500], palette.accent[500], palette.success[500], palette.warning[500], '#EC4899'] as const;
 
 export const radius = { sm: 8, md: 12, lg: 16, xl: 24, full: 999 } as const;

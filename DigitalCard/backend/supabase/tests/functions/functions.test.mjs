@@ -127,6 +127,24 @@ test('PAY-03: qpay-reconcile activates a paid invoice without a callback', async
   assert.ok(Date.parse(after.current_period_end) > Date.parse(before.current_period_end));
 });
 
+test('TAX-01: every paid invoice gets an e-barimt; a failed attempt is retried by qpay-reconcile', async () => {
+  const inv = await call('qpay-create-invoice', { token: basic.token, body: { plan_id: 'pro' } });
+  const pay = await paymentByInv(inv.body.sender_invoice_no);
+  await mockPay(pay.qpay_invoice_id, pay.amount_mnt);
+  await fetch(`${MOCK}/__mock/ebarimt-fail`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ times: 1 }) });
+
+  await call('qpay-callback', { query: `?inv=${pay.sender_invoice_no}` });
+  let p = await paymentByInv(inv.body.sender_invoice_no);
+  assert.equal(p.status, 'paid');
+  assert.equal(p.ebarimt_status, 'failed', 'QPay e-barimt outage does not block the payment');
+
+  await call('qpay-reconcile', { headers: { 'x-cron-secret': CRON } });
+  p = await paymentByInv(inv.body.sender_invoice_no);
+  assert.equal(p.ebarimt_status, 'issued');
+  assert.equal(p.ebarimt_qr, `ebarimt-qr-${p.qpay_payment_id}`);
+  assert.equal(p.ebarimt_attempts, 2);
+});
+
 test('PAY-04: underpaid invoice is not applied and is visible as failed', async () => {
   const inv = await call('qpay-create-invoice', { token: basic.token, body: { plan_id: 'pro' } });
   const pay = await paymentByInv(inv.body.sender_invoice_no);

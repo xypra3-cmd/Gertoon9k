@@ -11,6 +11,7 @@ const TURNSTILE_PASS = 'XXXX.DUMMY.TOKEN.XXXX'; // Cloudflare's documented dummy
 
 let invoices = new Map(); // invoice_id → { amount, sender_invoice_no, paid: null | { amount } }
 let calls = { token: 0, invoice: 0, check: 0, turnstile: 0, ai: 0 };
+let ebarimtFail = 0; // next N e-barimt calls fail (retry tests)
 let lastAi = null; // last /v1/messages request body (tests assert on the shape)
 
 const send = (res, status, body) => {
@@ -75,6 +76,22 @@ const server = http.createServer(async (req, res) => {
     });
   }
 
+  // e-barimt (VAT receipt) for a paid payment; /__mock/ebarimt-fail makes the next N calls fail.
+  if (url.pathname === '/v2/ebarimt_v3/create') {
+    calls.ebarimt = (calls.ebarimt ?? 0) + 1;
+    if (ebarimtFail > 0) {
+      ebarimtFail--;
+      return send(res, 503, { error: 'ebarimt_unavailable' });
+    }
+    if (!body.payment_id || !['CITIZEN', 'ORGANIZATION'].includes(body.ebarimt_receiver_type)) return send(res, 400, { error: 'invalid' });
+    return send(res, 200, { id: `EB-${body.payment_id}`, ebarimt_status: 'REGISTERED', ebarimt_receiver_type: body.ebarimt_receiver_type,
+      ebarimt_qr_data: `ebarimt-qr-${body.payment_id}` });
+  }
+  if (url.pathname === '/__mock/ebarimt-fail') {
+    ebarimtFail = Number(body.times ?? 1);
+    return send(res, 200, { ok: true });
+  }
+
   // Claude Messages API mock (ai-assist): answers with schema-shaped JSON per task.
   if (url.pathname === '/v1/messages') {
     calls.ai++;
@@ -113,6 +130,7 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname === '/__mock/reset') {
     invoices = new Map();
     calls = { token: 0, invoice: 0, check: 0, turnstile: 0 };
+    ebarimtFail = 0;
     return send(res, 200, { ok: true });
   }
   if (url.pathname === '/__mock/state') {

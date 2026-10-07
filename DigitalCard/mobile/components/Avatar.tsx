@@ -1,6 +1,6 @@
 // Initials bubble with a colour that stays the same for the same name (easy to spot in lists).
 import { Text, View } from 'react-native';
-import { chartColors } from '@digitalcard/shared/design';
+import { avatarColors } from '@digitalcard/shared/design';
 import { font } from '@/lib/fonts';
 
 export function initialsOf(name: string): string {
@@ -13,10 +13,11 @@ export function initialsOf(name: string): string {
 export function Avatar({ name, size = 44 }: { name: string; size?: number }) {
   let h = 0;
   for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  const color = chartColors[h % chartColors.length];
+  // Solid colour + white initials: ≥ 4.5:1 in light and dark mode (WCAG AA).
+  const color = avatarColors[h % avatarColors.length];
   return (
-    <View accessible={false} style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: `${color}22`, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ color, fontSize: size * 0.36, ...font('700') }}>{initialsOf(name)}</Text>
+    <View accessible={false} style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ color: '#FFFFFF', fontSize: size * 0.36, ...font('700') }}>{initialsOf(name)}</Text>
     </View>
   );
 }

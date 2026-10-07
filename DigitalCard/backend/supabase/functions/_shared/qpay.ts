@@ -88,3 +88,18 @@ export async function checkInvoice(invoiceId: string): Promise<PaymentCheckResul
     raw: data,
   };
 }
+
+export interface QPayEbarimt {
+  id: string;
+  ebarimt_qr_data?: string;
+  ebarimt_status?: string;
+}
+
+/** Electronic VAT receipt for a paid payment; `register` (7 digits) makes it a company receipt. */
+export function createEbarimt(paymentId: string, register: string | null): Promise<QPayEbarimt> {
+  return call<QPayEbarimt>('/v2/ebarimt_v3/create', {
+    payment_id: paymentId,
+    ebarimt_receiver_type: register ? 'ORGANIZATION' : 'CITIZEN',
+    ...(register ? { ebarimt_receiver: register } : {}),
+  });
+}
