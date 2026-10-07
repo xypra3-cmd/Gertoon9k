@@ -50,17 +50,17 @@
 | Технологи | Юу өгдөг |
 |---|---|
 | Postgres 17 (Supabase) | Эрх, квот, төлбөр **зөвхөн DB-д** (RLS + trigger + SECURITY DEFINER) |
-| Deno Edge Functions | QPay, AI, солилцоо — түлхүүрүүд зөвхөн secret-д |
+| Deno Edge Functions | QPay + e-barimt, AI, Wallet pass, солилцоо — түлхүүрүүд зөвхөн secret-д |
 | pg_cron | Хугацаа дууссан захиалга, цэвэрлэгээ |
 | Rate limit (HMAC сүлжээний түлхүүр) | IP хадгалахгүйгээр spam хамгаалалт |
-| pgTAP | 158 DB тест |
+| pgTAP | 170 DB тест |
 
 ## 5. Чанар ба тест
 
 | Тест | Тоо |
 |---|---|
-| pgTAP (DB дүрэм) | 158 |
-| Edge Functions | 23 (Wallet 3 шинэ) |
+| pgTAP (DB дүрэм) | 170 |
+| Edge Functions | 24 (Wallet 3, e-barimt TAX-01) |
 | API | 39 |
 | E2E (Playwright 1.63, 20 загварын visual baseline орсон) | 20 (PWA-01, SEC-PK passkey, WALLET-UI) |
 | Shared unit | 64 (OCR parser 5 шинэ) |
@@ -103,3 +103,6 @@
 | NFC: утас өөрөө «карт» болох (Android HCE) | Хийгээгүй — NFC наалт/карт ашиглана (iPhone-д HCE зөвшөөрөгдөхгүй) |
 | Live Activity-г серверээс push-ээр шинэчлэх | Апп нээлттэй/дэвсгэрт байх үед шинэчлэгдэнэ; APNs push-to-update хийгээгүй |
 | Rust React Compiler (`oxc-transform-react`) | Туршилтын шатанд тул Babel хувилбар |
+
+## 8. Аудит (2026-10-07)
+WCAG 2.2 AA (axe 0 зөрчил), e-barimt, PDPL, нийтийн карт −24% JS — [AUDIT_2026-10.md](AUDIT_2026-10.md). Зах зээлийн харьцуулалт — [MARKET_RESEARCH_2026.md](MARKET_RESEARCH_2026.md).

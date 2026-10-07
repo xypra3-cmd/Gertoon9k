@@ -45,6 +45,13 @@
 | SEC-05 | Upload 5 MB, .svg, .exe, бусдын хавтас → татгалзана | `api/high.test.ts` |
 | SEC-06 | track-event 100 хүсэлт/мин → 30 л тоологдоно | `api/high.test.ts` |
 | STORE-01 | Mobile bundle-д ₮, QPay, /billing байхгүй | `qa/mobile/store-check.mjs` |
+| TAX-01 | Төлбөр бүрт e-barimt; QPay e-barimt алдаа төлбөрийг зогсоохгүй, reconcile дахин олгоно; Billing-д QR | functions TAX-01, pgTAP 13, E2E FUN-01 |
+| SEC-PK | Passkey нэмэх → гарах → зөвхөн passkey-ээр нэвтрэх → устгах | `e2e/passkey.spec.ts` (Chrome virtual authenticator) |
+| WALLET-01/02 | .pkpass: manifest SHA-1, PKCS#7 гарын үсэг (`openssl cms -verify`); Google JWT RS256; зөвхөн өөрийн нийтлэгдсэн карт | `functions/wallet.test.mjs` |
+| WALLET-UI | Хянах самбар → Apple Wallet татах, Google Wallet холбоос | `e2e/wallet.spec.ts` |
+| PWA-01 | Manifest, icon, service worker, офлайн shell, API хариу кэшлэхгүй | `e2e/pwa.spec.ts` |
+| OCR-01 | Офлайн OCR parser: монгол/латин карт, «Б.Болд», +976 | shared unit `cardText.test.ts` |
+| A11Y-01 | WCAG 2.2 AA (axe-core): 10 хуудас × light/dark = 0 зөрчил | AUDIT_2026-10.md §3.3 (скрипт) |
 
 ## 4. Гараар шалгах (жинхэнэ төхөөрөмж)
 | ID | Алхам | Хүлээгдэх |
@@ -57,6 +64,13 @@
 | M-06 | Universal/App Link | `https://<domain>/c/<slug>` апп-д нээгдэнэ |
 | M-07 | Жинхэнэ QPay sandbox (вэб) | Банкны апп-аар төлөхөд «Төлбөр баталгаажлаа» |
 | M-08 | Turnstile жинхэнэ widget | Маягт илгээгдэнэ |
+| M-09 | Passkey: iPhone (Face ID) ба Android (Credential Manager) — апп ба вэб нэг passkey | Нэмэх, нэвтрэх ажиллана |
+| M-10 | Apple Wallet (.pkpass «Add»), Google Wallet (Монгол бүртгэлтэй утас) | Pass нэмэгдэж QR уншигдана |
+| M-11 | Widget (iOS жижиг/дунд/түгжээтэй дэлгэц, Android) | Картын QR, нэр; товшиход апп нээгдэнэ |
+| M-12 | Live Activity: эвент эхлүүлэх → харилцагч нэмэх → тоо өснө → дуусгах | Түгжээтэй дэлгэц, Dynamic Island |
+| M-13 | NFC: NTAG215 наалтад бичих → өөр утсаар (апп-гүй) уншуулах; апп-аар унших | Карт нээгдэнэ |
+| M-14 | Офлайн OCR: нислэгийн горимд нэрийн хуудас скан | Утас, имэйл, вэб бөглөгдөнө |
+| M-15 | e-barimt: QPay sandbox/production дээр бодит гүйлгээ | Billing-д баримтын QR, e-barimt апп уншина |
 
 ## 5. Ачаалал
 `/c/:slug` (хуудас + public_cards + track-event): 200 зэрэг хэрэглэгч, 5 минут, **p95 < 800 ms, алдаа < 1%**. Staging-д production-той ижил Supabase tier дээр ажиллуулна.

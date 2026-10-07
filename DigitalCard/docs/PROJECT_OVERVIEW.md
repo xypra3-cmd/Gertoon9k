@@ -133,9 +133,9 @@ quadrantChart
 
 ### 4.2 Гадаад
 
-HiHello, Blinq, Popl, Linq, Mobilo, V1CE зэрэг дижитал/NFC картын бүтээгдэхүүн, мөн AI networking, personal CRM чиглэлийн шинэ бүтээгдэхүүнүүд бий. Монгол хэл, QPay, орон нутгийн дэмжлэггүй. **AI өөрөө ялгарал биш** — ялгарал нь Монгол контекст + QPay + багийн самбар.
+HiHello, Blinq, Popl, Mobilo, V1CE (Linq 2025 онд картын бизнесээ хаасан) — үнэ $6–15/сар (28–54k₮), байгууллагад SSO, CRM интеграц, SOC 2. Монгол хэл, QPay, e-barimt дэмжлэггүй. **AI өөрөө ялгарал биш** — ялгарал нь Монгол контекст + QPay/e-barimt + CRM/follow-up + багийн самбар.
 
-> Гадаад өрсөлдөгчдийн мэдээлэл ерөнхий мэдлэгт тулгуурласан, тусгайлан шалгаагүй.
+> 2026-10-07-ны эх сурвалжтай дэлгэрэнгүй харьцуулалт (үнэ ₮-өөр, боломжийн матриц, хууль, SWOT): [MARKET_RESEARCH_2026.md](MARKET_RESEARCH_2026.md).
 
 ### 4.3 Боломжийн харьцуулалт
 
@@ -323,11 +323,12 @@ sequenceDiagram
 
 | Хэсэг | Технологи | Байршил |
 | --- | --- | --- |
-| Web | React 18 + Vite + TypeScript, Tailwind, TanStack Query | Netlify / Vercel |
-| Mobile (V2) | Expo (React Native), EAS build | App Store, Google Play |
+| Web | React 19 + React Compiler, Vite 8, TypeScript 7 (typecheck), Tailwind 4, TanStack Query, PWA | Netlify / Vercel |
+| Mobile | Expo SDK 57 (RN 0.86, шинэ архитектур), Reanimated 4, WidgetKit/ActivityKit, ML Kit, NFC, EAS build | App Store, Google Play |
 | Backend | Supabase (Postgres, Auth, Storage, Edge Functions) | Supabase cloud |
 | Нийтлэг код | packages/shared (types, zod, vCard, i18n) | Monorepo |
-| Төлбөр | QPay v2 Merchant API | Sandbox → production |
+| Төлбөр | QPay v2 Merchant API + e-barimt (`ebarimt_v3`) | Sandbox → production |
+| Wallet | Apple PassKit (.pkpass), Google Wallet API | Edge Function `wallet-pass` |
 | Spam хамгаалалт | Cloudflare Turnstile | — |
 | Мониторинг | Sentry, uptime шалгагч | Cloud |
 
@@ -423,6 +424,7 @@ erDiagram
 | Төлбөр | QPay callback-д итгэхгүй; payment/check, дүн тулгах, idempotent |
 | Нууц түлхүүр | QPay, service role зөвхөн Edge Function secret-д |
 | Exchange | Turnstile, rate limit, зөвшөөрлийн checkbox, блоклох |
+| Нэвтрэлт | Passkey (WebAuthn), TOTP 2FA, нууц үг 8+ (үсэг + тоо) |
 | Админ | MFA (TOTP), audit log |
 | Оролт | zod, XSS escape, линк зөвхөн https/mailto/tel |
 | Дамжуулалт | HTTPS, HSTS, CSP, X-Frame-Options DENY |
@@ -436,11 +438,13 @@ erDiagram
 | Зочны IP хаяг | **Үгүй** | — |
 | Зочны hash (давхардаагүй зочин) | Тийм | 13 сар |
 | Зочны үлдээсэн мэдээлэл | Зөвхөн зөвшөөрлөөр | Эзэмшигч эсвэл зочин устгах хүртэл |
-| Төлбөр | Invoice, гүйлгээний дугаар (картын дугаар биш) | Татварын хуулийн хугацаа |
+| Төлбөр | Invoice, гүйлгээний дугаар, e-barimt-ийн дугаар/QR (картын дугаар биш) | Татварын хуулийн хугацаа |
+| Passkey | Зөвхөн нийтийн түлхүүр | Passkey устгах хүртэл |
+| Ойролцоо бүс (bump) | ≈1 км geohash, товч дарах үед л | 10 минут |
 
 **Mobile апп дотор төлбөр байхгүй:** App Store (3.1.1), Google Play-ийн дүрмээр апп доторх digital subscription-ийг зөвхөн тэдний billing-ээр авна. Тиймээс төлбөр зөвхөн веб дээр, апп-д үнэ, «Төлөх» товч, линк огт байхгүй.
 
-> Нээлттэй асуулт: Supabase-ийн серверийн бүс (гадаад) — хуульчаас тодруулах.
+> Шийдсэн (2026-10-07): Supabase Сингапурт байрлана. Хуулийн дагуу гадаадад хадгалахыг бүртгэлд **тодорхой зөвшөөрлөөр** авч, нууцлалын бодлогод боловсруулагч бүрийг улсаар нь нэрлэсэн (D-72). Мэдрэг мэдээлэл цуглуулдаггүй. Хуульчийн эцсийн хяналт хэрэгтэй хэвээр.
 
 ---
 
@@ -755,6 +759,8 @@ flowchart LR
 | Огноо | Өөрчлөлт |
 | --- | --- |
 | 2026.10.04 | Анхны хувилбар: Basic/Pro/Org → Free/Pro/Team, contact exchange, follow-up, web-first, Phase 0 |
+| 2026.10.06 | Эвент горим, ойртуулж солилцох, офлайн QR, аюулгүй байдлын аудит |
+| 2026.10.07 | Passkey, Wallet, widget, Live Activity, NFC, офлайн OCR, PWA, e-barimt, PDPL, WCAG 2.2 AA, зах зээлийн судалгаа, системийн аудит |
 
 ---
 
@@ -772,3 +778,16 @@ flowchart LR
 | Дизайн | Нэг токен + icon (web = Android = iOS), spring/fade анимаци, haptics, анимацитай график | `packages/shared/src/design.ts`, `icons.ts`, web `motion.tsx`, mobile `components/motion.tsx` |
 
 Баримтууд: `INTRODUCTION.md` (танилцуулга), `USER_GUIDE.md` (гарын авлага), `MARKETING_PLAN.md` (ашиг, маркетинг), `RESEARCH.md` (зах зээл), `DECISIONS.md` D-39…D-49.
+
+## Шинэчлэл 2026-10-07: дэлхийн түвшний технологи ба нийцэл
+
+| Чиглэл | Юу нэмэгдсэн | Хаана |
+|---|---|---|
+| Нэвтрэлт | Passkey (вэб autofill + native), 2FA-тай хамт | `web/components/Passkeys.tsx`, `mobile/lib/passkey.ts` |
+| Хуваалцах | Apple/Google Wallet, NFC наалтад бичих/унших, widget, Live Activity, PWA | `functions/wallet-pass`, `mobile/lib/{wallet,nfc,widgets,liveActivity}.ts`, `mobile/targets/widget`, `mobile/modules/event-activity`, `web/public/sw.js` |
+| AI | Офлайн нэрийн хуудас скан (ML Kit + `shared/cardText`) | `mobile/lib/ocr.ts` |
+| Татвар, хууль | e-barimt (0014), PDPL зөвшөөрөл, нууцлалын бодлого, зөрчлийн runbook | `functions/_shared/ebarimt.ts`, `legal/privacy.*`, `INCIDENT_RESPONSE.md` |
+| Чанар | WCAG 2.2 AA (axe 0), нийтийн карт −24% JS, TypeScript 7, React Compiler | `AUDIT_2026-10.md`, `TECH_STACK.md` |
+| Судалгаа | Монгол ба дэлхийн зах зээл, үнэ, өрсөлдөгч, хууль, SWOT, стратеги | `MARKET_RESEARCH_2026.md` |
+
+Шийдвэр: `DECISIONS.md` D-61…D-74.

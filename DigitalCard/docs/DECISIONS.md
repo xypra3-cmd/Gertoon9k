@@ -228,3 +228,15 @@ ML Kit text recognition (Android + iOS) → `@digitalcard/shared/cardText` (`par
 
 ### D-70 TypeScript 7
 `typescript7` (npm alias → typescript@7.0.2, Go native) typecheck/build-д; `typescript` 5.9/6.0 нь typescript-eslint-д үлдэнэ (TS 7-г дэмжмэгц нэг болгоно). TS 7-д `baseUrl` хасагдсан тул tsconfig-оос авсан (paths нь tsconfig-ийн хавтаснаас тооцогдоно).
+
+### D-71 e-barimt (НӨАТ-ын цахим баримт)
+Монголд B2C/B2B борлуулалт бүрт заавал. Төлбөр `paid` болмогц trigger `ebarimt_status = 'pending'` болгоно; Edge Function QPay `POST /v2/ebarimt_v3/create`-ийг (CITIZEN эсвэл 7 оронтой регистртэй ORGANIZATION) шууд дуудна, амжилтгүй бол `qpay-reconcile` 5 мин тутам дахин оролдоно (≤ 5 удаа). Баримтын QR Billing-ийн түүхэнд. e-barimt-ийн алдаа төлбөрийг хэзээ ч зогсоохгүй (TAX-01). Migration 0014.
+
+### D-72 PDPL: гадаадад хадгалах зөвшөөрөл
+Монголын Хувийн мэдээлэл хамгаалах хууль гадаадад дамжуулахад субьектийн зөвшөөрөл шаарддаг. Supabase (Сингапур), Anthropic, Resend (АНУ)-г нууцлалын бодлогод нэрлэж, бүртгэлийн ба зочны зөвшөөрлийн текстэд «гадаад дахь серверт хадгалах»-ыг тодорхой оруулсан. Зөрчлийн үед авах арга хэмжээ: `docs/INCIDENT_RESPONSE.md`.
+
+### D-73 WCAG 2.2 AA (axe-core)
+Tailwind 4-ийн `slate-500` (#62748e) манай дэвсгэр дээр 4.48:1 → `--color-slate-500: #5a6b82`. Dark горимд `text-slate-500/brand-600/red-600` нь нэг шат цайвар өнгө авна (unlayered CSS; `dark:` хувилбарууд мөн ижил утгатай). Аватарын палитр `avatarColors` (цагаантай ≥ 5:1) вэб, mobile хоёуланд. Тоон анимац `sr-only` бодит утгатай; декор жишээ `inert`.
+
+### D-74 Нийтийн картын эрхийн функц ба ачаалал
+Postgres view доторх функцийн EXECUTE эрхийг view-г дуудагчаар шалгадаг тул `card_shows_branding(owner, org)`-ийг anon-д нээлттэй байлгах шаардлагатай байсан → хэрэглэгчийн багцыг шалгах боломж. View одоо `card_branding(card_id)` (зөвхөн нийтлэгдсэн карт) ашиглана. Зочны форм (zod + react-hook-form) нээгдэх үед л ачаалагдана: нийтийн картын JS −24%.

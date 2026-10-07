@@ -28,6 +28,7 @@ E2E (Prompt 01/04-ийн шалгуурууд): `cd ../qa && npm install && npm 
 | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | Supabase (anon түлхүүр нийтэд ил байдаг, нууц биш) |
 | `VITE_PUBLIC_BASE_URL` | QR, хуваалцах линкийн домэйн (`https://digitalcard.mn`) |
 | `VITE_TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key |
+| (PWA) | `public/manifest.webmanifest`, `public/sw.js` — тохиргоогүй; production build-д л бүртгэгдэнэ |
 | `VITE_DEMO_MODE` | `true` зөвхөн local demo-д: demo нэвтрэх товч, «зочин болж нээх». Production-д `false` — demo бүртгэл, нууц үг bundle-д огт орохгүй |
 
 ## Бүтэц
@@ -41,14 +42,17 @@ src/
 │   ├── app/              Dashboard, CardEditor, CardPrint, Contacts, Stats, Billing, Org, Settings
 │   └── admin/Admin.tsx   MFA (TOTP) шаардана
 ├── templates/            10 загвар, нэг CardData interface (parts.tsx: AutoFitText, Avatar…)
-├── components/           UI, QR, Turnstile, ExchangeForm, PayModal
+├── components/           UI, QR, Turnstile, ExchangeForm (нээгдэх үед ачаална), PayModal, Passkeys, WalletButton, TwoFactor
 ├── lib/                  supabase, auth, queries, dates (Asia/Ulaanbaatar), print геометр
 └── i18n/                 web.mn.json / web.en.json (+ packages/shared i18n)
-netlify.toml              SPA redirect, /c/* 60с кэш, CSP / X-Frame-Options / Referrer-Policy
+netlify.toml              SPA redirect, /c/* 60с кэш, CSP / X-Frame-Options / Referrer-Policy, sw.js no-cache
+public/                   manifest.webmanifest, sw.js (PWA), icons/, .well-known (universal links + passkey)
 netlify/edge-functions/   card-og.ts — /c/:slug-д OG meta tag тарина
 ```
 
-## Шалгуурын үр дүн (local, 2026-10-04)
+Стек: React 19.3 + React Compiler, React Router 7 (View Transitions), Vite 8, Tailwind 4 (`src/index.css` `@theme`), TypeScript 7 typecheck. WCAG 2.2 AA (axe 0 зөрчил, 2026-10-07).
+
+## Шалгуурын үр дүн (local, 2026-10-04; шинэчлэл 2026-10-07 — `docs/AUDIT_2026-10.md`)
 
 | # | Шалгуур | Үр дүн |
 |---|---|---|
@@ -63,3 +67,5 @@ netlify/edge-functions/   card-og.ts — /c/:slug-д OG meta tag тарина
 | 9 | Зочин exchange → contacts (source=exchange); Free хязгаар → мессеж | ✅ E2E + backend тест |
 | 10 | Өнөөдрийн follow-up dashboard-д; [Холбогдсон] → алга болно | ✅ E2E |
 | 11 | Free CRM талбар UI-д түгжээтэй (DB ч татгалзана) | ✅ E2E + pgTAP |
+| 12 | Passkey нэмэх/нэвтрэх, Wallet, PWA офлайн, e-barimt QR | ✅ E2E (passkey, wallet, pwa, fun-01) |
+| 13 | Нийтийн карт Slow 4G | LCP 2.05 с, CLS 0, JS 390 KB |

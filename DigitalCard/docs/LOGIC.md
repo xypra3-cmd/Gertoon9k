@@ -76,6 +76,18 @@ stateDiagram-v2
 ```mermaid
 stateDiagram-v2
   direction LR
+  state "payments.ebarimt_status (0014)" as E {
+    [*] --> none
+    none --> pending : status → paid (trigger)
+    pending --> issued : QPay ebarimt_v3/create OK
+    pending --> failed : QPay алдаа
+    failed --> issued : qpay-reconcile (≤ 5 оролдлого)
+  }
+```
+
+```mermaid
+stateDiagram-v2
+  direction LR
   state "subscriptions.status" as S {
     [*] --> pending : эхний invoice
     pending --> active : payment paid
@@ -89,6 +101,8 @@ stateDiagram-v2
 |---|---|---|
 | Карт | draft (`is_published=false`) ↔ published; → deleted (`deleted_at`) | Эзэмшигч/editor; устгалыг сэргээхгүй |
 | Contact | new → follow_up → customer / partner → closed | Чөлөөт (CRM эрхтэй үед). `follow_up_at` ≤ өнөөдөр, `status≠closed` → dashboard/digest |
+| Эвент | идэвхгүй → идэвхтэй (`start_event`, ≤ 72 цаг) → дууссан (`stop_event` эсвэл хугацаа) | Идэвхтэй үед шинэ contact бүр эвентээр тэмдэглэгдэнэ (0013) |
+| Passkey | бүртгэлгүй → бүртгэсэн → устгасан | Supabase Auth (`/passkeys/*`); нэвтрэлт `signInWithPasskey` |
 | Org member | invited → active | `accept_org_invite()` эсвэл бүртгүүлэхэд имэйлээр холбогдоно |
 
 `apply_payment_check()` нь payment мөрийг `FOR UPDATE` түгжээд `paid` бол шууд `already_paid` буцаана → давхар callback/reconcile хугацааг хоёр дахин сунгахгүй.
@@ -113,14 +127,16 @@ stateDiagram-v2
 | Функц | Auth | Request | Response |
 |---|---|---|---|
 | `POST /qpay-create-invoice` | user JWT | `{ plan_id: 'pro'\|'team', org_id?, seats? }` | `{ payment_id, sender_invoice_no, amount_mnt, qr_image, qr_text, short_url, urls[] }` · 400 `invalid_plan` · 403 `not_org_admin` · 502 `qpay_unavailable` |
-| `GET\|POST /qpay-callback?inv=` | — | (агуулгыг үл тооно) | 200 `{ status: paid\|already_paid\|not_paid\|amount_mismatch\|ignored\|retry_later }` |
+| `GET\|POST /qpay-callback?inv=` | — | (агуулгыг үл тооно) | 200 `{ status: paid\|already_paid\|not_paid\|amount_mismatch\|ignored\|retry_later }`; `paid` бол e-barimt шууд олгоно |
+| `POST /wallet-pass` | user JWT | `{ card_id, kind: 'apple'\|'google' }` (өөрийн, нийтлэгдсэн карт) | apple: `application/vnd.apple.pkpass` · google: `{ url }` · 400 `invalid_request` · 404 `not_found` · 409 `card_not_published` · 429 · 501 `wallet_not_configured` |
+| `POST /ai-assist` | user JWT | `{ task: bio\|scan\|note\|followup, locale, input }` | `{ result }` · 402/429 квот · 403 `crm_not_enabled` |
 | `POST /track-event` | — (user JWT заавал биш) | `{ slug, event, link_kind? }` | 200 `ok` · 202 `rate_limited` · 404 `not_found` |
 | `POST /contact-exchange` | — | `{ slug, name, phone?, email?, company?, title?, message?, consent, turnstile_token }` | 200 `{ status:'ok', owner_first_name }` · 400 `consent_required\|captcha_failed\|invalid` · 404 · 409 `owner_limit_reached` · 429 `rate_limited` |
 | `POST /org-invite` | org admin JWT | `{ org_id, email, role? }` | `{ member_id }` · 403 `seat_limit_reached\|not_org_admin` · 400 `already_member\|invalid_email` |
-| `POST /qpay-reconcile`, `/expire-subscriptions`, `/followup-digest` | `x-cron-secret` | — | тоон тайлан |
+| `POST /qpay-reconcile`, `/expire-subscriptions`, `/followup-digest` | `x-cron-secret` | — | тоон тайлан (`qpay-reconcile`: `receipts` = дахин олгосон e-barimt) |
 
 ### 4.2 RPC (PostgREST, user JWT)
-`get_my_entitlements()`, `get_card_stats(ids, from)`, `get_link_stats(ids, from)`, `get_named_viewers(card_id, from)`, `get_org_members(org_id)`, `accept_org_invite(org_id)`, `delete_my_account()`, `admin_list_users(search)` (aal2), `has_active_plan`, `card_quota`, `can_edit_card`.
+`get_my_entitlements()`, `get_my_event()`, `start_event(name, hours)`, `stop_event()`, `nearby_bump(card_id, geohash)`, `get_card_stats(ids, from)`, `get_link_stats(ids, from)`, `get_named_viewers(card_id, from)`, `get_org_members(org_id)`, `accept_org_invite(org_id)`, `delete_my_account()`, `admin_list_users(search)` (aal2), `has_active_plan`, `card_quota`, `can_edit_card`.
 
 ### 4.3 Алдааны кодууд
 DB нь `SQLSTATE 42501` (→ HTTP 403) эсвэл `P0001` (→ 400) + тогтмол MESSAGE буцаана. `packages/shared/errors.ts` → `errors.<key>` (MN/EN).
@@ -141,7 +157,7 @@ DB нь `SQLSTATE 42501` (→ HTTP 403) эсвэл `P0001` (→ 400) + тогт�
 ## 5. Cron
 | Job | Хуваарь (UTC) | Үйлдэл |
 |---|---|---|
-| `qpay-reconcile` | */5 мин | < 24 цагийн pending-ийг payment/check; хуучныг expired |
+| `qpay-reconcile` | */5 мин | < 24 цагийн pending-ийг payment/check; хуучныг expired; дутуу e-barimt-ийг дахин олгох (≤ 5 оролдлого) |
 | `expire-subscriptions` | 16:05 (UB 00:05) | хугацаа дууссаныг expired; 3 хоногийн өмнөх сануулга |
 | `followup-digest` | 01:00 (UB 09:00) | CRM хэрэглэгч бүрт өдөрт ≤ 1 имэйл (`email_queue.dedupe_key`) |
 

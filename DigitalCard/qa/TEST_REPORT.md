@@ -3,11 +3,11 @@
 | | |
 |---|---|
 | Хувилбар (git) | салбар `claude/awesome-ramanujan-6j82t4`, энэ тайлантай commit |
-| Огноо | 2026-10-06 |
+| Огноо | 2026-10-07 |
 | Орчин | ☑ Local (Linux container) ☐ Staging ☐ Production |
-| Supabase | CLI 2.119 local stack (Postgres, Auth, Storage, Edge Runtime) |
+| Supabase | CLI 2.120 local stack (Postgres 17, Auth + passkey, Storage, Edge Runtime) |
 | Web build | Vite production build, `vite preview` :5173 |
-| Mobile | Expo SDK 57 — `expo export` (Android bundle), `expo prebuild` Android + iOS. EAS build хийгээгүй |
+| Mobile | Expo SDK 57 — `expo export` (Android, iOS, web bundle), `expo prebuild` Android + iOS (widget target, App Group, NFC, Live Activity шалгасан). EAS build хийгээгүй |
 | QPay / Turnstile | ☑ Mock (`backend/supabase/tests/mocks`) |
 | Browser | Chromium (Playwright), desktop + Pixel 7 эмуляц |
 
@@ -53,11 +53,21 @@
 | SEC-08 | High | UA сольж зочны rate limit-ийг тойрох боломжгүй (сүлжээний HMAC түлхүүр) | **PASS** | functions A-05 |
 | EVT-01 | High | Эвент горим: Pro эхлүүлнэ, гараар/мэдээлэл үлдээсэн харилцагч эвентээр тэмдэглэгдэнэ, багана клиентэд хаалттай, Free-д эхлүүлэхгүй, тэмдэглэгдэхгүй | **PASS** | pgTAP 12, e2e/growth |
 | QR-01 | Medium | Офлайн vCard QR: гол талбар үлдэж, хүнд талбар хасагдана, < 500 байт | **PASS** | shared unit |
+| TAX-01 | Critical | e-barimt төлбөр бүрт; алдаа гарвал reconcile дахин олгоно; Billing-д QR | **PASS** | functions TAX-01, pgTAP 13, e2e/fun-01 |
+| SEC-09 | High | Нэвтрээгүй хэрэглэгч бусдын багцыг шалгах боломжгүй (`card_branding`) | **PASS** | pgTAP 11, 13 |
+| SEC-PK | High | Passkey нэмэх → passkey-ээр нэвтрэх → устгах | **PASS** | e2e/passkey |
+| WALLET-01 | High | Apple .pkpass гарын үсэг, manifest | **PASS** | functions wallet |
+| WALLET-02 | High | Google Wallet JWT RS256 | **PASS** | functions wallet |
+| WALLET-UI | Medium | Хянах самбараас Wallet-д нэмэх | **PASS** | e2e/wallet |
+| PWA-01 | Medium | Суулгадаг, офлайн shell, API кэшгүй | **PASS** | e2e/pwa |
+| OCR-01 | Medium | Офлайн OCR parser | **PASS** | shared unit (5) |
+| A11Y-01 | High | WCAG 2.2 AA: 10 хуудас × light/dark | **PASS** (0 зөрчил) | axe-core, AUDIT_2026-10 §3.3 |
+| PERF-01 | Medium | Нийтийн карт Slow 4G: LCP 2.05 с, CLS 0, JS 390 KB | **PASS** | Playwright perf, AUDIT_2026-10 §3.4 |
 | Load | — | 200 VU, 5 мин: **p95 = 36 ms**, алдаа **0.005 %** (157 812 хүсэлт) | **PASS** | qa/load/public-card.js |
 | Load-app | — | 500 зэрэг нэвтэрсэн хэрэглэгч (≈5,000 бүртгэл), 2.8 мин, 86 569 хүсэлт: p95 ≤ **12 ms** бүх endpoint, алдаа **0 %** | **PASS** | qa/load/app-users.js, docs/SCALING.md |
 | Lighthouse | — | /c/:slug mobile: Performance 97, Accessibility 100, SEO 100 | **PASS** | web/README |
 
-Нийт автомат тест: pgTAP 158 · Edge Function 20 · API 39 · E2E 17 · unit 65 (shared 59, web 6) · STORE-01 (47 bundled модуль) — **бүгд PASS**. Аудит: `docs/SECURITY_AUDIT.md`.
+Нийт автомат тест: pgTAP **170** · Edge Function **24** · API **39** · E2E **20** · unit **70** (shared 64, web 6) · STORE-01 (68 first-party файл) · TypeScript 7 typecheck · ESLint — **бүгд PASS**. Аудит: `docs/SECURITY_AUDIT.md`, `docs/AUDIT_2026-10.md`.
 
 ## 2. Гараар шалгах шаардлагатай (энэ орчинд боломжгүй)
 | ID | Шалтгаан | Төлөв |
@@ -71,6 +81,7 @@
 | Bump жинхэнэ утсаар | Акселерометрын босго (≈1.8 g), 2 жинхэнэ утас, GPS | ⏳ |
 | EAS build (APK/AAB/iOS) | Expo бүртгэл, Apple Developer шаардлагатай | ⏳ Хийгээгүй |
 | k6 staging | Production-той ижил Supabase tier дээр давтах | ⏳ |
+| M-09..M-15 | Passkey, Wallet, widget, Live Activity, NFC, офлайн OCR, e-barimt — development build ба жинхэнэ утас/QPay merchant хэрэгтэй | ⏳ Хийгээгүй (TEST_PLAN §4) |
 
 ## 3. Тестээр илэрч засагдсан алдаа
 | # | Severity | Тайлбар | Төлөв |
@@ -79,6 +90,11 @@
 | 2 | High | Mobile: `expo-image-picker` тохиргоо CAMERA эрхийг manifest-ээс хасч QR сканыг эвдэх байсан | Засагдсан (prebuild-ээр илэрсэн) |
 | 3 | Medium | Shared i18n-ээр «QPay», үнийн текст mobile bundle-д орох эрсдэл | Засагдсан (web руу зөөсөн) |
 | 4 | Low | `expo-brightness` шаардлагагүй WRITE_SETTINGS эрх нэмдэг | Засагдсан (blockedPermissions) |
+| 5 | High | React 19: бүртгэлийн дараа auth listener `/app` руу эрт шилжүүлж wizard алгасагддаг байсан (FUN-01) | Засагдсан (Register.tsx) |
+| 6 | Medium | Wallet цэс дараагийн карт/хэсгийн ард нуугддаг байсан (E2E) | Засагдсан (inline цэс) |
+| 7 | Medium | `expo-live-activity` ба `@bacons/apple-targets` iOS prebuild-д зөрчилдсөн | Засагдсан (өөрийн ActivityKit module) |
+| 8 | Medium | Шинэ trigger функц API-д нээлттэй үлдсэн (pgTAP 11 барьсан) | Засагдсан (0014) |
+| 9 | High | WCAG тодосгол (Tailwind 4 өнгө, dark горим) | Засагдсан (D-73) |
 
 ## 4. Шийдвэр
 ☐ **GO** ☐ **NO-GO** — Critical тест бүгд PASS (local). Production GO-гийн өмнө §2-ын гарын шалгалт, staging дээрх давталт, PROJECT_OVERVIEW §11.3-ын checklist (ХХК, QPay production, домэйн, хуулийн баримт) шаардлагатай.

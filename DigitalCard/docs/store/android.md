@@ -11,21 +11,25 @@ eas submit -p android --latest   # Internal testing track руу
 ```
 Эхний удаа: `eas login` → `eas init` (projectId) → `eas env:create` дээр `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`, `EXPO_PUBLIC_WEB_URL`, `EXPO_PUBLIC_DOMAIN`-ийг preview/production орчинд оруулна.
 
-App Links: Play Console → **Setup → App signing**-ээс SHA-256-г хуулж `web/public/.well-known/assetlinks.json`-д тавиад вэбийг deploy хийнэ.
+App Links + passkey: Play Console → **Setup → App signing**-ээс SHA-256-г хуулж `web/public/.well-known/assetlinks.json`-д тавиад вэбийг deploy хийнэ (`handle_all_urls` ба `get_login_creds`).
+
+Native нэмэлтүүд (development build хэрэгтэй): нүүр дэлгэцийн widget (`widgets/`, receiver `.widget.CardQr`), NFC, ML Kit OCR, Credential Manager (passkey).
 
 ## 2. Эрх (permissions)
 | Эрх | Шалтгаан | Хэзээ асуух |
 |---|---|---|
 | CAMERA | QR унших | Скан таб анх нээхэд |
 | READ_CONTACTS, WRITE_CONTACTS | Уншсан картыг утасны contact-д хадгалах | «Утсанд хадгалах» дарахад л |
+| ACCESS_COARSE_LOCATION | Утас ойртуулж солилцох (≈1 км) | «Ойртуулах» анх дарахад |
+| NFC | Картын линкийг наалтад бичих, унших | Хэрэглэгч товч дарахад (runtime асуулгагүй) |
 | INTERNET, VIBRATE (сануулга) | Үндсэн | — |
-Хаасан: RECORD_AUDIO, location, storage/media read, SYSTEM_ALERT_WINDOW, WRITE_SETTINGS.
+Хаасан: RECORD_AUDIO, ACCESS_FINE_LOCATION, ACCESS_BACKGROUND_LOCATION, storage/media read, SYSTEM_ALERT_WINDOW, WRITE_SETTINGS.
 
 ## 3. Data safety маягт
 | Асуулт | Хариулт |
 |---|---|
 | Өгөгдөл цуглуулдаг уу? | Тийм |
-| Гуравдагч этгээдтэй хуваалцдаг уу? | Үгүй (Supabase, Resend нь үйлчилгээ үзүүлэгч — «sharing» биш) |
+| Гуравдагч этгээдтэй хуваалцдаг уу? | Үгүй (Supabase, Resend, Anthropic нь үйлчилгээ үзүүлэгч — «sharing» биш; Google Wallet-д хэрэглэгч өөрөө нэмэхэд л дамжина) |
 | Дамжуулалт шифрлэгдсэн үү? | Тийм (HTTPS/TLS) |
 | Хэрэглэгч устгуулах хүсэлт гаргаж чадах уу? | Тийм — апп дотроос болон вэбээр |
 
@@ -37,7 +41,8 @@ App Links: Play Console → **Setup → App signing**-ээс SHA-256-г хуул
 | Contacts (хэрэглэгчийн оруулсан харилцагчид) | ✓ | App functionality | Сонголттой |
 | Photos (картын зураг) | ✓ | App functionality | Сонголттой |
 | App interactions (нэргүй нээлтийн тоо) | ✓ | Analytics (картын эзэнд) | — |
-| Байршил, санхүүгийн мэдээлэл, device ID | ✗ | | |
+| Approximate location (≈1 км, 10 минут) | ✓ | App functionality («Ойртуулах») | Сонголттой |
+| Нарийн байршил, санхүүгийн мэдээлэл, device ID | ✗ | | |
 
 ## 4. URL-ууд
 - Нууцлалын бодлого: `https://digitalcard.mn/legal/privacy`
@@ -56,6 +61,8 @@ Digital Card бол таны дижитал нэрийн хуудас. QR код
 • Скан — бусдын Digital Card-ыг уншиж утасны contact-д хадгалах
 • Харилцагчид — уулзсан хүмүүсээ хайх, засах, интернэтгүй үед ч харах
 • Статистик — картаа хэдэн хүн нээснийг харах
+• Нүүр дэлгэцийн widget, NFC наалтад бичих, Google Wallet
+• Passkey — нууц үггүй нэвтрэлт
 • Монгол, англи хэл
 
 **Урт тайлбар (EN):**
@@ -64,6 +71,8 @@ Digital Card is your digital business card. Show your QR code and people open yo
 • Scan — read other Digital Cards and save them to your contacts
 • Contacts — search and edit the people you met, even offline
 • Statistics — see how many people opened your card
+• Home-screen widget, NFC tag writing, Google Wallet
+• Passkeys — passwordless sign-in
 • Mongolian and English
 
 > Апп дотор болон listing-д үнэ, багц, төлбөрийн тухай бичихгүй (Play payments policy).
@@ -76,7 +85,7 @@ Digital Card is your digital business card. Show your QR code and people open yo
 | Feature graphic | 1024×500 | Лого + «Уулзсан хүн бүрээ марталгүй» |
 
 ## 7. Content rating (IARC асуулга)
-Хүчирхийлэл, бэлгийн агуулга, хар тамхи, мөрийтэй тоглоом — **Үгүй**. Хэрэглэгч хоорондын харилцаа: **Тийм** (хэрэглэгч өөрийн мэдээллээ хуваалцдаг; чат байхгүй). Хэрэглэгчийн байршил хуваалцах — **Үгүй**. Хүлээгдэх үнэлгээ: **Everyone / 3+**.
+Хүчирхийлэл, бэлгийн агуулга, хар тамхи, мөрийтэй тоглоом — **Үгүй**. Хэрэглэгч хоорондын харилцаа: **Тийм** (хэрэглэгч өөрийн мэдээллээ хуваалцдаг; чат байхгүй). Хэрэглэгчийн байршил бусадтай хуваалцах — **Үгүй** (ойролцоо бүсийг зөвхөн серверт 10 минут тулгахад ашиглана). Хүлээгдэх үнэлгээ: **Everyone / 3+**.
 
 ## 8. Туршилтын шат
 1. **Internal testing** (100 хүртэл тестер, хянуулалтгүй) — `eas submit` эндээ.
@@ -89,3 +98,4 @@ Digital Card is your digital business card. Show your QR code and people open yo
 - [ ] Data safety, privacy URL бөглөсөн
 - [ ] assetlinks.json-д production SHA-256
 - [ ] Demo бүртгэл (Review-д): App access хэсэгт имэйл/нууц үг — кодонд биш
+- [ ] Жинхэнэ утсан дээр: widget, NFC бичих/унших, passkey, Google Wallet (Монгол бүртгэлтэй утсаар — AUDIT PLAT-01), офлайн OCR

@@ -1,5 +1,7 @@
 # Аюулгүй байдлын аудит — 2026-10-06
 
+> **Шинэчлэл 2026-10-07:** дараагийн бүрэн аудит (e-barimt, PDPL, WCAG, гүйцэтгэл, `card_shows_branding` хаалт, react-router v7) — [AUDIT_2026-10.md](AUDIT_2026-10.md).
+
 **Хамрах хүрээ:** 3 апп (вэб, Android/iOS), Supabase (12 migration, 15 хүснэгт, 62 функц, storage, auth тохиргоо), 10 Edge Function, Netlify тохиргоо (CSP), гадаад сангууд, git түүх.
 **Арга:** өгөгдлийн сангийн каталогоос эрх/policy-г автоматаар шүүсэн, Edge Function бүрийг кодоор уншсан, HTTP түвшинд халдлага дуурайлгасан тест бичсэн, `npm audit`, git нууц хайлт, AndroidManifest-ийг prebuild-ээр шалгасан.
 **Дүгнэлт:** Critical алдаа олдоогүй. 1 High, 5 Medium, 4 Low асуудлыг **зассан, тус бүрд тест нэмсэн**. Үлдсэн эрсдэлүүд §3-т.
@@ -38,10 +40,8 @@
 |---|---|---|
 | `npm audit`: mobile-д 30 (high 19) | Бүгд **build хэрэгсэл** (metro, expo CLI, node-forge) — апп-д ордоггүй. npm-ийн санал болгосон «засвар» нь Expo 44 руу буцах (буруу) | Expo SDK шинэчлэлтээр автоматаар засагдана |
 | `decode-uri-component` 0.2.2 (expo-router дотор) | Гажуудсан deep link → зөвхөн тухайн утсан дээрх апп түр гацах (DoS) | expo-router шинэчлэл |
-| Вэб: `react-router-dom` 6.30.6 open-redirect CVE | Манай цорын ганц хэрэглэгчийн өгсөн зам (`?next=`) W-01-ээр хаагдсан | v7 руу шилжих (ROADMAP) |
 | Ойртуулах: 5 км бүсэд 3 секундэд өөр хүн давхцаж болох | Солилцох мэдээлэл нь нийтийн карт; «Буруу хүн — буцаах» товч бий | BLE/код руу чиглүүлэх (ROADMAP) |
 | Session token хөтчийн localStorage-д | Supabase-ийн стандарт; CSP XSS-ээс хамгаална | — |
-| `card_shows_branding(owner, org)` anon-д нээлттэй | View-д хэрэгтэй; хэрэглэгчийн ID-г (A-04-өөр) олох боломжгүй болсон | — |
 
 ## 4. Production-д заавал (Supabase/Netlify хяналтын самбар)
 

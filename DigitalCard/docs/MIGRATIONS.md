@@ -35,6 +35,7 @@ backend/supabase/migrations/
 | 0011 | `scale` | 1k–5k хэрэглэгчийн индекс (contacts owner+created, owner+card, org_members org+status), имэйл дарааллын цэвэрлэгээ | Гүйцэтгэл |
 | 0012 | `hardening` | Аюулгүй байдлын аудитын засвар: хамгийн бага эрх, helper функц хаах, storage жагсаалт, rate_buckets | SECURITY_AUDIT.md |
 | 0013 | `event_mode` | Эвент горим: `profiles.event_*`, шинэ харилцагчийг эвентээр тэмдэглэх trigger (зөвхөн CRM багц), `start_event`/`stop_event`/`get_my_event` | Шинэ боломж |
+| 0014 | `ebarimt_and_hardening` | e-barimt: `payments.ebarimt_*`, trigger (paid → pending), `record_ebarimt` (service role); `card_branding(card_id)` → `public_cards` | AUDIT_2026-10.md (L-01, SEC-01) |
 
 ## 3. Тушаалууд
 

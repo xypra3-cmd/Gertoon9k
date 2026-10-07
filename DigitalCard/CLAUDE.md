@@ -11,6 +11,8 @@ Monorepo: `backend/` (Supabase), `packages/shared/`, `web/` (Vite + React), `mob
 - TypeScript strict. `packages/shared`-ийг дэд замаар импортлох (`@digitalcard/shared/vcard`) — нийтийн картын bundle-ийг жижиг байлгана.
 - Expo: санах ойгоос биш, `mobile/node_modules/<pkg>/build/*.d.ts`-ээс API шалгах (AGENTS.md).
 - Шийдвэр бүрийг `docs/DECISIONS.md`-д тэмдэглэ.
+- Шинэ хувийн мэдээлэл, гадаад боловсруулагч, эрх (permission) нэмбэл: `web/src/legal/privacy.*.md`, `docs/store/*.md` (privacy label / Data safety), `mobile/app.config.ts` privacyManifests-ийг шинэчил (PDPL: гадаадад дамжуулахад зөвшөөрөл).
+- Төлбөр бүр e-barimt-тэй (0014) — төлбөрийн урсгалыг өөрчилбөл TAX-01 тест ногоон байх ёстой.
 
 ## Шалгах
 ```bash

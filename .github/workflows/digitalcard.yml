@@ -31,6 +31,8 @@ jobs:
       - run: cd mobile && npm run typecheck && npm run lint
       - name: STORE-01 no prices / payments in the mobile app
         run: node qa/mobile/store-check.mjs
+      - name: Dependency audit (shipped web + shared code; high/critical fail the build)
+        run: cd web && npm audit --omit=dev --audit-level=high && cd ../packages/shared && npm audit --omit=dev --audit-level=high
 
   api-e2e:
     name: pgTAP · API · E2E
@@ -57,7 +59,9 @@ jobs:
           ANTHROPIC_API_KEY=ci-mock
           ANTHROPIC_BASE_URL=http://host.docker.internal:54399
           ENV
-      - name: Edge Function dependencies (Claude SDK for ai-assist)
+      - name: Wallet test certificates (self-signed, generated per run — never real keys)
+        run: scripts/dev-wallet-certs.sh
+      - name: Edge Function dependencies (Claude SDK, Wallet pass signing)
         run: cd backend && npm run functions:deps
       - name: Start Supabase
         run: cd backend && supabase start -x studio,logflare,vector,imgproxy,supavisor,realtime,postgres-meta

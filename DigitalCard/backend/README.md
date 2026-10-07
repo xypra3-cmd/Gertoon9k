@@ -16,13 +16,16 @@ backend/
     │   ├── 0005_service_functions.sql  төлбөр, event, exchange, digest, stats RPC
     │   ├── 0006_cron.sql            pg_cron → Edge Functions
     │   ├── 0007/0008                апп RPC, org owner select
-    │   └── 0009_growth.sql          жилийн төлбөр, урилга, slug түгжих, branding, AI квот
+    │   ├── 0009_growth.sql          жилийн төлбөр, урилга, slug түгжих, branding, AI квот
+    │   ├── 0010_nearby · 0011_scale · 0012_hardening · 0013_event_mode
+    │   └── 0014_ebarimt_and_hardening.sql  e-barimt (НӨАТ баримт), card_branding
     ├── functions/               # Deno Edge Functions (+ _shared/)
     ├── seed.sql                 # ЗӨВХӨН local
     └── tests/
-        ├── database/*.test.sql  # pgTAP (103 тест)
-        ├── functions/*.test.mjs # Edge Function integration (19 тест)
-        └── mocks/mock-server.mjs   # QPay v2 + Turnstile + Claude API mock
+        ├── database/*.test.sql  # pgTAP (170 тест)
+        ├── functions/*.test.mjs # Edge Function integration (24 тест: QPay, e-barimt, Wallet, AI…)
+        └── mocks/mock-server.mjs   # QPay v2 (+ e-barimt) + Turnstile + Claude API mock
+    └── .wallet-dev/             # scripts/dev-wallet-certs.sh-ийн туршилтын сертификат (git-д орохгүй)
 ```
 
 ## 1. Local-д ажиллуулах
@@ -125,13 +128,14 @@ DB нь SQLSTATE `42501` (→ HTTP 403) эсвэл `P0001` (→ 400) + тогт�
 | Функц | Хандалт | Тайлбар |
 |---|---|---|
 | `qpay-create-invoice` | Хэрэглэгчийн JWT | `{ plan_id, org_id?, seats? }` → pending payment + QPay invoice (QR, банкны deeplink). Дүнг `plans`-аас |
-| `qpay-callback` | Public (QPay) | `?inv=<sender_invoice_no>`. Агуулгад итгэхгүй — `/v2/payment/check`-ээр шалгаж `apply_payment_check` (idempotent) |
-| `qpay-reconcile` | Cron 5 мин | < 24 цагийн pending-ийг шалгана, хуучныг `expired` |
+| `qpay-callback` | Public (QPay) | `?inv=<sender_invoice_no>`. Агуулгад итгэхгүй — `/v2/payment/check`-ээр шалгаж `apply_payment_check` (idempotent); `paid` бол **e-barimt** (`/v2/ebarimt_v3/create`) шууд олгоно |
+| `qpay-reconcile` | Cron 5 мин | < 24 цагийн pending-ийг шалгана, хуучныг `expired`; дутуу e-barimt-ийг дахин олгоно (≤ 5) |
 | `track-event` | Public | `{ slug, event, link_kind? }`, visitor_hash = sha256(ip + UA + өдрийн salt); 30/мин/зочин/карт |
 | `contact-exchange` | Public | Turnstile + consent + 5/цаг/зочин + эзэмшигчийн contact_limit; Pro эзэмшигчид имэйл |
 | `expire-subscriptions` | Cron өдөр бүр | Дууссаныг `expired`, 3 хоногийн өмнөх сануулга |
 | `followup-digest` | Cron 09:00 (UB) | Хэрэглэгч бүрт өдөрт 1 имэйл (`email_queue.dedupe_key`) |
 | `org-invite` | Org admin JWT | Төлсөн суудлаас хэтрүүлэхгүй |
+| `wallet-pass` | Хэрэглэгчийн JWT | `{ card_id, kind: apple\|google }` — өөрийн нийтлэгдсэн карт → `.pkpass` (PKCS#7, node-forge) эсвэл Google Wallet save JWT. Түлхүүргүй үед 501; 10/мин |
 | `ai-assist` | Хэрэглэгчийн JWT | `{ task: bio\|scan\|note\|followup, locale, input }` → structured JSON. Квот `consume_ai_credit` (Free 3, төлбөртэй 100/өдөр), refusal/алдаанд кредит буцаана. Агуулга лог-д бичигдэхгүй |
 
 Cron endpoint-ууд `x-cron-secret: $CRON_SECRET` header шаардана. Имэйл: `email_queue` → `RESEND_API_KEY` тохируулсан бол Resend-ээр илгээнэ, үгүй бол дараалалд үлдэнэ.
@@ -147,7 +151,7 @@ supabase secrets set --env-file ./supabase/.env.production   # git-д оруул
 supabase functions deploy
 ```
 
-Production secrets: `QPAY_BASE_URL` (https://merchant.qpay.mn), `QPAY_USERNAME`, `QPAY_PASSWORD`, `QPAY_INVOICE_CODE`, `STATS_SALT_SECRET`, `TURNSTILE_SECRET`, `PUBLIC_FUNCTIONS_URL`, `CRON_SECRET`, `PUBLIC_APP_URL`, `ALLOWED_ORIGINS`, `RESEND_API_KEY`, `MAIL_FROM`, `ANTHROPIC_API_KEY` (заавал биш: `AI_MODEL`). `ANTHROPIC_BASE_URL`-ийг production-д тавихгүй. `TURNSTILE_VERIFY_URL`-ийг production-д тавихгүй.
+Production secrets: `QPAY_BASE_URL` (https://merchant.qpay.mn), `QPAY_USERNAME`, `QPAY_PASSWORD`, `QPAY_INVOICE_CODE`, `STATS_SALT_SECRET`, `TURNSTILE_SECRET`, `PUBLIC_FUNCTIONS_URL`, `CRON_SECRET`, `PUBLIC_APP_URL`, `ALLOWED_ORIGINS`, `RESEND_API_KEY`, `MAIL_FROM`, `ANTHROPIC_API_KEY` (заавал биш: `AI_MODEL`), `PUBLIC_WEB_URL`, Wallet: `APPLE_PASS_TYPE_ID`, `APPLE_TEAM_ID`, `APPLE_PASS_CERT_B64`, `APPLE_PASS_KEY_B64`, `APPLE_PASS_KEY_PASSWORD`, `APPLE_WWDR_CERT_B64`, `GOOGLE_WALLET_ISSUER_ID`, `GOOGLE_WALLET_SA_EMAIL`, `GOOGLE_WALLET_SA_KEY_B64` (PEM-ийг base64-өөр). Local-д `scripts/dev-wallet-certs.sh` өөрөө гарын үсэг зурсан туршилтын утгаар зөвхөн хоосон түлхүүрийг бөглөнө. `ANTHROPIC_BASE_URL`-ийг production-д тавихгүй. `TURNSTILE_VERIFY_URL`-ийг production-д тавихгүй.
 
 Cron-ийг идэвхжүүлэх (SQL editor дээр нэг удаа, утгыг Vault-д хадгална):
 
@@ -156,7 +160,7 @@ select vault.create_secret('https://<ref>.supabase.co/functions/v1', 'functions_
 select vault.create_secret('<CRON_SECRET-тэй ижил>', 'cron_secret');
 ```
 
-Auth: Dashboard → Authentication → MFA → TOTP идэвхжүүлнэ (админ эрх `aal2` шаардана).
+Auth: Dashboard → Authentication → MFA → TOTP идэвхжүүлнэ (админ эрх `aal2` шаардана). **Passkey:** Authentication → Passkeys асаах, WebAuthn `rp_id = digitalcard.mn`, `rp_origins = https://digitalcard.mn` (local: `config.toml` `[auth.passkey]`, `[auth.webauthn]`). **e-barimt:** QPay merchant дээр e-barimt эрхийг идэвхжүүлнэ.
 
 ## 6. Үнэ, лимит солих
 
