@@ -22,4 +22,5 @@
 | — | — | — | — | — | — |
 
 ## 4. Урьдчилан сэргийлэх (аль хэдийн хийгдсэн)
+Илрүүлэх: Sentry-ийн алдааны мэдээ ба `health` uptime монитор (`MONITORING.md`); `health` 503 `degraded` = e-barimt гараагүй төлбөр.
 RLS бүх хүснэгтэд (pgTAP), нууц түлхүүр зөвхөн secret-д, IP хадгалдаггүй, rate limit, passkey + 2FA, Supabase-ийн өдөр тутмын backup (Pro), хамаарлын аудит (`npm audit`) CI-д.

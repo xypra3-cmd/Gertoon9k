@@ -9,6 +9,9 @@ import { AuthProvider, useAuth } from '@/lib/auth';
 import { I18nProvider, useI18n } from '@/lib/i18n';
 import { Loading } from '@/components/ui';
 import { useTheme } from '@/lib/theme';
+import { initMonitoring } from '@/lib/monitoring';
+
+initMonitoring();
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1, staleTime: 30_000 } } });
 

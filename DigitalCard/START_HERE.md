@@ -135,6 +135,7 @@ cd mobile && npx expo start      # 3-р терминал
 | Файл | Юуны тухай |
 |---|---|
 | [`docs/FOLDER_STRUCTURE.md`](docs/FOLDER_STRUCTURE.md) | **Хавтас бүрийн дэлгэрэнгүй тайлбар** |
+| [`docs/MONITORING.md`](docs/MONITORING.md) | Алдааны мэдээ (Sentry, EU) ба uptime (`health`) — тохируулах заавар |
 | [`docs/INTRODUCTION.md`](docs/INTRODUCTION.md) | Бүтээгдэхүүний танилцуулга |
 | [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) | Хэрэглэгчийн гарын авлага |
 | [`docs/BUSINESS_PLAN.md`](docs/BUSINESS_PLAN.md) | **Маркетинг алхам алхмаар + орлого/зардал/ашиг (12 сарын P&L, 3 сценари)** |

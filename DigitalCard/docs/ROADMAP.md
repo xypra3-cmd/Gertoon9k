@@ -22,7 +22,7 @@
 | 1 | Нэр шийдэх (NAMING.md: Temdeg / Kartaa), домэйн .mn + .com бүртгүүлэх | 👤 |
 | 2 | Компани/ХХК, данс, QPay merchant гэрээ (production түлхүүр) | 👤 |
 | 3 | Apple Developer ($99) + Google Play ($25) бүртгэл, D-U-N-S дугаар (Apple байгууллагад) | 👤 |
-| 4 | Supabase Pro төсөл, Netlify, Resend домэйн баталгаажуулалт, Turnstile, Sentry (AUDIT OPS-01) | 🔜 (заавар бэлэн: README, DEPLOY) |
+| 4 | Supabase Pro төсөл, Netlify, Resend домэйн баталгаажуулалт, Turnstile, Sentry (EU) + uptime (код бэлэн — `MONITORING.md`) | 🔜 (заавар бэлэн: README, DEPLOY, MONITORING) |
 | 5 | Нэрийг кодонд солих (i18n, app.config, bundle id) | 🔜 нэр шийдэгдсэний дараа |
 | 6 | EAS build → TestFlight + Play Internal testing; 20 beta хэрэглэгч | 🔜 |
 | 7 | Нууцлалын бодлого, үйлчилгээний нөхцөл (хуульчаар хянуулах) | 👤 + 🔜 загвар бэлэн |

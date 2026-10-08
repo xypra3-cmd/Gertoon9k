@@ -29,7 +29,7 @@ Native нэмэлтүүд (development build хэрэгтэй): нүүр дэл�
 | Асуулт | Хариулт |
 |---|---|
 | Өгөгдөл цуглуулдаг уу? | Тийм |
-| Гуравдагч этгээдтэй хуваалцдаг уу? | Үгүй (Supabase, Resend, Anthropic нь үйлчилгээ үзүүлэгч — «sharing» биш; Google Wallet-д хэрэглэгч өөрөө нэмэхэд л дамжина) |
+| Гуравдагч этгээдтэй хуваалцдаг уу? | Үгүй (Supabase, Resend, Anthropic, Sentry нь үйлчилгээ үзүүлэгч — «sharing» биш; Google Wallet-д хэрэглэгч өөрөө нэмэхэд л дамжина) |
 | Дамжуулалт шифрлэгдсэн үү? | Тийм (HTTPS/TLS) |
 | Хэрэглэгч устгуулах хүсэлт гаргаж чадах уу? | Тийм — апп дотроос болон вэбээр |
 
@@ -42,6 +42,7 @@ Native нэмэлтүүд (development build хэрэгтэй): нүүр дэл�
 | Photos (картын зураг) | ✓ | App functionality | Сонголттой |
 | App interactions (нэргүй нээлтийн тоо) | ✓ | Analytics (картын эзэнд) | — |
 | Approximate location (≈1 км, 10 минут) | ✓ | App functionality («Ойртуулах») | Сонголттой |
+| App info and performance — Crash logs, Diagnostics (Sentry: JS алдааны текст цэвэрлэгдсэн, IP/ID-гүй, хэрэглэгчтэй холбогдохгүй) | ✓ | App functionality | Заавал (автомат, DSN тохируулсан үед) |
 | Нарийн байршил, санхүүгийн мэдээлэл, device ID | ✗ | | |
 
 ## 4. URL-ууд

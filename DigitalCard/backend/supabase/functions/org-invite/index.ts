@@ -4,8 +4,9 @@ import { json, logEvent, preflight, readJson } from '../_shared/http.ts';
 import { DbError, getUser, rpc } from '../_shared/db.ts';
 import { flushEmailQueue } from '../_shared/mailer.ts';
 import { allow } from '../_shared/ratelimit.ts';
+import { monitored } from '../_shared/monitor.ts';
 
-Deno.serve(async (req) => {
+Deno.serve(monitored('org-invite', async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== 'POST') return json(req, { error: 'method_not_allowed' }, 405);
@@ -35,4 +36,4 @@ Deno.serve(async (req) => {
     }
     throw e;
   }
-});
+}));

@@ -4,8 +4,9 @@ import { isCronRequest, json, logEvent } from '../_shared/http.ts';
 import { rpc, select } from '../_shared/db.ts';
 import { checkInvoice } from '../_shared/qpay.ts';
 import { issueMissingEbarimts } from '../_shared/ebarimt.ts';
+import { monitored, reportError } from '../_shared/monitor.ts';
 
-Deno.serve(async (req) => {
+Deno.serve(monitored('qpay-reconcile', async (req) => {
   if (!isCronRequest(req)) return json(req, { error: 'forbidden' }, 403);
 
   const since = new Date(Date.now() - 24 * 3600_000).toISOString();
@@ -28,11 +29,11 @@ Deno.serve(async (req) => {
       results[r] = (results[r] ?? 0) + 1;
     } catch (e) {
       results.error = (results.error ?? 0) + 1;
-      logEvent('qpay-reconcile', 'check_failed', { payment_id: p.id, error: String((e as Error).message) });
+      await reportError('qpay-reconcile', e, { stage: 'check', payment_id: p.id });
     }
   }
   const expired = await rpc<number>('expire_stale_payments');
   const receipts = await issueMissingEbarimts();
   logEvent('qpay-reconcile', 'done', { checked: pending.length, expired, receipts, ...results });
   return json(req, { checked: pending.length, expired, receipts, results });
-});
+}));

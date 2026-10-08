@@ -1,6 +1,7 @@
 // e-barimt (electronic VAT receipt) through QPay for a paid payment. Mongolian tax law requires a
 // receipt for every sale; failures are retried by qpay-reconcile.
 import { logEvent } from './http.ts';
+import { reportError } from './monitor.ts';
 import { rpc, select } from './db.ts';
 import { createEbarimt } from './qpay.ts';
 
@@ -23,7 +24,7 @@ export async function issueEbarimt(paymentId: string): Promise<string> {
     return result;
   } catch (e) {
     await rpc<string>('record_ebarimt', { p_payment_id: p.id, p_ok: false, p_ebarimt_id: null, p_qr: null });
-    logEvent('ebarimt', 'failed', { payment_id: p.id, error: String((e as Error).message) });
+    await reportError('ebarimt', e, { payment_id: p.id });
     return 'failed';
   }
 }

@@ -27,7 +27,7 @@ Native нэмэлтүүд (Expo Go-д ажиллахгүй, development build х
 | NSSupportsLiveActivities | true (эвент горим) | |
 | ITSAppUsesNonExemptEncryption | false (зөвхөн HTTPS) | |
 
-`locales/mn.json`, `locales/en.json` → InfoPlist.strings. Privacy Manifest (`PrivacyInfo.xcprivacy`) нь `app.config.ts → ios.privacyManifests`-ээр үүснэ: tracking=false; цуглуулдаг өгөгдөл Name, Email, Phone, Contacts, Photos, Other User Content (linked), Coarse Location (not linked) — бүгд App Functionality, not tracking; required-reason API: UserDefaults CA92.1 + **1C8F.1** (widget-тэй хуваалцсан App Group), FileTimestamp C617.1, SystemBootTime 35F9.1, DiskSpace E174.1. Widget extension өөрийн `targets/widget/PrivacyInfo.xcprivacy`-тэй (UserDefaults 1C8F.1).
+`locales/mn.json`, `locales/en.json` → InfoPlist.strings. Privacy Manifest (`PrivacyInfo.xcprivacy`) нь `app.config.ts → ios.privacyManifests`-ээр үүснэ: tracking=false; цуглуулдаг өгөгдөл Name, Email, Phone, Contacts, Photos, Other User Content (linked), Coarse Location, Crash Data, Other Diagnostic Data (not linked) — бүгд App Functionality, not tracking; required-reason API: UserDefaults CA92.1 + **1C8F.1** (widget-тэй хуваалцсан App Group), FileTimestamp C617.1, SystemBootTime 35F9.1, DiskSpace E174.1. Widget extension өөрийн `targets/widget/PrivacyInfo.xcprivacy`-тэй (UserDefaults 1C8F.1).
 
 Зөвшөөрөл татгалзсан үед апп унахгүй: «Тохиргоо нээх» товч (`Linking.openSettings()`) харуулна.
 
@@ -51,6 +51,7 @@ Native нэмэлтүүд (Expo Go-д ажиллахгүй, development build х
 | User Content — Photos | ✓ | ✓ | ✗ | App Functionality |
 | Location — Coarse (≈1 km, only while bumping, kept 10 min) | ✓ | ✗ | ✗ | App Functionality |
 | Usage Data — Product interaction (anonymous card opens) | ✓ | ✗ | ✗ | Analytics |
+| Diagnostics — Crash Data, Other Diagnostic Data (Sentry, scrubbed, no IP) | ✓ | ✗ | ✗ | App Functionality |
 App Tracking Transparency **шаардлагагүй** (tracking хийхгүй).
 
 ## 5. Listing

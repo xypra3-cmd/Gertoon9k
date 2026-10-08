@@ -9,6 +9,8 @@ const r = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 export default defineConfig({
   // React Compiler memoizes components and hooks at build time (no manual useMemo/useCallback).
   plugins: [react(), babel({ presets: [reactCompilerPreset()] }), tailwindcss()],
+  // Error reports name the deploy they came from (Netlify sets COMMIT_REF during the build).
+  define: { __APP_RELEASE__: JSON.stringify(process.env.COMMIT_REF?.slice(0, 12) ?? 'dev') },
   resolve: {
     alias: [
       { find: /^@\//, replacement: `${r('./src')}/` },

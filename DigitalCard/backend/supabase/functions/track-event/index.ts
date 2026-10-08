@@ -4,10 +4,11 @@ import { json, preflight, readJson } from '../_shared/http.ts';
 import { getUser, rpc } from '../_shared/db.ts';
 import { networkHash, visitorHash } from '../_shared/visitor.ts';
 import { allow } from '../_shared/ratelimit.ts';
+import { monitored } from '../_shared/monitor.ts';
 
 const EVENTS = new Set(['view', 'qr_open', 'link_click', 'contact_save']);
 
-Deno.serve(async (req) => {
+Deno.serve(monitored('track-event', async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== 'POST') return json(req, { error: 'method_not_allowed' }, 405);
@@ -33,4 +34,4 @@ Deno.serve(async (req) => {
   // rate_limited is reported as accepted (202) so clients do not retry.
   const code = status === 'ok' ? 200 : status === 'rate_limited' ? 202 : status === 'not_found' ? 404 : 400;
   return json(req, { status }, code);
-});
+}));

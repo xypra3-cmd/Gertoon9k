@@ -145,6 +145,51 @@ test('TAX-01: every paid invoice gets an e-barimt; a failed attempt is retried b
   assert.equal(p.ebarimt_attempts, 2);
 });
 
+// ---------------------------------------------------------------------------
+// Monitoring (OPS-01)
+// ---------------------------------------------------------------------------
+const mockState = async () => (await fetch(`${MOCK}/__mock/state`)).json();
+const health = async (headers = {}) => {
+  const res = await fetch(`${FN}/health`, { headers });
+  return { status: res.status, body: await res.json() };
+};
+
+test('OPS-01: health is public, answers without numbers, and the cron caller gets counts', async () => {
+  const pub = await health();
+  assert.equal(pub.status, 200, JSON.stringify(pub.body));
+  assert.deepEqual(pub.body, { ok: true, degraded: false });
+  const internal = await health({ 'x-cron-secret': CRON });
+  assert.deepEqual(internal.body, { ok: true, degraded: false, ebarimt_failed: 0, ebarimt_stuck: 0 });
+});
+
+test('OPS-01: a failed e-barimt is reported without personal data and turns health degraded until retried', async () => {
+  const sentBefore = (await mockState()).sentry.length;
+  const inv = await call('qpay-create-invoice', { token: basic.token, body: { plan_id: 'pro' } });
+  const pay = await paymentByInv(inv.body.sender_invoice_no);
+  await mockPay(pay.qpay_invoice_id, pay.amount_mnt);
+  await fetch(`${MOCK}/__mock/ebarimt-fail`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ times: 1 }) });
+  await call('qpay-callback', { query: `?inv=${pay.sender_invoice_no}` });
+
+  const reports = (await mockState()).sentry.slice(sentBefore);
+  const report = reports.find((r) => r.event.tags?.fn === 'ebarimt');
+  assert.ok(report, `ebarimt failure reported (got ${JSON.stringify(reports.map((r) => r.event.tags))})`);
+  assert.match(report.auth, /sentry_key=mocksentrykey/);
+  assert.equal(report.item.type, 'event');
+  assert.equal(report.event.extra.payment_id, pay.id, 'record id kept: it makes the error actionable');
+  for (const key of ['user', 'request', 'server_name', 'contexts']) assert.equal(report.event[key], undefined, `no ${key}`);
+  const text = JSON.stringify(report.event);
+  assert.doesNotMatch(text, /@demo\.mn|\b\d{1,3}(\.\d{1,3}){3}\b/, 'no e-mail or IP in the report');
+
+  const degraded = await health();
+  assert.equal(degraded.status, 503);
+  assert.deepEqual(degraded.body, { ok: true, degraded: true });
+  assert.equal((await health({ 'x-cron-secret': CRON })).body.ebarimt_failed, 1);
+
+  await call('qpay-reconcile', { headers: { 'x-cron-secret': CRON } });
+  assert.equal((await paymentByInv(inv.body.sender_invoice_no)).ebarimt_status, 'issued');
+  assert.equal((await health()).status, 200, 'healthy again after the retry');
+});
+
 test('PAY-04: underpaid invoice is not applied and is visible as failed', async () => {
   const inv = await call('qpay-create-invoice', { token: basic.token, body: { plan_id: 'pro' } });
   const pay = await paymentByInv(inv.body.sender_invoice_no);
@@ -333,7 +378,6 @@ test('storage: only own folder, ≤ 2 MB, jpeg/png/webp', async () => {
 // ---------------------------------------------------------------------------
 // ai-assist (Claude API mocked by the mock server)
 // ---------------------------------------------------------------------------
-const mockState = async () => (await fetch(`${MOCK}/__mock/state`)).json();
 
 test('ai-assist: requires login, validates task', async () => {
   assert.equal((await call('ai-assist', { body: { task: 'bio', input: { name: 'A' } } })).status, 401);

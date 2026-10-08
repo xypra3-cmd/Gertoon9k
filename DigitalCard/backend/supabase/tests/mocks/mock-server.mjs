@@ -1,4 +1,4 @@
-// Local mock for QPay v2 and Cloudflare Turnstile (used by tests/functions).
+// Local mock for QPay v2, Cloudflare Turnstile, Claude, e-barimt and Sentry ingest (used by tests/functions).
 // Run: node supabase/tests/mocks/mock-server.mjs   (listens on :54399)
 // Control endpoints (tests only):
 //   POST /__mock/pay    { invoice_id, amount }  → marks an invoice as PAID with that amount
@@ -13,6 +13,7 @@ let invoices = new Map(); // invoice_id → { amount, sender_invoice_no, paid: n
 let calls = { token: 0, invoice: 0, check: 0, turnstile: 0, ai: 0 };
 let ebarimtFail = 0; // next N e-barimt calls fail (retry tests)
 let lastAi = null; // last /v1/messages request body (tests assert on the shape)
+let sentry = []; // Sentry envelopes received (error reporting tests)
 
 const send = (res, status, body) => {
   res.writeHead(status, { 'Content-Type': 'application/json' });
@@ -121,6 +122,19 @@ const server = http.createServer(async (req, res) => {
     return send(res, 200, { success: token === TURNSTILE_PASS, 'error-codes': token === TURNSTILE_PASS ? [] : ['invalid-input-response'] });
   }
 
+  // Sentry ingest: POST /api/<project>/envelope/ — keeps the parsed event (header, item header, event).
+  const envelope = url.pathname.match(/^\/api\/(\d+)\/envelope\/?$/);
+  if (envelope) {
+    // The browser SDK posts cross-origin, like it does to sentry.io.
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'content-type');
+    if (req.method === 'OPTIONS') return send(res, 204, {});
+    const [header, item, event] = raw.split('\n').filter(Boolean).map((l) => JSON.parse(l));
+    sentry.push({ project: envelope[1], auth: req.headers['x-sentry-auth'] ?? null, header, item, event });
+    if (sentry.length > 50) sentry.shift();
+    return send(res, 200, { id: header?.event_id ?? null });
+  }
+
   if (url.pathname === '/__mock/pay') {
     const inv = invoices.get(body.invoice_id);
     if (!inv) return send(res, 404, { error: 'unknown invoice' });
@@ -131,10 +145,11 @@ const server = http.createServer(async (req, res) => {
     invoices = new Map();
     calls = { token: 0, invoice: 0, check: 0, turnstile: 0 };
     ebarimtFail = 0;
+    sentry = [];
     return send(res, 200, { ok: true });
   }
   if (url.pathname === '/__mock/state') {
-    return send(res, 200, { calls, invoices: Object.fromEntries(invoices), lastAi });
+    return send(res, 200, { calls, invoices: Object.fromEntries(invoices), lastAi, sentry });
   }
   return send(res, 404, { error: 'not found' });
 });

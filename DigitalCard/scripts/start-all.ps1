@@ -156,6 +156,9 @@ if (-not $openssl) {
   Ok 'Wallet туршилтын сертификат бэлэн (жинхэнэ iPhone хүлээж авахгүй — зөвхөн туршилт)'
 }
 
+# Алдааны мэдээг local mock руу (production-д SENTRY_DSN нь Edge Function secret)
+EnsureEnv ([ordered]@{ SENTRY_DSN = 'http://mocksentrykey@host.docker.internal:54399/1'; SENTRY_ENVIRONMENT = 'local' })
+
 # ---------------------------------------------------------------- 5. Backend
 Step 5 'Backend: Supabase + mock + migration'
 $devUp = Join-Path $PSScriptRoot 'dev-up-windows.ps1'

@@ -5,8 +5,9 @@ import { json, logEvent, preflight } from '../_shared/http.ts';
 import { rpc, select } from '../_shared/db.ts';
 import { checkInvoice } from '../_shared/qpay.ts';
 import { issueEbarimt } from '../_shared/ebarimt.ts';
+import { monitored, reportError } from '../_shared/monitor.ts';
 
-Deno.serve(async (req) => {
+Deno.serve(monitored('qpay-callback', async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
 
@@ -37,8 +38,8 @@ Deno.serve(async (req) => {
     if (result === 'paid') await issueEbarimt(payment.id);
     return json(req, { status: result }, 200);
   } catch (e) {
-    logEvent('qpay-callback', 'check_failed', { payment_id: payment.id, error: String((e as Error).message) });
+    await reportError('qpay-callback', e, { stage: 'check', payment_id: payment.id });
     // 200 so QPay does not hammer us; qpay-reconcile retries every 5 minutes.
     return json(req, { status: 'retry_later' }, 200);
   }
-});
+}));

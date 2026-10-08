@@ -88,12 +88,13 @@ backend/
 | `track-event` | Картын нээлт, QR, click (IP хадгалахгүй) |
 | `ai-assist` | Claude API: био, follow-up захидал (өдрийн квот DB-д) |
 | `wallet-pass` | Apple .pkpass, Google Wallet линк |
-| `_shared/` | Нийтлэг: `db.ts`, `http.ts` (CORS), `qpay.ts`, `ebarimt.ts`, `mailer.ts`, `ratelimit.ts`, `turnstile.ts`, `visitor.ts`, `zip.ts` |
+| `health` | Uptime шалгалт: DB, e-barimt гацсан эсэх (`MONITORING.md`) |
+| `_shared/` | Нийтлэг: `db.ts`, `http.ts` (CORS), `qpay.ts`, `ebarimt.ts`, `mailer.ts`, `ratelimit.ts`, `turnstile.ts`, `visitor.ts`, `zip.ts`, `monitor.ts` (алдааны мэдээ, `monitored()`), `scrub.ts` (хувийн мэдээлэл цэвэрлэгч) |
 
 ### 3.3 Тест (`backend/supabase/tests/`)
 - `database/01…13_*.test.sql` — pgTAP: квот, хугацаа дуусалт, тусгаарлалт (RLS), байгууллага, CRM, төлбөр, нууцлал, RPC, growth, nearby, hardening, эвент, e-barimt.
-- `functions/functions.test.mjs`, `wallet.test.mjs` — Edge Function-уудыг mock-той.
-- `mocks/mock-server.mjs` — QPay, Turnstile, Claude, e-barimt-ын хуурамч сервер (порт 54399).
+- `functions/functions.test.mjs`, `wallet.test.mjs` — Edge Function-уудыг mock-той; `monitor.test.mjs` — алдааны мэдээний unit тест (stack-гүй).
+- `mocks/mock-server.mjs` — QPay, Turnstile, Claude, e-barimt, Sentry ingest-ийн хуурамч сервер (порт 54399).
 
 ## 4. `packages/shared/` — нийтлэг код
 
@@ -106,6 +107,7 @@ backend/
 | `cardText.ts`, `format.ts` | Нэр, утас форматлах, урт нэрийн тохиргоо |
 | `plans.ts` | Багцын төрөл (үнэ БИШ — үнэ `plans` хүснэгтэд) |
 | `ics.ts`, `geohash.ts`, `errors.ts` | Календарь, nearby, алдааны код |
+| `scrub.ts` | Алдааны мэдээнээс хувийн мэдээлэл арилгах (`sanitizeEvent`) — вэб, мобайл |
 | `i18n/mn.json`, `en.json` | Нийтлэг орчуулга |
 
 Дэд замаар импортлоно: `@digitalcard/shared/vcard` (нийтийн картын bundle жижиг).
@@ -165,7 +167,7 @@ mobile/
 | Хавтас / файл | Юу | Команд |
 |---|---|---|
 | `api/critical.test.ts`, `high.test.ts` | API-ийн Critical/High тест (Vitest) | `npm run test:api` |
-| `e2e/*.spec.ts` | Playwright: бүрэн урсгал, загвар (snapshot), vCard/хэвлэх, growth, passkey, PWA, XSS, эрх, wallet | `npm run test:e2e` |
+| `e2e/*.spec.ts` | Playwright: бүрэн урсгал, загвар (snapshot), vCard/хэвлэх, growth, passkey, PWA, XSS, эрх, wallet, алдааны мэдээ (monitoring) | `npm run test:e2e` |
 | `mobile/flows/*.yaml` | Maestro: нэвтрэх, QR, скан, CRM, хугацаа дууссан, бүртгэл устгах | `maestro test qa/mobile/flows` |
 | `mobile/store-check.mjs` | **STORE-01** — апп-д үнэ/төлбөр байхгүйг шалгана | `npm run test:store` |
 | `load/*.js` | k6 ачааллын тест (нийтийн карт, апп хэрэглэгч) | `k6 run qa/load/public-card.js` |
@@ -179,7 +181,7 @@ mobile/
 | **Танилцуулга, хэрэглэгч** | `INTRODUCTION.md` (бүтээгдэхүүн), `USER_GUIDE.md` (гарын авлага), `PROJECT_OVERVIEW.md` |
 | **Бизнес** | `BUSINESS_PLAN.md` (маркетинг алхам, P&L), `finance/financial_model.xlsx` (Excel загвар), `finance/build_model.py`, `MARKETING_PLAN.md`, `COSTS.md`, `NAMING.md` |
 | **Судалгаа** | `COMPARATIVE_STUDY_2026.md` (албан ёсны холбоостой), `MARKET_RESEARCH_2026.md` (SWOT), `RESEARCH.md` (анхны) |
-| **Техник** | `LOGIC.md` (бизнес логик), `TECH_STACK.md`, `DECISIONS.md` (шийдвэрийн бүртгэл), `MIGRATIONS.md` (production deploy), `SCALING.md`, `ROADMAP.md`, `MOBILE_BUILD_WINDOWS.md`, `FOLDER_STRUCTURE.md` (энэ) |
+| **Техник** | `LOGIC.md` (бизнес логик), `TECH_STACK.md`, `DECISIONS.md` (шийдвэрийн бүртгэл), `MIGRATIONS.md` (production deploy), `MONITORING.md` (Sentry, uptime), `SCALING.md`, `ROADMAP.md`, `MOBILE_BUILD_WINDOWS.md`, `FOLDER_STRUCTURE.md` (энэ) |
 | **Аюулгүй байдал, хууль** | `AUDIT_2026-10.md` (системийн audit), `SECURITY_AUDIT.md`, `INCIDENT_RESPONSE.md`; хуулийн текст `web/src/legal/` |
 | **Store** | `store/ios.md`, `store/android.md` (тайлбар, privacy label, Data safety) |
 | **Зураг** | `screenshots/` (web-*, app-*) |

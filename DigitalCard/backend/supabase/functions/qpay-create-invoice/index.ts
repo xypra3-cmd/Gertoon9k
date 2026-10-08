@@ -4,6 +4,7 @@ import { env, json, logEvent, preflight, readJson } from '../_shared/http.ts';
 import { DbError, getUser, rpc } from '../_shared/db.ts';
 import { createInvoice } from '../_shared/qpay.ts';
 import { allow } from '../_shared/ratelimit.ts';
+import { monitored, reportError } from '../_shared/monitor.ts';
 
 interface Body {
   plan_id?: string;
@@ -20,7 +21,7 @@ interface Pending {
   description: string;
 }
 
-Deno.serve(async (req) => {
+Deno.serve(monitored('qpay-create-invoice', async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== 'POST') return json(req, { error: 'method_not_allowed' }, 405);
@@ -70,7 +71,7 @@ Deno.serve(async (req) => {
       urls: invoice.urls ?? [],
     });
   } catch (e) {
-    logEvent('qpay-create-invoice', 'qpay_failed', { payment_id: pending.payment_id, error: String((e as Error).message) });
+    await reportError('qpay-create-invoice', e, { stage: 'qpay', payment_id: pending.payment_id });
     return json(req, { error: 'qpay_unavailable' }, 502);
   }
-});
+}));

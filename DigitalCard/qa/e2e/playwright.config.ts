@@ -32,6 +32,9 @@ export default defineConfig({
       VITE_PUBLIC_BASE_URL: `http://localhost:${PORT}`,
       VITE_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
       VITE_DEMO_MODE: 'true',
+      // Error reports go to the mock's Sentry ingest (monitoring.spec.ts)
+      VITE_SENTRY_DSN: `http://mocksentrykey@127.0.0.1:54399/1`,
+      VITE_SENTRY_ENVIRONMENT: 'e2e',
     },
   },
 });

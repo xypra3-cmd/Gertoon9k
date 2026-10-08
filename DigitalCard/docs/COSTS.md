@@ -26,7 +26,7 @@
 | Имэйл (Resend) | Free (3,000/сар) **0₮** ✱ | Pro $20 ≈ **69k₮** ✱ | Follow-up, exchange мэдэгдэл |
 | AI (Claude API) | ≈ 30–100k₮ | ≈ 100–400k₮ | Өдрийн квот (Free 3 / Paid 100) DB-д → дээд хязгаартай. `AI_MODEL`-оор хямд загвар руу шилжиж болно |
 | Домэйн + store (сард хуваасан) | ≈ 50k₮ | ≈ 50k₮ | .mn 5 жил + .com + Apple + Google |
-| Мониторинг (Sentry) | 0₮ (free) | 0–90k₮ | |
+| Мониторинг (Sentry EU + UptimeRobot) | 0₮ (Developer багц ✱) | 0–90k₮ | EU бүс бүх багцад ижил үнэтэй. Хязгаарыг [sentry.io/pricing](https://sentry.io/pricing/)-оос шалга |
 | **Нийт** | **≈ 170–240k₮** | **≈ 390–810k₮** | |
 | Харьцуулах: орлого (MARKETING_PLAN) | 3 сарын MRR ≈ 1.1 сая₮ | 6 сарын MRR ≈ 4.0 сая₮ | Gross margin ≈ 89 % хэвээр |
 

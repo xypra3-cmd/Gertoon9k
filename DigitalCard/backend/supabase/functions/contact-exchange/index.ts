@@ -6,6 +6,7 @@ import { verifyTurnstile } from '../_shared/turnstile.ts';
 import { networkHash, visitorHash } from '../_shared/visitor.ts';
 import { allow } from '../_shared/ratelimit.ts';
 import { flushEmailQueue } from '../_shared/mailer.ts';
+import { monitored } from '../_shared/monitor.ts';
 
 interface Body {
   slug?: string;
@@ -21,7 +22,7 @@ interface Body {
 
 const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
-Deno.serve(async (req) => {
+Deno.serve(monitored('contact-exchange', async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== 'POST') return json(req, { error: 'method_not_allowed' }, 405);
@@ -63,4 +64,4 @@ Deno.serve(async (req) => {
   }
   const code = { not_found: 404, rate_limited: 429, owner_limit_reached: 409 }[result.status] ?? 400;
   return json(req, { status: result.status, owner_first_name: result.owner_first_name ?? null }, code);
-});
+}));

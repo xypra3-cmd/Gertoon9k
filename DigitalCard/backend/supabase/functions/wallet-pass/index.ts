@@ -5,6 +5,7 @@ import { json, logEvent, preflight, readJson, corsHeaders } from '../_shared/htt
 import { getUser, select } from '../_shared/db.ts';
 import { allow } from '../_shared/ratelimit.ts';
 import { appleConfig, buildApplePass, googleConfig, googleSaveUrl, type PassCard } from './wallet.ts';
+import { monitored } from '../_shared/monitor.ts';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const HEX = /^#[0-9a-f]{6}$/i;
@@ -22,7 +23,7 @@ interface CardRow {
   org: { brand_color: string | null } | null;
 }
 
-Deno.serve(async (req) => {
+Deno.serve(monitored('wallet-pass', async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== 'POST') return json(req, { error: 'method_not_allowed' }, 405);
@@ -68,4 +69,4 @@ Deno.serve(async (req) => {
   const url = await googleSaveUrl(card, google!, [web]);
   logEvent('wallet-pass', 'google_issued');
   return json(req, { url });
-});
+}));

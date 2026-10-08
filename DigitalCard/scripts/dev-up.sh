@@ -18,6 +18,9 @@ cd "$ROOT/backend"
 { [ -d supabase/functions/ai-assist/node_modules ] && [ -d supabase/functions/wallet-pass/node_modules ]; } || npm run functions:deps >/dev/null
 # Self-signed Wallet test chain (only fills empty values; real certificates are never overwritten)
 "$ROOT/scripts/dev-wallet-certs.sh" >/dev/null || true
+# config.toml reads SENTRY_* with env(): add the keys to an older .env (local mock DSN, never a real one)
+grep -q '^SENTRY_DSN=' supabase/.env || printf '\nSENTRY_DSN=http://mocksentrykey@host.docker.internal:54399/1\n' >> supabase/.env
+grep -q '^SENTRY_ENVIRONMENT=' supabase/.env || printf 'SENTRY_ENVIRONMENT=local\n' >> supabase/.env
 EXCLUDE="studio,logflare,vector,imgproxy,supavisor,realtime,postgres-meta"
 # A cold start can time out while Postgres boots, or skip the edge runtime: retry until healthy.
 for attempt in 1 2 3; do

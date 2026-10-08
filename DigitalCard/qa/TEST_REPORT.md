@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | Хувилбар (git) | салбар `claude/awesome-ramanujan-6j82t4`, энэ тайлантай commit |
-| Огноо | 2026-10-07 |
+| Огноо | 2026-10-08 |
 | Орчин | ☑ Local (Linux container) ☐ Staging ☐ Production |
 | Supabase | CLI 2.120 local stack (Postgres 17, Auth + passkey, Storage, Edge Runtime) |
 | Web build | Vite production build, `vite preview` :5173 |
@@ -60,6 +60,7 @@
 | WALLET-02 | High | Google Wallet JWT RS256 | **PASS** | functions wallet |
 | WALLET-UI | Medium | Хянах самбараас Wallet-д нэмэх | **PASS** | e2e/wallet |
 | PWA-01 | Medium | Суулгадаг, офлайн shell, API кэшгүй | **PASS** | e2e/pwa |
+| OPS-01 | High | Алдааны мэдээ хувийн мэдээлэлгүй (Edge + вэб), e-barimt алдаа → health 503 → reconcile → 200 | **PASS** | functions OPS-01 (2), monitor (5), shared scrub (11), e2e/monitoring |
 | OCR-01 | Medium | Офлайн OCR parser | **PASS** | shared unit (5) |
 | A11Y-01 | High | WCAG 2.2 AA: 10 хуудас × light/dark | **PASS** (0 зөрчил) | axe-core, AUDIT_2026-10 §3.3 |
 | PERF-01 | Medium | Нийтийн карт Slow 4G: LCP 2.05 с, CLS 0, JS 390 KB | **PASS** | Playwright perf, AUDIT_2026-10 §3.4 |
@@ -67,7 +68,7 @@
 | Load-app | — | 500 зэрэг нэвтэрсэн хэрэглэгч (≈5,000 бүртгэл), 2.8 мин, 86 569 хүсэлт: p95 ≤ **12 ms** бүх endpoint, алдаа **0 %** | **PASS** | qa/load/app-users.js, docs/SCALING.md |
 | Lighthouse | — | /c/:slug mobile: Performance 97, Accessibility 100, SEO 100 | **PASS** | web/README |
 
-Нийт автомат тест: pgTAP **170** · Edge Function **24** · API **39** · E2E **20** · unit **70** (shared 64, web 6) · STORE-01 (68 first-party файл) · TypeScript 7 typecheck · ESLint — **бүгд PASS**. Аудит: `docs/SECURITY_AUDIT.md`, `docs/AUDIT_2026-10.md`.
+Нийт автомат тест: pgTAP **170** · Edge Function **31** (integration 26 + monitor 5) · API **39** · E2E **21** · unit **81** (shared 75, web 6) · STORE-01 (76 first-party файл) · TypeScript 7 typecheck · ESLint — **бүгд PASS**. Аудит: `docs/SECURITY_AUDIT.md`, `docs/AUDIT_2026-10.md`.
 
 ## 2. Гараар шалгах шаардлагатай (энэ орчинд боломжгүй)
 | ID | Шалтгаан | Төлөв |
@@ -95,6 +96,8 @@
 | 7 | Medium | `expo-live-activity` ба `@bacons/apple-targets` iOS prebuild-д зөрчилдсөн | Засагдсан (өөрийн ActivityKit module) |
 | 8 | Medium | Шинэ trigger функц API-д нээлттэй үлдсэн (pgTAP 11 барьсан) | Засагдсан (0014) |
 | 9 | High | WCAG тодосгол (Tailwind 4 өнгө, dark горим) | Засагдсан (D-73) |
+| 10 | Medium | Цэвэрлэгч шахсан IPv6 (`fe80::1`, `::1`)-ийг алгасаж байсан | Засагдсан (`scrub.ts`, тест) |
+| 11 | Medium | Мобайлын native crash/session нь JS `beforeSend`-ийг тойрч install ID илгээх байсан | Унтраасан (D-76) |
 
 ## 4. Шийдвэр
 ☐ **GO** ☐ **NO-GO** — Critical тест бүгд PASS (local). Production GO-гийн өмнө §2-ын гарын шалгалт, staging дээрх давталт, PROJECT_OVERVIEW §11.3-ын checklist (ХХК, QPay production, домэйн, хуулийн баримт) шаардлагатай.

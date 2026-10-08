@@ -415,6 +415,9 @@ APPLE_WWDR_CERT_B64 = "env(APPLE_WWDR_CERT_B64)"
 GOOGLE_WALLET_ISSUER_ID = "env(GOOGLE_WALLET_ISSUER_ID)"
 GOOGLE_WALLET_SA_EMAIL = "env(GOOGLE_WALLET_SA_EMAIL)"
 GOOGLE_WALLET_SA_KEY_B64 = "env(GOOGLE_WALLET_SA_KEY_B64)"
+# Error reporting (docs/MONITORING.md); empty DSN = off
+SENTRY_DSN = "env(SENTRY_DSN)"
+SENTRY_ENVIRONMENT = "env(SENTRY_ENVIRONMENT)"
 
 [analytics]
 enabled = false
@@ -467,4 +470,6 @@ verify_jwt = false
 [functions.followup-digest]
 verify_jwt = false
 [functions.org-invite]
+verify_jwt = false
+[functions.health]
 verify_jwt = false

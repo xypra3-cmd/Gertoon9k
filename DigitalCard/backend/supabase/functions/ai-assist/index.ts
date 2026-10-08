@@ -6,6 +6,7 @@ import { json, logEvent, preflight, readJson } from '../_shared/http.ts';
 import { DbError, getUser, rpc } from '../_shared/db.ts';
 import { TASKS, type Task } from './tasks.ts';
 import { allow } from '../_shared/ratelimit.ts';
+import { monitored, reportError } from '../_shared/monitor.ts';
 
 const MODEL = Deno.env.get('AI_MODEL') || 'claude-opus-5-5';
 const MAX_IMAGE_BASE64 = 5_500_000; // ≈ 4 MB image
@@ -23,7 +24,7 @@ function anthropic(): Anthropic {
   return client;
 }
 
-Deno.serve(async (req) => {
+Deno.serve(monitored('ai-assist', async (req) => {
   const pre = preflight(req);
   if (pre) return pre;
   if (req.method !== 'POST') return json(req, { error: 'method_not_allowed' }, 405);
@@ -86,7 +87,9 @@ Deno.serve(async (req) => {
   } catch (e) {
     await rpc('refund_ai_credit', { p_user: user.id }).catch(() => {});
     const status = e instanceof Anthropic.APIError ? e.status : undefined;
-    logEvent('ai-assist', 'failed', { task, status: status ?? 'error' });
+    // Rate limits / overload are expected and only logged; anything else is a bug or an outage.
+    if (status === 429 || status === 529) logEvent('ai-assist', 'failed', { task, status });
+    else await reportError('ai-assist', e, { task, status: status ?? 'error' });
     return json(req, { error: 'ai_unavailable' }, 502);
   }
-});
+}));

@@ -52,6 +52,7 @@
 | PWA-01 | Manifest, icon, service worker, офлайн shell, API хариу кэшлэхгүй | `e2e/pwa.spec.ts` |
 | OCR-01 | Офлайн OCR parser: монгол/латин карт, «Б.Болд», +976 | shared unit `cardText.test.ts` |
 | A11Y-01 | WCAG 2.2 AA (axe-core): 10 хуудас × light/dark = 0 зөрчил | AUDIT_2026-10.md §3.3 (скрипт) |
+| OPS-01 | Алдааны мэдээ (Edge, вэб): имэйл/утас/IP/токен цэвэрлэгдсэн, user/IP/breadcrumb/query байхгүй; DSN-гүй бол юу ч илгээхгүй; `health` нь DB болон e-barimt-ыг шалгаж, нийтэд тоо харуулахгүй | functions OPS-01 + `monitor.test.mjs`, shared `scrub.test.ts`, `e2e/monitoring.spec.ts` |
 
 ## 4. Гараар шалгах (жинхэнэ төхөөрөмж)
 | ID | Алхам | Хүлээгдэх |

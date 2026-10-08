@@ -58,6 +58,8 @@ jobs:
           CRON_SECRET=local-cron-secret
           ANTHROPIC_API_KEY=ci-mock
           ANTHROPIC_BASE_URL=http://host.docker.internal:54399
+          SENTRY_DSN=http://mocksentrykey@host.docker.internal:54399/1
+          SENTRY_ENVIRONMENT=ci
           ENV
       - name: Wallet test certificates (self-signed, generated per run — never real keys)
         run: scripts/dev-wallet-certs.sh

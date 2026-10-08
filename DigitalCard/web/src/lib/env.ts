@@ -10,6 +10,11 @@ export const env = {
   demoMode: import.meta.env.VITE_DEMO_MODE === 'true',
   /** Supabase Auth bot protection (Turnstile) enabled in the dashboard → send captchaToken on sign-up. */
   authCaptcha: import.meta.env.VITE_AUTH_CAPTCHA === 'true',
+  /** Sentry DSN (public by design). Empty = error reporting off. */
+  sentryDsn: (import.meta.env.VITE_SENTRY_DSN as string | undefined) ?? '',
+  sentryEnvironment: (import.meta.env.VITE_SENTRY_ENVIRONMENT as string | undefined) ?? 'production',
+  /** Build id: Netlify's COMMIT_REF (vite.config.ts), "dev" locally. */
+  release: __APP_RELEASE__,
 };
 
 export const functionsUrl = `${env.supabaseUrl}/functions/v1`;
