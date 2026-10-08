@@ -24,7 +24,20 @@ if (-not $mockUp) { Start-Process -WindowStyle Minimized node 'supabase\tests\mo
 # Компьютерийн ANTHROPIC_* / TLS хувьсагч edge runtime руу орохгүй байх (supabase/.env-ийг давж бичдэг)
 foreach ($v in 'ANTHROPIC_API_KEY','ANTHROPIC_BASE_URL','SSL_CERT_FILE','DENO_CERT') { Remove-Item "Env:$v" -ErrorAction SilentlyContinue }
 
-supabase start -x studio,logflare,vector,imgproxy,supavisor,realtime,postgres-meta
+# Docker Desktop асаагүй бол асааж, daemon бэлэн болтол хүлээнэ (≤ 3 мин)
+docker info *> $null
+if ($LASTEXITCODE -ne 0) {
+  $dd = Join-Path $env:ProgramFiles 'Docker\Docker\Docker Desktop.exe'
+  if (Test-Path $dd) { Write-Host '… Docker Desktop-ийг асааж байна'; Start-Process $dd }
+  for ($i = 0; $i -lt 36; $i++) { Start-Sleep 5; docker info *> $null; if ($LASTEXITCODE -eq 0) { break } }
+}
+
+# Docker дөнгөж асахад хуучин контейнерууд "starting" төлөвтэй байж supabase start унадаг → дахин оролдоно
+for ($try = 1; $try -le 3; $try++) {
+  supabase start -x studio,logflare,vector,imgproxy,supavisor,realtime,postgres-meta
+  if ($LASTEXITCODE -eq 0) { break }
+  if ($try -lt 3) { Write-Host "… supabase start дахин оролдож байна ($try/3)"; Start-Sleep 15 }
+}
 if ($LASTEXITCODE -ne 0) { Write-Host "`nsupabase start амжилтгүй (дээрх алдааг үз). Docker Desktop асаалттай эсэхийг шалгана уу." -ForegroundColor Red; exit 1 }
 if ($Reset) {
   supabase db reset
